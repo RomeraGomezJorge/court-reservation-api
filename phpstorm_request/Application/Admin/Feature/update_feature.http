@@ -1,0 +1,8 @@
+PUT {{base_url}}/api/features/1
+Authorization: Bearer {{token_admin_user}}
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "Service 2"
+}

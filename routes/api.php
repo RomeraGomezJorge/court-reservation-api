@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\FeatureController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\ServiceController;
 use Illuminate\Http\Request;
@@ -15,4 +16,5 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->group(function (): void {
     Route::apiResource('services', ServiceController::class);
+    Route::apiResource('features', FeatureController::class);
 });
