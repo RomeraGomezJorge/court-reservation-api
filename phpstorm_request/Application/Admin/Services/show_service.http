@@ -1,0 +1,5 @@
+### Show Event
+GET {{base_url}}/api/services/1
+Authorization: Bearer {{token_admin_user}}
+Accept: application/json
+

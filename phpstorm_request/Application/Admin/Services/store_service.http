@@ -1,0 +1,8 @@
+POST {{base_url}}/api/services
+Authorization: Bearer {{token_admin_user}}
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "Service 2"
+}
