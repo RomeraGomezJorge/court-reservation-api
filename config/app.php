@@ -125,4 +125,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+
+    /*
+|--------------------------------------------------------------------------
+| SPA URL
+|--------------------------------------------------------------------------
+|
+| This value is the base url of your spa application. This value is used when the
+| framework needs to redirect to the spa application.
+|
+*/
+
+    'spa_url' => env('SPA_URL'),
 ];
