@@ -22,7 +22,7 @@ Route::put('reset-password', [PasswordResetController::class, 'update'])->name('
 
 Route::middleware(['auth:sanctum'])->group(function (): void {
     Route::put('users/{user}/change-password', [UserController::class, 'changePassword']);
-    Route::apiResource('users', UserController::class)->except('store');
+    Route::apiResource('users', UserController::class);
     Route::apiResource('services', ServiceController::class);
     Route::apiResource('features', FeatureController::class);
     Route::get('profile', [ProfileController::class, 'show']);
