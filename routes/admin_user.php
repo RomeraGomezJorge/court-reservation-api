@@ -5,7 +5,9 @@ declare(strict_types=1);
 use App\Http\Controllers\Admin\FeatureController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\PasswordResetController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,11 +19,11 @@ Route::post('login', [LoginController::class, 'login']);
 Route::post('forgot-password', [PasswordResetController::class, 'store'])->name('admin.password.email');
 Route::put('reset-password', [PasswordResetController::class, 'update'])->name('admin.password.reset');
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
 
 Route::middleware(['auth:sanctum'])->group(function (): void {
+    Route::put('users/{user}/change-password', [UserController::class, 'changePassword']);
+    Route::apiResource('users', UserController::class)->except('store');
     Route::apiResource('services', ServiceController::class);
     Route::apiResource('features', FeatureController::class);
+    Route::get('profile', [ProfileController::class, 'show']);
 });

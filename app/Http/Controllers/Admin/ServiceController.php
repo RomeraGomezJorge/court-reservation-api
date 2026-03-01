@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\Admin\Service\StoreServiceRequest;
-use App\Http\Requests\Admin\Service\UpdateServiceRequest;
+use App\Http\Requests\Admin\User\StoreServiceRequest;
+use App\Http\Requests\Admin\User\UpdateServiceRequest;
 use App\Http\Resources\Admin\ServiceResource;
 use App\Models\Service;
 use Symfony\Component\HttpFoundation\Response;
