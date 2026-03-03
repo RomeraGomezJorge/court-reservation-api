@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\Service;
 
+use App\Models\Service;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -17,8 +18,11 @@ final class UpdateServiceRequest extends FormRequest
     /** @return array<string, array<ValidationRule|string>> */
     public function rules(): array
     {
+        /** @var Service $service */
+        $service = $this->route('service');
+
         return [
-            'name' => ['required', 'unique:services,name,'.$this->service->id, 'max:255'],
+            'name' => ['required', 'unique:services,name,'.$service->id, 'max:255'],
         ];
     }
 }
