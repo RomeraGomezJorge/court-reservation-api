@@ -13,6 +13,7 @@ return new class extends Migration
         Schema::create('clubs', function (Blueprint $table): void {
             $table->id();
             $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('address_city');
             $table->string('address_country');

@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Club\LoginController;
 use App\Http\Controllers\Club\PasswordResetController;
+use App\Http\Controllers\Club\RegisterClubController;
 
+Route::post('register', [RegisterClubController::class, 'store']);
 Route::post('login', [LoginController::class, 'login']);
 
 /*=============================================

@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Carbon\CarbonInterface;
 use Database\Factories\ClubFactory;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -16,6 +17,7 @@ use Override;
 /**
  * @property-read string $id
  * @property-read string $email
+ * @property-read CarbonInterface|null $email_verified_at
  * @property-read string $password
  * @property-read string $address_city
  * @property-read string $address_country
@@ -40,6 +42,7 @@ use Override;
 final class Club extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens;
+    use MustVerifyEmailTrait;
 
     /** @use HasFactory<ClubFactory> */
     use HasFactory;
@@ -80,6 +83,7 @@ final class Club extends Authenticatable implements MustVerifyEmail
         return [
             'id' => 'string',
             'email' => 'string',
+            'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'address_city' => 'string',
             'address_country' => 'string',
