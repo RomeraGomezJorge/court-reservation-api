@@ -18,10 +18,27 @@ Route::post('login', [LoginController::class, 'login']);
 Route::post('forgot-password', [PasswordResetController::class, 'store'])->name('admin.password.email');
 Route::put('reset-password', [PasswordResetController::class, 'update'])->name('admin.password.reset');
 
+// TODO: crear middleware para que solo pueda acceder los admins
 Route::middleware(['auth:sanctum'])->group(function (): void {
+
+    /*=============================================
+       ADMIN USERS
+    =============================================*/
     Route::put('users/{user}/change-password', [UserController::class, 'changePassword']);
     Route::apiResource('users', UserController::class);
+
+    /*=============================================
+       SERVICES
+    =============================================*/
     Route::apiResource('services', ServiceController::class);
+
+    /*=============================================
+       FEATURES
+    =============================================*/
     Route::apiResource('features', FeatureController::class);
+
+    /*=============================================
+        PROFILE
+    =============================================*/
     Route::get('profile', [ProfileController::class, 'show']);
 });

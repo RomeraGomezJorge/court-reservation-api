@@ -1,0 +1,13 @@
+POST {{base_url}}/api/club/login
+Content-Type: application/json
+Accept: application/json
+
+{
+    "email": "admin9@admin.com",
+    "password": "Admin123456!"
+}
+> {% client.global.set("token_club_user", response.body); %}
+
+
+###
+
