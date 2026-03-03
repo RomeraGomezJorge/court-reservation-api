@@ -4,11 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Admin;
 
+use App\Models\Feature;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin Feature
+ */
 final class FeatureResource extends JsonResource
 {
+    public function __construct(Feature $resource)
+    {
+        parent::__construct($resource);
+    }
+
     /**
      * Transform the resource into an array.
      *

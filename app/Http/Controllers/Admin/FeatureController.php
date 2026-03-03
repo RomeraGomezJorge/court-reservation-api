@@ -8,11 +8,12 @@ use App\Http\Requests\Admin\Feature\StoreFeatureRequest;
 use App\Http\Requests\Admin\Feature\UpdateFeatureRequest;
 use App\Http\Resources\Admin\FeatureResource;
 use App\Models\Feature;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 final class FeatureController
 {
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         return FeatureResource::collection(Feature::all());
     }

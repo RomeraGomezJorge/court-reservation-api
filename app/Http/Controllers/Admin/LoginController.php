@@ -23,8 +23,6 @@ final class LoginController
             abort(403, __('auth.failed'));
         }
 
-
-
         return $user->createToken($user->email)->plainTextToken;
     }
 }

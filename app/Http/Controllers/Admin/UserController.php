@@ -9,11 +9,12 @@ use App\Http\Requests\Admin\User\StoreUserRequest;
 use App\Http\Requests\Admin\User\UpdateUserRequest;
 use App\Http\Resources\Admin\UserResource;
 use App\Models\User;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 final class UserController
 {
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         return UserResource::collection(User::query()->get());
     }

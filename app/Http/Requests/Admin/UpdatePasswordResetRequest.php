@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -14,6 +15,7 @@ final class UpdatePasswordResetRequest extends FormRequest
         return true;
     }
 
+    /** @return array<string, array<ValidationRule|string>> */
     public function rules(): array
     {
         return [

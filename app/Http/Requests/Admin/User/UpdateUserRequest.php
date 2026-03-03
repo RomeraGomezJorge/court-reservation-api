@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\User;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class UpdateUserRequest extends FormRequest
@@ -13,6 +14,7 @@ final class UpdateUserRequest extends FormRequest
         return true;
     }
 
+    /** @return array<string, array<ValidationRule|string>> */
     public function rules(): array
     {
         return [

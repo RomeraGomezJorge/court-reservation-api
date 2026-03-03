@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class StorePasswordResetRequest extends FormRequest
@@ -13,6 +14,7 @@ final class StorePasswordResetRequest extends FormRequest
         return true; // Ajusta si necesitas control de autorización
     }
 
+    /** @return array<string, array<ValidationRule|string>> */
     public function rules(): array
     {
         return [

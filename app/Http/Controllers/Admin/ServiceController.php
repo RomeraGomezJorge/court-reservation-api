@@ -8,11 +8,12 @@ use App\Http\Requests\Admin\Service\StoreServiceRequest;
 use App\Http\Requests\Admin\Service\UpdateServiceRequest;
 use App\Http\Resources\Admin\ServiceResource;
 use App\Models\Service;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ServiceController
 {
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         return ServiceResource::collection(Service::all());
     }
