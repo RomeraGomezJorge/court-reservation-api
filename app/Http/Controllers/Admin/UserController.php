@@ -55,6 +55,10 @@ final class UserController
 
     public function destroy(User $user): void
     {
+        if (User::query()->count() === 1) {
+            abort(400, 'No se puede eliminar el último usuario');
+        }
+
         $user->delete();
     }
 }
