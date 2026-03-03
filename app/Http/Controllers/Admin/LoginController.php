@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\Admin\LoginRequest;
 use App\Models\User;
-use Hash;
+use Illuminate\Support\Facades\Hash;
 
 final class LoginController
 {

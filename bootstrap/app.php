@@ -5,10 +5,9 @@ declare(strict_types=1);
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -28,12 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
 
         // Handle HTTP exceptions
-        $exceptions->render(function (HttpExceptionInterface $e) {
-            return response()->json([
-                'messages' => [$e->getMessage()],
-                'code' => $e->getStatusCode(),
-            ], $e->getStatusCode());
-        });
+        $exceptions->render(fn (HttpExceptionInterface $e) => response()->json([
+            'messages' => [$e->getMessage()],
+            'code' => $e->getStatusCode(),
+        ], $e->getStatusCode()));
 
         // Handle validation exceptions
         $exceptions->render(function (ValidationException $e) {

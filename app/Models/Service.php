@@ -8,6 +8,7 @@ use Carbon\CarbonInterface;
 use Database\Factories\ServicerFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 /**
  * @property-read string $id
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */
-class Service extends Model
+final class Service extends Model
 {
     /** @use HasFactory<ServicerFactory> */
     use HasFactory;
@@ -23,6 +24,7 @@ class Service extends Model
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'name',
     ];

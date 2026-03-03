@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
-class PasswordResetController
+final class PasswordResetController
 {
     public function store(StorePasswordResetRequest $request): Response
     {

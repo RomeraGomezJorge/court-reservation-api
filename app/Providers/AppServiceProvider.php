@@ -19,11 +19,11 @@ final class AppServiceProvider extends ServiceProvider
     {
         JsonResource::withoutWrapping();
 
-        ResetPassword::createUrlUsing(function ($notifiable, $token) {
+        ResetPassword::createUrlUsing(function ($notifiable, string $token): string {
             $url = '';
             $currentRoute = request()->route()->getName();
             if ($currentRoute === 'admin.password.email') {
-                $url = config()->string('app.spa_url').'/#/auth/reset-password/'.$token;
+                return config()->string('app.spa_url').'/#/auth/reset-password/'.$token;
             }
 
             return $url;

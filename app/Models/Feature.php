@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Database\Factories\FeatureFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
-class Feature extends Model
+final class Feature extends Model
 {
     /** @use HasFactory<FeatureFactory> */
     use HasFactory;
@@ -14,6 +17,7 @@ class Feature extends Model
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'name',
     ];
