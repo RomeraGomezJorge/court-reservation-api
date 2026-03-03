@@ -42,7 +42,7 @@ final class UserController
     public function changePassword(ChangeUserPasswordRequest $request, User $user): Response
     {
         $user->update([
-            'password' => bcrypt($request->password),
+            'password' => bcrypt((string) $request->password),
         ]);
 
         return new Response(status: 204);

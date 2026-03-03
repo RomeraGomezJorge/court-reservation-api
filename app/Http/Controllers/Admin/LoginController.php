@@ -19,7 +19,7 @@ final class LoginController
             abort(403, __('auth.failed'));
         }
 
-        if (! Hash::check($request->password, $user->password)) {
+        if (! Hash::check((string) $request->password, $user->password)) {
             abort(403, __('auth.failed'));
         }
 

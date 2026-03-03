@@ -34,7 +34,7 @@ final class PasswordResetController
                 'password_confirmation' => $request->password_confirmation,
                 'token' => $request->token,
             ],
-            function ($user, $password): void {
+            function (User $user, string $password): void {
                 $user->forceFill(['password' => $password])->setRememberToken(Str::random(60));
                 $user->save();
                 event(new PasswordReset($user));

@@ -21,7 +21,7 @@ final class AppServiceProvider extends ServiceProvider
 
         ResetPassword::createUrlUsing(function ($notifiable, string $token): string {
             $url = '';
-            $currentRoute = request()->route()->getName();
+            $currentRoute = request()->route()?->getName();
             if ($currentRoute === 'admin.password.email') {
                 return config()->string('app.spa_url').'/#/auth/reset-password/'.$token;
             }
