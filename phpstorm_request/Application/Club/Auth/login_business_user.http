@@ -3,8 +3,8 @@ Content-Type: application/json
 Accept: application/json
 
 {
-    "email": "admin9@admin.com",
-    "password": "Admin123456!"
+    "email": "club.demo@example.com",
+    "password": "ClubDemo12345!"
 }
 > {% client.global.set("token_club_user", response.body); %}
 

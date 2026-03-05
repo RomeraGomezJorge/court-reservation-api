@@ -13,7 +13,7 @@ final class LoginController
     public function login(LoginRequest $request): string
     {
         /** @var Club $club */
-        $club = User::query()->where('email', $request->email)->firstOrFail();
+        $club = Club::query()->where('email', $request->email)->firstOrFail();
 
         return $club->createToken($club->email)->plainTextToken;
     }

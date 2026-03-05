@@ -1,0 +1,26 @@
+POST {{base_url}}/api/club/register
+Content-Type: application/json
+Accept: application/json
+
+{
+    "email": "club.demo@example.com",
+    "password": "ClubDemo12345!",
+    "password_confirmation": "ClubDemo12345!",
+    "address_city": "Santiago",
+    "address_country": "Chile",
+    "address_postal_code": "8320000",
+    "address_state": "Region Metropolitana",
+    "address_street": "Av. Providencia 1234",
+    "description": "Club deportivo con canchas de futbol y padel",
+    "facebook_url": "https://facebook.com/club.demo",
+    "instagram_url": "https://instagram.com/club.demo",
+    "latitude": -33.4489,
+    "longitude": -70.6693,
+    "operating_hours_additional_info": "Lunes a domingo de 08:00 a 23:00",
+    "organization_name": "Club Deportivo Demo",
+    "phone_number": "+56912345678",
+    "reservation_policies_and_payment_terms": "Pago anticipado del 50% y cancelacion hasta 24 horas antes",
+    "twitter_url": "https://x.com/club.demo",
+    "whatsapp_number": "+56912345678",
+    "is_active": true
+}

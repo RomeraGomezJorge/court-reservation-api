@@ -16,8 +16,6 @@ final class PasswordResetController
 {
     public function store(StorePasswordResetRequest $request): Response
     {
-        User::query()->where('email', $request->email)->firstOrFail();
-
         Password::sendResetLink(['email' => $request->email]);
 
         return new Response(status: 201);
