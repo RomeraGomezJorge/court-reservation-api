@@ -18,7 +18,7 @@ final class StorePasswordResetRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email', 'exists:clubs,email'],
+            'email' => ['required', 'email', 'exists:club_users,email'],
         ];
     }
 }

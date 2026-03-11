@@ -6,8 +6,7 @@ namespace App\Http\Controllers\Club;
 
 use App\Http\Requests\Club\StorePasswordResetRequest;
 use App\Http\Requests\Club\UpdatePasswordResetRequest;
-use App\Models\Club;
-use App\Models\User;
+use App\Models\ClubUser;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -26,7 +25,7 @@ final class PasswordResetController
 
     public function update(UpdatePasswordResetRequest $request): Response
     {
-        Club::query()->where('email', $request->email)->firstOrFail();
+        ClubUser::query()->where('email', $request->email)->firstOrFail();
 
         Password::reset(
             [
@@ -35,10 +34,10 @@ final class PasswordResetController
                 'password_confirmation' => $request->password_confirmation,
                 'token' => $request->token,
             ],
-            function (Club $club, string $password): void {
-                $club->forceFill(['password' => $password])->setRememberToken(Str::random(60));
-                $club->save();
-                event(new PasswordReset($club));
+            function (ClubUser $clubUser, string $password): void {
+                $clubUser->forceFill(['password' => $password])->setRememberToken(Str::random(60));
+                $clubUser->save();
+                event(new PasswordReset($clubUser));
             },
         );
 

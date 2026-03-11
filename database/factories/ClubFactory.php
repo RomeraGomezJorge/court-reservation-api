@@ -5,24 +5,21 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Club;
+use App\Models\ClubUser;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
 
 /**
  * @extends Factory<Club>
  */
 final class ClubFactory extends Factory
 {
-    private static ?string $password = null;
-
     /**
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'email' => fake()->unique()->safeEmail(),
-            'password' => self::$password ??= Hash::make('password'),
+            'club_user_id' => ClubUser::factory(),
             'address_city' => fake()->city(),
             'address_country' => fake()->country(),
             'address_postal_code' => fake()->postcode(),

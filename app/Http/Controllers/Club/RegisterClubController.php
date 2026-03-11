@@ -6,17 +6,17 @@ namespace App\Http\Controllers\Club;
 
 use App\Http\Requests\Club\StoreRegisterClubRequest;
 use App\Http\Requests\Club\VerifyEmailRequest;
-use App\Models\Club;
+use App\Models\ClubUser;
 use Symfony\Component\HttpFoundation\Response;
 
 final class RegisterClubController
 {
     public function store(StoreRegisterClubRequest $request): Response
     {
-        /** @var Club $club */
-        $club = Club::query()->create($request->validated());
+        /** @var ClubUser $clubUser */
+        $clubUser = ClubUser::query()->create($request->validated());
 
-        $club->sendEmailVerificationNotification();
+        $clubUser->sendEmailVerificationNotification();
 
         return new Response(status: 201);
     }
@@ -24,22 +24,22 @@ final class RegisterClubController
     public function verifyEmail(VerifyEmailRequest $request)
     {
 
-        /** @var Club|null $club */
-        $club = Club::query()->find($request->id);
+        /** @var ClubUser|null $clubUser */
+        $clubUser = ClubUser::query()->find($request->id);
 
-        if ($club === null) {
+        if ($clubUser === null) {
             return redirect(config('app.spa_url').'/#/auth/email-verification/unsuccessful');
         }
 
-        if (! hash_equals($request->hash, sha1($club->getEmailForVerification()))) {
+        if (! hash_equals($request->hash, sha1($clubUser->getEmailForVerification()))) {
             return redirect(config('app.spa_url').'/#/auth/email-verification/unsuccessful');
         }
 
-        if ($club->hasVerifiedEmail()) {
+        if ($clubUser->hasVerifiedEmail()) {
             return redirect(config('app.spa_url').'/#/auth/email-verification/unsuccessful');
         }
 
-        $club->markEmailAsVerified();
+        $clubUser->markEmailAsVerified();
 
         return redirect(config('app.spa_url').'/#/auth/email-verification/successful');
     }

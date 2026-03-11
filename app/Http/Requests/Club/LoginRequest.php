@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Club;
 
-use App\Models\Club;
-use App\Models\User;
+use App\Models\ClubUser;
 use Hash;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -45,9 +44,9 @@ final class LoginRequest extends FormRequest
                     return;
                 }
 
-                $club = Club::query()->where('email', $this->email)->first();
+                $clubUser = ClubUser::query()->where('email', $this->email)->first();
 
-                if ($club === null || ! Hash::check($this->password, $club->password)) {
+                if ($clubUser === null || ! Hash::check($this->password, $clubUser->password)) {
                     $validator->errors()->add(
                         'password',
                         __('auth.failed')
@@ -56,7 +55,7 @@ final class LoginRequest extends FormRequest
                     return;
                 }
 
-                if (! $club->hasVerifiedEmail()) {
+                if (! $clubUser->hasVerifiedEmail()) {
                     $validator->errors()->add(
                         'email',
                         __('auth.email_not_verified')

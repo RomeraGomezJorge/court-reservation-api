@@ -18,8 +18,7 @@ Route::post('login', [LoginController::class, 'login']);
 Route::post('forgot-password', [PasswordResetController::class, 'store'])->name('admin.password.email');
 Route::put('reset-password', [PasswordResetController::class, 'update'])->name('admin.password.reset');
 
-// TODO: crear middleware para que solo pueda acceder los admins
-Route::middleware(['auth:sanctum'])->group(function (): void {
+Route::middleware(['auth:sanctum', 'admin_user'])->group(function (): void {
 
     /*=============================================
        ADMIN USERS

@@ -70,7 +70,7 @@ return [
         ],
         'clubs' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', \App\Models\Club::class),
+            'model' => env('AUTH_MODEL', \App\Models\ClubUser::class),
         ],
 
         // 'users' => [

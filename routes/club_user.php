@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Club\ClubOnboardingController;
 use App\Http\Controllers\Club\LoginController;
 use App\Http\Controllers\Club\PasswordResetController;
 use App\Http\Controllers\Club\ProfileController;
@@ -21,12 +22,16 @@ Route::post('login', [LoginController::class, 'login']);
 Route::post('forgot-password', [PasswordResetController::class, 'store'])->name('club.password.email');
 Route::put('reset-password', [PasswordResetController::class, 'update'])->name('club.password.reset');
 
-// TODO: crear middleware para que solo pueda acceder los admins
-Route::middleware(['auth:sanctum'])->group(function (): void {
+Route::middleware(['auth:sanctum', 'club_user'])->group(function (): void {
 
     /*=============================================
         PROFILE
     =============================================*/
     Route::get('profile', [ProfileController::class, 'show']);
+
+    /*=============================================
+        CLUB ONBOARDING
+    =============================================*/
+    Route::post('clubs', [ClubOnboardingController::class, 'store']);
 
 });

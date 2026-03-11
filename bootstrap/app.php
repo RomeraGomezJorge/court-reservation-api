@@ -26,7 +26,10 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'admin_user' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'club_user' => \App\Http\Middleware\EnsureUserIsClubUser::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 
