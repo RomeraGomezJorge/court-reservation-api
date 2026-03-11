@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\Club;
+use App\Models\ClubUser;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -29,7 +30,7 @@ final class AppServiceProvider extends ServiceProvider
         ResetPassword::createUrlUsing(function ($notifiable, string $token): string {
 
             $routeName = match (true) {
-                $notifiable instanceof Club => 'club',
+                $notifiable instanceof ClubUser => 'club',
                 $notifiable instanceof User => 'admin',
                 default => throw new RuntimeException('Usuario no soportado para restablecimiento de contraseña'),
             };
@@ -40,7 +41,7 @@ final class AppServiceProvider extends ServiceProvider
         VerifyEmail::createUrlUsing(function ($notifiable) {
 
             $routeName = match (true) {
-                $notifiable instanceof Club => 'verification.club.verify',
+                $notifiable instanceof ClubUser => 'verification.club.verify',
                 $notifiable instanceof User => 'verification.verify',
                 default => throw new RuntimeException('Usuario no soportado para verificación de email'),
             };

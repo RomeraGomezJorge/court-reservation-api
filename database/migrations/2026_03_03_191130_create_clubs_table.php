@@ -20,18 +20,18 @@ return new class extends Migration
             $table->string('address_postal_code');
             $table->string('address_state');
             $table->string('address_street');
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->string('facebook_url')->nullable();
             $table->string('instagram_url')->nullable();
-            $table->string('latitude');
-            $table->string('longitude');
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
             $table->string('operating_hours_additional_info')->nullable();
             $table->string('organization_name')->unique();
             $table->string('phone_number')->nullable();
-            $table->string('reservation_policies_and_payment_terms');
+            $table->string('reservation_policies_and_payment_terms')->nullable();
             $table->string('twitter_url')->nullable();
             $table->string('whatsapp_number')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active');
             $table->timestamps();
         });
     }

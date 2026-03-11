@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Club\ClubOnboardingController;
+use App\Http\Controllers\Club\ClubController;
 use App\Http\Controllers\Club\LoginController;
 use App\Http\Controllers\Club\PasswordResetController;
 use App\Http\Controllers\Club\ProfileController;
-use App\Http\Controllers\Club\RegisterClubController;
+use App\Http\Controllers\Club\RegisterClubUserController;
 
 /*=============================================
        REGISTER MANAGEMENT
 =============================================*/
-Route::post('register', [RegisterClubController::class, 'store']);
-Route::get('verify-email', [RegisterClubController::class, 'verifyEmail'])->name('verification.club.verify');
+Route::post('register', [RegisterClubUserController::class, 'store']);
+Route::get('verify-email', [RegisterClubUserController::class, 'verifyEmail'])->name('verification.club.verify');
 
 Route::post('login', [LoginController::class, 'login']);
 
@@ -22,7 +22,7 @@ Route::post('login', [LoginController::class, 'login']);
 Route::post('forgot-password', [PasswordResetController::class, 'store'])->name('club.password.email');
 Route::put('reset-password', [PasswordResetController::class, 'update'])->name('club.password.reset');
 
-Route::middleware(['auth:sanctum', 'club_user'])->group(function (): void {
+Route::middleware(['auth:sanctum'])->group(function (): void {
 
     /*=============================================
         PROFILE
@@ -32,6 +32,6 @@ Route::middleware(['auth:sanctum', 'club_user'])->group(function (): void {
     /*=============================================
         CLUB ONBOARDING
     =============================================*/
-    Route::post('clubs', [ClubOnboardingController::class, 'store']);
+    Route::post('clubs', [ClubController::class, 'store']);
 
 });

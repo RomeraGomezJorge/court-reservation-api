@@ -34,8 +34,6 @@ final class ClubUser extends Authenticatable implements MustVerifyEmail
 
     use Notifiable;
 
-    protected $table = 'club_users';
-
     /**
      * @var list<string>
      */

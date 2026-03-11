@@ -29,7 +29,6 @@ final class ClubUserResource extends JsonResource
         return [
             'id' => $this->id,
             'email' => $this->email,
-            'email_verified_at' => $this->email_verified_at,
             'roles' => ['club'],
         ];
     }

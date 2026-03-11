@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\EnsureUserIsClubUser;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -27,8 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'admin_user' => \App\Http\Middleware\EnsureUserIsAdmin::class,
-            'club_user' => \App\Http\Middleware\EnsureUserIsClubUser::class,
+            'admin_user' => EnsureUserIsAdmin::class,
+            'ensure_is_club_user' => EnsureUserIsClubUser::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

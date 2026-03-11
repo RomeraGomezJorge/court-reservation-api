@@ -68,9 +68,9 @@ return [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
         ],
-        'clubs' => [
+        'club_users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', \App\Models\ClubUser::class),
+            'model' => env('AUTH_MODEL', App\Models\ClubUser::class),
         ],
 
         // 'users' => [
@@ -105,8 +105,8 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
-        'clubs' => [
-            'provider' => 'clubs',
+        'club_users' => [
+            'provider' => 'club_users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,

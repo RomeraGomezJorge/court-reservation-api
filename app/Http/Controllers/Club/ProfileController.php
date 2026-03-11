@@ -13,7 +13,7 @@ final class ProfileController
     public function show(): ClubUserResource
     {
         /** @var ClubUser $clubUser */
-        $clubUser = Auth::guard('club_users')->user();
+        $clubUser = Auth::user();
 
         return new ClubUserResource($clubUser);
     }

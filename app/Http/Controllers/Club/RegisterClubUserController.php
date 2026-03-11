@@ -9,7 +9,7 @@ use App\Http\Requests\Club\VerifyEmailRequest;
 use App\Models\ClubUser;
 use Symfony\Component\HttpFoundation\Response;
 
-final class RegisterClubController
+final class RegisterClubUserController
 {
     public function store(StoreRegisterClubRequest $request): Response
     {
