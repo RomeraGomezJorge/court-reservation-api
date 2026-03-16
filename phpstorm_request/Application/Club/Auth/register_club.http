@@ -7,3 +7,34 @@ Accept: application/json
     "password": "ClubDemo12345!",
     "password_confirmation": "ClubDemo12345!"
 }
+
+###
+
+
+# curl 'http://localhost/api/club/register'
+#  -H 'sec-ch-ua-platform: "Linux"'
+#  -H 'Authorization: Bearer null'
+#  -H 'Referer: http://localhost:5174/'
+#  -H 'sec-ch-ua: "Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"'
+#  -H 'sec-ch-ua-mobile: ?0'
+#  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'
+#  -H 'Accept: application/json, text/plain, */*'
+#  -H 'Content-Type: application/json'
+#  --data-raw $'{"password":"Admin123456\u0021","password_confirmation":"Admin123456\u0021","email":"admin9+1@admin.com"}'
+POST http://localhost/api/club/register
+sec-ch-ua-platform: "Linux"
+Authorization: Bearer null
+Referer: http://localhost:5174/
+sec-ch-ua: "Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"
+sec-ch-ua-mobile: ?0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+Accept: application/json, text/plain, */*
+Content-Type: application/json
+
+{
+    "password": "Admin123456\u0021",
+    "password_confirmation": "Admin123456\u0021",
+    "email": "admin9+1@admin.com"
+}
+
+###

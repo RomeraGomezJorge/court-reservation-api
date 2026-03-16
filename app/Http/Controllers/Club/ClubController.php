@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Club;
 
 use App\Http\Requests\Club\StoreClubRequest;
-use App\Http\Resources\Club\ClubResource;
 use App\Models\Club;
-use App\Models\ClubUser;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 final class ClubController
 {
-    public function store(StoreClubRequest $request): ClubResource
+    public function store(StoreClubRequest $request): Response
     {
 
         /** @var Club $club */
@@ -22,7 +21,7 @@ final class ClubController
             ...$request->validated(),
         ]);
 
-        return new ClubResource($club);
+        return new Response(status: 201);
     }
 }
 

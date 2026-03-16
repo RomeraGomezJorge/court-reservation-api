@@ -28,19 +28,19 @@ final class RegisterClubUserController
         $clubUser = ClubUser::query()->find($request->id);
 
         if ($clubUser === null) {
-            return redirect(config('app.spa_url').'/#/auth/email-verification/unsuccessful');
+            return redirect(config('app.spa_url').'/#/club/auth/email-verification/fail');
         }
 
         if (! hash_equals($request->hash, sha1($clubUser->getEmailForVerification()))) {
-            return redirect(config('app.spa_url').'/#/auth/email-verification/unsuccessful');
+            return redirect(config('app.spa_url').'/#/club/auth/email-verification/fail');
         }
 
         if ($clubUser->hasVerifiedEmail()) {
-            return redirect(config('app.spa_url').'/#/auth/email-verification/unsuccessful');
+            return redirect(config('app.spa_url').'/#/club/auth/email-verification/fail');
         }
 
         $clubUser->markEmailAsVerified();
 
-        return redirect(config('app.spa_url').'/#/auth/email-verification/successful');
+        return redirect(config('app.spa_url').'/#/club/auth/email-verification/success');
     }
 }
