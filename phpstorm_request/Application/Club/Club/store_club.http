@@ -19,7 +19,6 @@ Accept: application/json
     "phone_number": "+56912345678",
     "reservation_policies_and_payment_terms": "Pago anticipado del 50% y cancelacion hasta 24 horas antes",
     "twitter_url": "https://x.com/club.demo",
-    "whatsapp_number": "+56912345678",
-    "is_active": true
+    "whatsapp_number": "+56912345678"
 }
 

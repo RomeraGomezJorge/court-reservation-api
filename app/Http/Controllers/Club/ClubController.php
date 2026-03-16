@@ -17,12 +17,10 @@ final class ClubController
 {
     public function index(): AnonymousResourceCollection
     {
-        /** @var string $clubUserId */
-        $clubUserId = (string) Auth::id();
 
         return ClubResource::collection(
             Club::query()
-                ->where('club_user_id', $clubUserId)
+                ->where('club_user_id', Auth::id())
                 ->get(),
         );
     }

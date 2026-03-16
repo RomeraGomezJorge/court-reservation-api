@@ -1,0 +1,24 @@
+PUT {{base_url}}/api/club/clubs/1
+Authorization: Bearer {{token_club_user}}
+Accept: application/json
+Content-Type: application/json
+
+{
+    "address_city": "Santiago",
+    "address_country": "Chile",
+    "address_postal_code": "8320000",
+    "address_state": "Region Metropolitana",
+    "address_street": "Av. Providencia 4321",
+    "description": "Club deportivo actualizado con canchas de futbol y padel",
+    "facebook_url": "https://facebook.com/club.demo.actualizado",
+    "instagram_url": "https://instagram.com/club.demo.actualizado",
+    "latitude": -33.4475,
+    "longitude": -70.6736,
+    "operating_hours_additional_info": "Lunes a domingo de 07:00 a 23:30",
+    "organization_name": "Club Deportivo Demo Actualizado",
+    "phone_number": "+56987654321",
+    "reservation_policies_and_payment_terms": "Pago anticipado del 100% y cancelacion hasta 12 horas antes",
+    "twitter_url": "https://x.com/club.demo.actualizado",
+    "whatsapp_number": "+56987654321"
+}
+
