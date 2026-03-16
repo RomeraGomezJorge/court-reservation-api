@@ -29,8 +29,7 @@ final class ClubResource extends JsonResource
         return [
             'id' => $this->id,
             'organization_name' => $this->organization_name,
-            'email' => $this->email,
-            'roles' => ['club'],
+            'is_active' => $this->is_active,
         ];
     }
 }

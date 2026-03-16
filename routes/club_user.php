@@ -7,6 +7,7 @@ use App\Http\Controllers\Club\LoginController;
 use App\Http\Controllers\Club\PasswordResetController;
 use App\Http\Controllers\Club\ProfileController;
 use App\Http\Controllers\Club\RegisterClubUserController;
+use Illuminate\Support\Facades\Route;
 
 /*=============================================
        REGISTER MANAGEMENT
@@ -32,6 +33,6 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
     /*=============================================
         CLUB ONBOARDING
     =============================================*/
-    Route::post('clubs', [ClubController::class, 'store']);
+    Route::apiResource('clubs', ClubController::class);
 
 });
