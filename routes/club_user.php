@@ -7,6 +7,7 @@ use App\Http\Controllers\Club\LoginController;
 use App\Http\Controllers\Club\PasswordResetController;
 use App\Http\Controllers\Club\ProfileController;
 use App\Http\Controllers\Club\RegisterClubUserController;
+use App\Http\Controllers\Club\ToggleClubStatusController;
 use Illuminate\Support\Facades\Route;
 
 /*=============================================
@@ -34,5 +35,6 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
         CLUB ONBOARDING
     =============================================*/
     Route::apiResource('clubs', ClubController::class);
+    Route::patch('clubs/{club}/toggle-active', ToggleClubStatusController::class);
 
 });
