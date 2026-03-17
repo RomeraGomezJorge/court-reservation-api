@@ -22,12 +22,12 @@ use Override;
  * @property-read string $description
  * @property-read string|null $facebook_url
  * @property-read string|null $instagram_url
- * @property-read string $latitude
- * @property-read string $longitude
+ * @property-read string|null $latitude
+ * @property-read string|null $longitude
  * @property-read string|null $operating_hours_additional_info
  * @property-read string $organization_name
  * @property-read string|null $phone_number
- * @property-read string $reservation_policies_and_payment_terms
+ * @property-read string|null $reservation_policies_and_payment_terms
  * @property-read string|null $twitter_url
  * @property-read string|null $whatsapp_number
  * @property-read bool $is_active
