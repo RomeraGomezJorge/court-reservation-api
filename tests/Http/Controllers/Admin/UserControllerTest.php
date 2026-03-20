@@ -118,11 +118,13 @@ it('updates a user', function (): void {
 
     put(action([UserController::class, 'update'], $user->id), [
         'email' => 'updated@example.com',
+        'name' => 'Updated Name',
     ])->assertNoContent();
 
     $this->assertDatabaseHas('users', [
         'id' => $user->id,
         'email' => 'updated@example.com',
+        'name' => 'Updated Name',
     ]);
 });
 
@@ -146,6 +148,7 @@ it('fails to update a user with invalid data', function (array $invalidData, arr
 
     $response = put(action([UserController::class, 'update'], $user), array_merge([
         'email' => 'valid@example.com',
+        'name' => 'Valid Name',
     ], $invalidData));
 
     $response->assertStatus(422)
@@ -157,6 +160,14 @@ it('fails to update a user with invalid data', function (array $invalidData, arr
             ->toBeTrue();
     }
 })->with([
+    'empty name' => [
+        'invalidData' => ['name' => ''],
+        'expectedMessages' => ['El campo nombre es obligatorio.'],
+    ],
+    'long name' => [
+        'invalidData' => ['name' => str_repeat('a', 256)],
+        'expectedMessages' => ['El campo nombre no debe ser mayor que 255 caracteres.'],
+    ],
     'empty email' => [
         'invalidData' => ['email' => ''],
         'expectedMessages' => ['El campo correo electrónico es obligatorio.'],

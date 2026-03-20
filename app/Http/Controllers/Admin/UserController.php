@@ -33,6 +33,7 @@ final class UserController
     public function update(UpdateUserRequest $request, User $user): Response
     {
         $user->update([
+            'name' => $request->name,
             'email' => $request->email,
         ]);
 
