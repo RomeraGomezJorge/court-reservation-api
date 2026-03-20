@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Club;
 
+use Illuminate\Routing\Redirector;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\Club\StoreRegisterClubRequest;
 use App\Http\Requests\Club\VerifyEmailRequest;
 use App\Models\ClubUser;
@@ -21,7 +23,7 @@ final class RegisterClubUserController
         return new Response(status: 201);
     }
 
-    public function verifyEmail(VerifyEmailRequest $request)
+    public function verifyEmail(VerifyEmailRequest $request): Redirector|RedirectResponse
     {
 
         /** @var ClubUser|null $clubUser */

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Date;
 use App\Models\ClubUser;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -47,10 +47,10 @@ final class AppServiceProvider extends ServiceProvider
 
             return URL::temporarySignedRoute(
                 name: $routeName,
-                expiration: Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+                expiration: Date::now()->addMinutes(Config::get('auth.verification.expire', 60)),
                 parameters: [
                     'id' => $notifiable->getKey(),
-                    'hash' => sha1($notifiable->getEmailForVerification()),
+                    'hash' => sha1((string) $notifiable->getEmailForVerification()),
                 ],
             );
 
