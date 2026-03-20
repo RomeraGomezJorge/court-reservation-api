@@ -157,4 +157,11 @@ return [
     'uppercase' => 'El campo :attribute debe estar en mayúscula.',
     'url' => 'El campo :attribute debe ser una URL válida.',
     'uuid' => 'El campo :attribute debe ser un UUID válido.',
+
+    'attributes' => [
+        'email' => 'correo electrónico',
+        'name' => 'nombre',
+        'password' => 'contraseña',
+        'password_confirmation' => 'confirmación de contraseña',
+    ],
 ];
