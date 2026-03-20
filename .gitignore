@@ -23,3 +23,5 @@ Homestead.yaml
 /tmp
 /phpstorm_request/http-client.env.json
 /Make
+/Makefile
+/phpunit-local.xml
