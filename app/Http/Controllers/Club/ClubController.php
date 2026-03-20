@@ -48,8 +48,7 @@ final class ClubController
         UpdateClubRequest $request,
         Club $club,
         OwnershipVerifierService $ownershipVerifier
-    ): Response
-    {
+    ): Response {
         $ownershipVerifier->handle($club);
 
         $club->update($request->validated());

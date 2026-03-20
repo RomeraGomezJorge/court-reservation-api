@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Resources\Admin;
 
 use App\Models\Feature;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

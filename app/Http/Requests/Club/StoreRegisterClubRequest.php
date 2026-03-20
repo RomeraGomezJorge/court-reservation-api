@@ -34,4 +34,3 @@ final class StoreRegisterClubRequest extends FormRequest
         ];
     }
 }
-

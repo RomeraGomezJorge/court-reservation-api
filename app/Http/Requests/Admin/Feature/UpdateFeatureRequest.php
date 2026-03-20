@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\Admin\Feature;
 
 use App\Models\Feature;
-use App\Models\Service;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -18,7 +17,6 @@ final class UpdateFeatureRequest extends FormRequest
     {
         return true;
     }
-
 
     /** @return array<string, array<ValidationRule|string>> */
     public function rules(): array

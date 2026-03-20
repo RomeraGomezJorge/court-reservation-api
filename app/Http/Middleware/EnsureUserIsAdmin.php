@@ -19,7 +19,7 @@ final class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! Auth::user() instanceof User){
+        if (! Auth::user() instanceof User) {
             return response()->json([
                 'message' => 'Unauthenticated.',
             ], 401);
@@ -28,4 +28,3 @@ final class EnsureUserIsAdmin
         return $next($request);
     }
 }
-

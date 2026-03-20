@@ -54,4 +54,3 @@ final class ClubFactory extends Factory
         ]);
     }
 }
-

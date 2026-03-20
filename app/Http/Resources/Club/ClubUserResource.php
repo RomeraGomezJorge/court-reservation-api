@@ -13,7 +13,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 final class ClubUserResource extends JsonResource
 {
-
     public function __construct(ClubUser $resource)
     {
         parent::__construct($resource);
@@ -33,4 +32,3 @@ final class ClubUserResource extends JsonResource
         ];
     }
 }
-

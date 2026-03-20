@@ -28,4 +28,3 @@ final class EnsureUserIsClubUser
         return $next($request);
     }
 }
-

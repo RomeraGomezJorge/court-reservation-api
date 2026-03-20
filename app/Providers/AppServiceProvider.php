@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Models\Club;
 use App\Models\ClubUser;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
