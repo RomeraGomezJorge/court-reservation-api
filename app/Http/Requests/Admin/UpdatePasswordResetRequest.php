@@ -28,17 +28,7 @@ final class UpdatePasswordResetRequest extends FormRequest
             'password' => [
                 'required',
                 'string',
-                Password::min(12)
-                    ->letters()
-                    ->mixedCase()
-                    ->numbers()
-                    ->symbols(),
-            ],
-
-            'password_confirmation' => [
-                'required',
-                'same:password',
-                'string',
+                'confirmed',
                 Password::min(12)
                     ->letters()
                     ->mixedCase()
