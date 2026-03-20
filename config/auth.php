@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\ClubUser;
 use App\Models\User;
 
 return [
@@ -70,7 +71,7 @@ return [
         ],
         'club_users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\ClubUser::class),
+            'model' => env('AUTH_MODEL', ClubUser::class),
         ],
 
         // 'users' => [
