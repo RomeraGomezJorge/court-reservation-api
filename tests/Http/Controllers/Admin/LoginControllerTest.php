@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\LoginController;
@@ -12,7 +14,6 @@ beforeEach(function (): void {
     Notification::fake();
     $this->plaintextPassword = 'P@ssw0rd12345';
 
-    /** @var User $user */
     $this->user = User::factory()
         ->create([
             'email' => 'test@example.com',

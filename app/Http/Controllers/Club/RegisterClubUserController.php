@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Club;
 
-use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\Club\StoreRegisterClubRequest;
 use App\Http\Requests\Club\VerifyEmailRequest;
 use App\Models\ClubUser;
+use Illuminate\Http\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 final class RegisterClubUserController

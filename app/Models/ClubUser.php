@@ -28,11 +28,11 @@ use Override;
 final class ClubUser extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens;
+
     /** @use HasFactory<ClubUserFactory> */
     use HasFactory;
 
     use MustVerifyEmailTrait;
-
     use Notifiable;
 
     /**
@@ -63,7 +63,6 @@ final class ClubUser extends Authenticatable implements MustVerifyEmail
      * Get all clubs managed by this club user.
      *
      * @return HasMany<Club, $this>
-     *
      */
     public function clubs(): HasMany
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\FeatureController;
@@ -174,4 +176,3 @@ it('returns a collection of features', function (): void {
             ],
         ]);
 });
-

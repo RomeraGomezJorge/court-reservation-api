@@ -10,10 +10,6 @@ final class MigrationHelper
 {
     public static function shouldRunInTesting(): bool
     {
-        if (App::environment() === 'testing') {
-            return false;
-        }
-
-        return true;
+        return !App::environment('testing');
     }
 }

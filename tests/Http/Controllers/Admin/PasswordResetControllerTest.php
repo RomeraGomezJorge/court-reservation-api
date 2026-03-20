@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\PasswordResetController;
@@ -113,4 +115,3 @@ it('fails to reset password with invalid data', function (array $invalidData, ar
         'expectedMessages' => ['La confirmación de contraseña no coincide.'],
     ],
 ]);
-

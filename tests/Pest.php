@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
-use LaravelIdea\Helper\App\Models\_IH_ClubUser_C;
 use Tests\TestCase;
 
 use function Pest\Laravel\actingAs;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\UserController;
@@ -263,4 +265,3 @@ it('fails to delete a user that does not exist', function (): void {
             'messages' => ['No query results for model [App\\Models\\User] 999'],
         ]);
 });
-
