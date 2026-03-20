@@ -23,7 +23,7 @@ final class ClubFactory extends Factory
             'address_city' => fake()->city(),
             'address_country' => fake()->country(),
             'address_postal_code' => fake()->postcode(),
-            'address_state' => fake()->state(),
+            'address_state' => fake()->country(),
             'address_street' => fake()->streetAddress(),
             'description' => fake()->paragraph(),
             'facebook_url' => fake()->optional()->url(),

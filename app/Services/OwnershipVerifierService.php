@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
+use ReflectionClass;
 use RuntimeException;
 
 final class OwnershipVerifierService

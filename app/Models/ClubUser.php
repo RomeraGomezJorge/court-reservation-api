@@ -62,7 +62,8 @@ final class ClubUser extends Authenticatable implements MustVerifyEmail
     /**
      * Get all clubs managed by this club user.
      *
-     * @return HasMany<Club>
+     * @return HasMany<Club, $this>
+     *
      */
     public function clubs(): HasMany
     {

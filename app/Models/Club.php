@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
+use phpDocumentor\Reflection\Types\This;
 
 /**
  * @property-read string $id
@@ -97,7 +98,7 @@ final class Club extends Model
     /**
      * Get the club user that owns this club.
      *
-     * @return BelongsTo<ClubUser, Club>
+     * @return BelongsTo<ClubUser, $this>
      */
     public function clubUser(): BelongsTo
     {
