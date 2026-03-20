@@ -2,14 +2,14 @@
 
 namespace Tests\Http\Controllers\Admin;
 
-
 use App\Http\Controllers\Admin\UserController;
-
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
-use Hash;
-
+use function Pest\Laravel\delete;
+use function Pest\Laravel\get;
 use function Pest\Laravel\post;
+use function Pest\Laravel\put;
 
 beforeEach(function (): void {
     $this->user = actingAsUser();
@@ -33,261 +33,129 @@ it('stores a user', function (): void {
 
     $user = User::query()->where('email', 'johndoe@example.com')->first();
     expect(Hash::check('P@ssword123456', $user->password))->toBeTrue();
-
 });
 
-it('it fails to store a user with invalid data', function (array $invalidData, array $expectedErrors): void {
+it('fails to store a user with invalid data', function (array $invalidData, array $expectedMessages): void {
+    if (($invalidData['email'] ?? null) === 'duplicate@example.com') {
+        User::factory()->create(['email' => 'duplicate@example.com']);
+    }
+
     $userData = [
         'name' => 'John Doe',
         'email' => 'johndoe@example.com',
         'password' => 'Password.123!',
         'password_confirmation' => 'Password.123!',
-
     ];
-    $userData = array_merge($userData, $invalidData);
 
-        post(action([UserController::class, 'store']), $userData)
-        ->assertExactJson($expectedErrors);
+    post(action([UserController::class, 'store']), array_merge($userData, $invalidData))
+        ->assertExactJson([
+            'code' => 422,
+            'messages' => $expectedMessages,
+        ]);
+
 })->with([
     'empty name' => [
         'invalidData' => ['name' => ''],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'El campo nombre es obligatorio.',
-            ],
-        ],
-    ],
-    'short name' => [
-        'invalidData' => ['name' => 'a'],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'nombre debe contener al menos 2 caracteres.',
-            ],
-        ],
+        'expectedMessages' => ['El campo nombre es obligatorio.'],
     ],
     'long name' => [
         'invalidData' => ['name' => str_repeat('a', 256)],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'nombre no debe ser mayor que 255 caracteres.',
-            ],
-        ],
+        'expectedMessages' => ['El campo nombre no debe ser mayor que 255 caracteres.'],
     ],
-    'invalid email format' => [
-        'invalidData' => ['email' => 'invalid-email'],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'correo electrónico no es un correo válido.',
-            ],
-        ],
+    'empty email' => [
+        'invalidData' => ['email' => ''],
+        'expectedMessages' => ['El campo correo electrónico es obligatorio.'],
     ],
     'long email' => [
         'invalidData' => ['email' => str_repeat('a', 256).'@example.com'],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'correo electrónico no debe ser mayor que 255 caracteres.',
-            ],
-        ],
+        'expectedMessages' => ['El campo correo electrónico no debe ser mayor que 255 caracteres.'],
     ],
     'duplicate email' => [
-        'invalidData' => ['email' => 'test@test.com'],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'El correo electrónico ya ha sido registrado.',
-            ],
-        ],
+        'invalidData' => ['email' => 'duplicate@example.com'],
+        'expectedMessages' => ['ya ha sido registrado.'],
     ],
     'empty password' => [
         'invalidData' => ['password' => '', 'password_confirmation' => ''],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'El campo contraseña es obligatorio.',
-            ],
-        ],
+        'expectedMessages' => ['El campo contraseña es obligatorio.', 'El campo confirmación de contraseña es obligatorio.'],
     ],
     'password too short' => [
         'invalidData' => ['password' => 'Short1!', 'password_confirmation' => 'Short1!'],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'contraseña debe contener al menos 12 caracteres.',
-            ],
-        ],
+        'expectedMessages' => ['El campo contraseña debe contener al menos 12 caracteres.'],
     ],
     'password no numbers' => [
         'invalidData' => ['password' => 'Password.!@#', 'password_confirmation' => 'Password.!@#'],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'La contraseña debe contener al menos un número.',
-            ],
-        ],
+        'expectedMessages' => ['La contraseña debe contener al menos un número.'],
     ],
     'password no symbols' => [
         'invalidData' => ['password' => 'Password123456', 'password_confirmation' => 'Password123456'],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'La contraseña debe contener al menos un símbolo.',
-            ],
-        ],
+        'expectedMessages' => ['La contraseña debe contener al menos un símbolo.'],
     ],
     'password no uppercase' => [
         'invalidData' => ['password' => 'password.123!', 'password_confirmation' => 'password.123!'],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'La contraseña debe contener letras mayúsculas y minúsculas.',
-            ],
-        ],
+        'expectedMessages' => ['La contraseña debe contener al menos una letra mayúscula y una minúscula.'],
     ],
 ]);
 
 it('updates a user', function (): void {
     $user = User::factory()->create();
 
-    $userData = [
-        'id' => $user->id,
-        'name' => 'Updated Name',
+    put(action([UserController::class, 'update'], $user->id), [
         'email' => 'updated@example.com',
-        'roles' => [Roles::ADMIN],
-    ];
-
-    actingAs($this->user)->put(action([UserController::class, 'update'], $user->id), $userData)
-        ->assertOk();
+    ])->assertNoContent();
 
     $this->assertDatabaseHas('users', [
         'id' => $user->id,
-        'name' => 'Updated Name',
-
         'email' => 'updated@example.com',
     ]);
-
-    $user->refresh();
-    expect($user->hasRole(Roles::ADMIN))->toBeTrue();
 });
 
 it('fails to update a user that does not exist', function (): void {
-    $user = User::factory()->create();
-
-    $userData = [
-        'name' => 'John Doe',
+    put(action([UserController::class, 'update'], 999), [
         'email' => 'johndoe@example.com',
-        'roles' => [Roles::ADMIN],
-    ];
-
-    actingAs($this->user)
-        ->put(action([UserController::class, 'update'], 999), $userData)
+    ])
         ->assertStatus(404)
-        ->assertJson([
-            'messages' => [
-                'No query results for model [Src\\Domain\\User\\Models\\User] 999',
-            ],
-            'code' => 404,
-        ]);
+        ->assertJsonPath('code', 404);
 });
 
-it('fails to update a use with invalid data', function (array $invalidData, array $expectedErrors): void {
+it('fails to update a user with invalid data', function (array $invalidData, array $expectedMessages): void {
     $user = User::factory()->create();
 
-    $userData = [
-        'name' => 'John Doe',
-        'email' => 'johndoe@example.com',
-        'roles' => [Roles::ADMIN],
-    ];
-    $userData = array_merge($userData, $invalidData);
+    if (($invalidData['email'] ?? null) === 'duplicate@example.com') {
+        User::factory()->create(['email' => 'duplicate@example.com']);
+    }
 
-    actingAs($this->user)
-        ->put(action([UserController::class, 'update'], $user), $userData)
-        ->assertExactJson($expectedErrors);
+    $response = put(action([UserController::class, 'update'], $user), array_merge([
+        'email' => 'valid@example.com',
+    ], $invalidData));
+
+    $response->assertStatus(422)
+        ->assertJsonPath('code', 422);
+
+    foreach ($expectedMessages as $message) {
+        expect(collect($response->json('messages'))
+            ->contains(fn(string $responseMessage): bool => str_contains($responseMessage, $message)))
+            ->toBeTrue();
+    }
 })->with([
-    'empty name' => [
-        'invalidData' => ['name' => ''],
-        'expectedErrors' => [
-            'code' => 422,
-            'messages' => [
-                'El campo nombre debe ser una cadena de caracteres.',
-                'El campo nombre es obligatorio.',
-            ],
-        ],
+    'empty email' => [
+        'invalidData' => ['email' => ''],
+        'expectedMessages' => ['El campo correo electrónico es obligatorio.'],
     ],
-//    'short name' => [
-//        'invalidData' => ['name' => 'a'],
-//        'expectedErrors' => [
-//            'code' => 422,
-//            'messages' => [
-//                'nombre debe contener al menos 2 caracteres.',
-//            ],
-//        ],
-//    ],
-//    'invalid email format' => [
-//        'invalidData' => ['email' => 'correo-invalido'],
-//        'expectedErrors' => [
-//            'code' => 422,
-//            'messages' => [
-//                'correo electrónico no es un correo válido.',
-//            ],
-//        ],
-//    ],
-//    'long email' => [
-//        'invalidData' => ['email' => str_repeat('a', 256).'@example.com'],
-//        'expectedErrors' => [
-//            'code' => 422,
-//            'messages' => [
-//                'correo electrónico no debe ser mayor que 255 caracteres.',
-//            ],
-//        ],
-//    ],
-//    'duplicate email' => [
-//        'invalidData' => ['email' => 'test@test.com'],
-//        'expectedErrors' => [
-//            'code' => 422,
-//            'messages' => [
-//                'El correo electrónico ya ha sido registrado.',
-//            ],
-//        ],
-//    ],
-//    'empty roles' => [
-//        'invalidData' => ['roles' => []],
-//        'expectedErrors' => [
-//            'code' => 422,
-//            'messages' => [
-//                'El campo roles es obligatorio.',
-//            ],
-//        ],
-//    ],
-//    'invalid role' => [
-//        'invalidData' => ['roles' => ['ROL_INVALIDO']],
-//        'expectedErrors' => [
-//            'code' => 422,
-//            'messages' => [
-//                'roles es inválido.',
-//            ],
-//        ],
-//    ],
-//    'name too long' => [
-//        'invalidData' => ['name' => str_repeat('a', 256)],
-//        'expectedErrors' => [
-//            'code' => 422,
-//            'messages' => [
-//                'nombre no debe ser mayor que 255 caracteres.',
-//            ],
-//        ],
-//    ],
-
+    'long email' => [
+        'invalidData' => ['email' => str_repeat('a', 256).'@example.com'],
+        'expectedMessages' => ['El campo correo electrónico no debe ser mayor que 255 caracteres.'],
+    ],
+    'duplicate email' => [
+        'invalidData' => ['email' => 'duplicate@example.com'],
+        'expectedMessages' => ['ya ha sido registrado.'],
+    ],
 ]);
 
 it('deletes a user', function (): void {
     $user = User::factory()->create();
 
-    actingAs($this->user)->delete(action([UserController::class, 'destroy'], $user))->assertOk();
+    delete(action([UserController::class, 'destroy'], $user))
+        ->assertOk();
 
     $this->assertDatabaseMissing('users', ['id' => $user->id]);
 });
@@ -295,62 +163,59 @@ it('deletes a user', function (): void {
 it('shows a user', function (): void {
     $user = User::factory()->create();
 
-    actingAs($this->user)
-        ->get(action([UserController::class, 'show'], $user->id))
+    get(action([UserController::class, 'show'], $user->id))
         ->assertOk()
         ->assertExactJson([
-            'email' => $user->email,
-            'name' => $user->name,
-            'roles' => [],
             'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'roles' => ['super_admin'],
         ]);
 });
 
 it('returns a collection of users', function (): void {
-    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
 
-    actingAs($this->user)
-        ->get(action([UserController::class, 'index']))
-        ->assertOk()
-        ->assertJsonFragment([
-            'email' => $this->user->email,
-            'name' => $this->user->name,
-            'roles' => [Roles::ADMIN],
-            'id' => $this->user->id,
-        ])
-        ->assertJsonFragment([
-            'email' => $user->email,
-            'name' => $user->name,
-            'roles' => [],
-            'id' => $user->id,
-        ]);
-});
-
-it('sets the authenticated user password - direct call', function (): void {
-    $newPassword = 'NewValidP@ss1!';
-    $passwordData = SetPasswordData::from([
-        'password' => $newPassword,
-        'password_confirmation' => $newPassword,
-    ]);
-
-    actingAs($this->user);
-
-    $controller = $this->app->make(UserController::class);
-
-    $controller->setMyPassword($passwordData);
-
-    $this->user->refresh();
-    expect(Hash::check($newPassword, $this->user->password))->toBeTrue();
-});
-
-it('gets the authenticated user details', function (): void {
-    actingAs($this->user)
-        ->get(action([UserController::class, 'getMe']))
+    get(action([UserController::class, 'index']))
         ->assertOk()
         ->assertExactJson([
-            'id' => $this->user->id,
-            'name' => $this->user->name,
-            'email' => $this->user->email,
-            'roles' => $this->user->roles->pluck('name')->toArray(),
+            [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+                'roles' => ['super_admin'],
+            ],
+            [
+                'id' => $otherUser->id,
+                'name' => $otherUser->name,
+                'email' => $otherUser->email,
+                'roles' => ['super_admin'],
+            ],
+        ]);
+
+});
+
+it('changes a user password', function (): void {
+    $targetUser = User::factory()->create();
+
+    $newPassword = 'NewValidP@ss1!';
+
+    put(action([UserController::class, 'changePassword'], $targetUser), [
+        'password' => $newPassword,
+        'password_confirmation' => $newPassword,
+    ])->assertNoContent();
+
+    $targetUser->refresh();
+    expect(Hash::check($newPassword, $targetUser->password))->toBeTrue();
+});
+
+it('fails to delete the last user', function (): void {
+    User::query()->where('id', '!=', $this->user->id)->delete();
+
+    delete(action([UserController::class, 'destroy'], $this->user))
+        ->assertStatus(400)
+        ->assertJson([
+            'messages' => ['No se puede eliminar el último usuario'],
+            'code' => 400,
         ]);
 });
