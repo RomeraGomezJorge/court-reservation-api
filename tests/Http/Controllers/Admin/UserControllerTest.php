@@ -146,19 +146,14 @@ it('fails to update a user with invalid data', function (array $invalidData, arr
         User::factory()->create(['email' => 'duplicate@example.com']);
     }
 
-    $response = put(action([UserController::class, 'update'], $user), array_merge([
+    put(action([UserController::class, 'update'], $user), array_merge([
         'email' => 'valid@example.com',
         'name' => 'Valid Name',
-    ], $invalidData));
-
-    $response->assertStatus(422)
-        ->assertJsonPath('code', 422);
-
-    foreach ($expectedMessages as $message) {
-        expect(collect($response->json('messages'))
-            ->contains(fn(string $responseMessage): bool => str_contains($responseMessage, $message)))
-            ->toBeTrue();
-    }
+    ], $invalidData))
+        ->assertExactJson([
+            'code' => 422,
+            'messages' => $expectedMessages,
+        ]);
 })->with([
     'empty name' => [
         'invalidData' => ['name' => ''],
@@ -178,7 +173,7 @@ it('fails to update a user with invalid data', function (array $invalidData, arr
     ],
     'duplicate email' => [
         'invalidData' => ['email' => 'duplicate@example.com'],
-        'expectedMessages' => ['ya ha sido registrado.'],
+        'expectedMessages' => ['El campo correo electrónico ya ha sido registrado.'],
     ],
 ]);
 
@@ -201,6 +196,15 @@ it('shows a user', function (): void {
             'name' => $user->name,
             'email' => $user->email,
             'roles' => ['super_admin'],
+        ]);
+});
+
+it('fails to show a user that does not exist', function (): void {
+    get(action([UserController::class, 'show'], 999))
+        ->assertStatus(404)
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ['No query results for model [App\\Models\\User] 999'],
         ]);
 });
 
@@ -250,3 +254,13 @@ it('fails to delete the last user', function (): void {
             'code' => 400,
         ]);
 });
+
+it('fails to delete a user that does not exist', function (): void {
+    delete(action([UserController::class, 'destroy'], 999))
+        ->assertStatus(404)
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ['No query results for model [App\\Models\\User] 999'],
+        ]);
+});
+
