@@ -140,6 +140,7 @@ return [
     'required_with_all' => 'El campo :attribute es obligatorio cuando :values están presentes.',
     'required_without' => 'El campo :attribute es obligatorio cuando :values no está presente.',
     'required_without_all' => 'El campo :attribute es obligatorio cuando ninguno de :values está presente.',
+    'resource_not_found' => 'El recurso :resource  no se ha encontrado.',
     'same' => 'Los campos :attribute y :other deben coincidir.',
     'size' => [
         'array' => 'El campo :attribute debe contener :size elementos.',

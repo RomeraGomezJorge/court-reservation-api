@@ -9,6 +9,7 @@ use Database\Factories\ClubUserFactory;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -66,6 +67,14 @@ final class ClubUser extends Authenticatable implements MustVerifyEmail
     public function clubs(): HasMany
     {
         return $this->hasMany(Club::class);
+    }
+
+    /**
+     * Determine if the user owns the given model.
+     */
+    public function owns(Model $model, string $relation = 'clubUser'): bool
+    {
+        return $model->{$relation}()->is($this);
     }
 }
 

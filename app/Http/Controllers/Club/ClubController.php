@@ -9,6 +9,7 @@ use App\Http\Requests\Club\UpdateClubRequest;
 use App\Http\Resources\Club\ClubResource;
 use App\Http\Resources\Club\ShowClubResource;
 use App\Models\Club;
+use App\Services\OwnershipVerifierService;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,25 +37,29 @@ final class ClubController
         return new Response(status: 201);
     }
 
-    public function show(Club $club): ShowClubResource
+    public function show(Club $club, OwnershipVerifierService $ownershipVerifier): ShowClubResource
     {
-        abort_if($club->club_user_id !== (string) Auth::id(), 404);
+        $ownershipVerifier->handle($club);
 
         return new ShowClubResource($club);
     }
 
-    public function update(UpdateClubRequest $request, Club $club): Response
+    public function update(
+        UpdateClubRequest $request,
+        Club $club,
+        OwnershipVerifierService $ownershipVerifier
+    ): Response
     {
-        abort_if($club->club_user_id !== (string) Auth::id(), 404);
+        $ownershipVerifier->handle($club);
 
         $club->update($request->validated());
 
         return new Response(status: 204);
     }
 
-    public function destroy(Club $club): Response
+    public function destroy(Club $club, OwnershipVerifierService $ownershipVerifier): Response
     {
-        abort_if($club->club_user_id !== (string) Auth::id(), 404);
+        $ownershipVerifier->handle($club);
 
         $club->delete();
 

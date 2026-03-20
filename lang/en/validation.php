@@ -140,6 +140,7 @@ return [
     'required_with_all' => 'The :attribute field is required when :values are present.',
     'required_without' => 'The :attribute field is required when :values is not present.',
     'required_without_all' => 'The :attribute field is required when none of :values are present.',
+    'resource_not_found' => 'The specified :attribute was not found.',
     'same' => 'The :attribute field must match :other.',
     'size' => [
         'array' => 'The :attribute field must contain :size items.',
