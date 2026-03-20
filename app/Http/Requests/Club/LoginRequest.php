@@ -29,7 +29,6 @@ final class LoginRequest extends FormRequest
             'password' => [
                 'string',
                 'required',
-                'min:12',
                 'max:255',
             ],
         ];
