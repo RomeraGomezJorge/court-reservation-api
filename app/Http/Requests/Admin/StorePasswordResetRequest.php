@@ -11,7 +11,7 @@ final class StorePasswordResetRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // Ajusta si necesitas control de autorización
+        return true;
     }
 
     /** @return array<string, array<ValidationRule|string>> */
