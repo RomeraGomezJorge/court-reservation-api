@@ -9,12 +9,12 @@ use App\Http\Requests\Club\UpdateClubRequest;
 use App\Http\Resources\Club\ClubResource;
 use App\Http\Resources\Club\ShowClubResource;
 use App\Models\Club;
-use App\Models\ClubWorkingDay;
 use App\Services\OwnershipVerifierService;
 use DB;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 final class ClubController
 {
@@ -27,6 +27,9 @@ final class ClubController
         );
     }
 
+    /**
+     * @throws Throwable
+     */
     public function store(StoreClubRequest $request): Response
     {
         DB::transaction(function () use ($request): void {
@@ -58,6 +61,9 @@ final class ClubController
         return new ShowClubResource($club);
     }
 
+    /**
+     * @throws Throwable
+     */
     public function update(
         UpdateClubRequest $request,
         Club $club,
@@ -66,7 +72,7 @@ final class ClubController
         $ownershipVerifier->handle($club);
 
         DB::transaction(function () use ($request, $club): void {
-            $club->update(...$request->clubData());
+            $club->update([...$request->clubData()]);
 
             if ($request->has('working_days')) {
                 $club->workingDays()->delete();
@@ -85,8 +91,7 @@ final class ClubController
         return new Response(status: 204);
     }
 
-    public
-    function destroy(
+    public function destroy(
         Club $club,
         OwnershipVerifierService $ownershipVerifier,
     ): Response {
