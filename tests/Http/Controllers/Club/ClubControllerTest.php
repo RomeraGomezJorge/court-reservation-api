@@ -17,6 +17,96 @@ beforeEach(function (): void {
     $this->clubUser = actingAsClubUser();
 });
 
+$maxLengthString = str_repeat('a', 256);
+$maxLengthUrl = 'https://'.str_repeat('a', 244).'.com';
+
+dataset('invalid club payload data', [
+    'empty organization_name' => [
+        'invalidData' => ['organization_name' => ''],
+        'expectedMessages' => ['El campo nombre de la organización es obligatorio.'],
+    ],
+    'duplicate organization_name' => [
+        'invalidData' => ['organization_name' => 'Club Duplicado'],
+        'expectedMessages' => ['El campo nombre de la organización ya ha sido registrado.'],
+    ],
+    'organization_name max length' => [
+        'invalidData' => ['organization_name' => $maxLengthString],
+        'expectedMessages' => ['El campo nombre de la organización no debe ser mayor que 255 caracteres.'],
+    ],
+    'facebook_url invalid format' => [
+        'invalidData' => ['facebook_url' => 'url-invalida'],
+        'expectedMessages' => ['El campo facebook url debe ser una URL válida.'],
+    ],
+    'facebook_url max length' => [
+        'invalidData' => ['facebook_url' => $maxLengthUrl],
+        'expectedMessages' => ['El campo facebook url no debe ser mayor que 255 caracteres.'],
+    ],
+    'instagram_url invalid format' => [
+        'invalidData' => ['instagram_url' => 'url-invalida'],
+        'expectedMessages' => ['El campo instagram url debe ser una URL válida.'],
+    ],
+    'instagram_url max length' => [
+        'invalidData' => ['instagram_url' => $maxLengthUrl],
+        'expectedMessages' => ['El campo instagram url no debe ser mayor que 255 caracteres.'],
+    ],
+    'latitude not numeric' => [
+        'invalidData' => ['latitude' => 'latitud-invalida'],
+        'expectedMessages' => ['El campo latitud debe ser numérico.'],
+    ],
+    'latitude out of range' => [
+        'invalidData' => ['latitude' => 91],
+        'expectedMessages' => ['El campo latitud tiene que estar entre -90 - 90.'],
+    ],
+    'longitude not numeric' => [
+        'invalidData' => ['longitude' => 'longitud-invalida'],
+        'expectedMessages' => ['El campo longitud debe ser numérico.'],
+    ],
+    'longitude out of range' => [
+        'invalidData' => ['longitude' => 181],
+        'expectedMessages' => ['El campo longitud tiene que estar entre -180 - 180.'],
+    ],
+    'operating_hours_additional_info not string' => [
+        'invalidData' => ['operating_hours_additional_info' => ['no-valido']],
+        'expectedMessages' => ['El campo información adicional de horarios debe ser una cadena de caracteres.'],
+    ],
+    'operating_hours_additional_info max length' => [
+        'invalidData' => ['operating_hours_additional_info' => $maxLengthString],
+        'expectedMessages' => ['El campo información adicional de horarios no debe ser mayor que 255 caracteres.'],
+    ],
+    'phone_number not string' => [
+        'invalidData' => ['phone_number' => ['no-valido']],
+        'expectedMessages' => ['El campo teléfono debe ser una cadena de caracteres.'],
+    ],
+    'phone_number max length' => [
+        'invalidData' => ['phone_number' => $maxLengthString],
+        'expectedMessages' => ['El campo teléfono no debe ser mayor que 255 caracteres.'],
+    ],
+    'reservation_policies_and_payment_terms not string' => [
+        'invalidData' => ['reservation_policies_and_payment_terms' => ['no-valido']],
+        'expectedMessages' => ['El campo políticas de reserva y términos de pago debe ser una cadena de caracteres.'],
+    ],
+    'reservation_policies_and_payment_terms max length' => [
+        'invalidData' => ['reservation_policies_and_payment_terms' => $maxLengthString],
+        'expectedMessages' => ['El campo políticas de reserva y términos de pago no debe ser mayor que 255 caracteres.'],
+    ],
+    'twitter_url invalid format' => [
+        'invalidData' => ['twitter_url' => 'url-invalida'],
+        'expectedMessages' => ['El campo twitter url debe ser una URL válida.'],
+    ],
+    'twitter_url max length' => [
+        'invalidData' => ['twitter_url' => $maxLengthUrl],
+        'expectedMessages' => ['El campo twitter url no debe ser mayor que 255 caracteres.'],
+    ],
+    'whatsapp_number not string' => [
+        'invalidData' => ['whatsapp_number' => ['no-valido']],
+        'expectedMessages' => ['El campo whatsapp debe ser una cadena de caracteres.'],
+    ],
+    'whatsapp_number max length' => [
+        'invalidData' => ['whatsapp_number' => $maxLengthString],
+        'expectedMessages' => ['El campo whatsapp no debe ser mayor que 255 caracteres.'],
+    ],
+]);
+
 it('returns a collection of clubs for the authenticated club user', function (): void {
     [$ownedClub,$otherOwnedClub] = Club::factory()
         ->count(2)
@@ -89,16 +179,7 @@ it('fails to store a club with invalid data', function (array $invalidData, arra
             'code' => 422,
             'messages' => $expectedMessages,
         ]);
-})->with([
-    'empty organization_name' => [
-        'invalidData' => ['organization_name' => ''],
-        'expectedMessages' => ['El campo organization name es obligatorio.'],
-    ],
-    'duplicate organization_name' => [
-        'invalidData' => ['organization_name' => 'Club Duplicado'],
-        'expectedMessages' => ['El campo organization name ya ha sido registrado.'],
-    ],
-]);
+})->with('invalid club payload data');
 
 it('shows a club', function (): void {
     $club = Club::factory()->create([
@@ -215,16 +296,7 @@ it('fails to update a club with invalid data', function (array $invalidData, arr
             'code' => 422,
             'messages' => $expectedMessages,
         ]);
-})->with([
-    'empty organization_name' => [
-        'invalidData' => ['organization_name' => ''],
-        'expectedMessages' => ['El campo organization name es obligatorio.'],
-    ],
-    'duplicate organization_name' => [
-        'invalidData' => ['organization_name' => 'Club Duplicado'],
-        'expectedMessages' => ['El campo organization name ya ha sido registrado.'],
-    ],
-]);
+})->with('invalid club payload data');
 
 it('fails to update a club that is not owned by the authenticated club user', function (): void {
     $club = Club::factory()->create();

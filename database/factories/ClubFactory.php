@@ -25,7 +25,7 @@ final class ClubFactory extends Factory
             'address_postal_code' => fake()->postcode(),
             'address_state' => fake()->country(),
             'address_street' => fake()->streetAddress(),
-            'description' => fake()->paragraph(),
+            'description' => fake()->sentence(),
             'facebook_url' => fake()->optional()->url(),
             'instagram_url' => fake()->optional()->url(),
             'latitude' => fake()->latitude(),
@@ -33,7 +33,7 @@ final class ClubFactory extends Factory
             'operating_hours_additional_info' => fake()->optional()->sentence(),
             'organization_name' => fake()->unique()->company(),
             'phone_number' => fake()->optional()->phoneNumber(),
-            'reservation_policies_and_payment_terms' => fake()->paragraph(),
+            'reservation_policies_and_payment_terms' => fake()->sentence(),
             'twitter_url' => fake()->optional()->url(),
             'whatsapp_number' => fake()->optional()->phoneNumber(),
             'is_active' => fake()->boolean(80), // 80% true
