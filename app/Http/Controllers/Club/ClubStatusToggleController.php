@@ -8,7 +8,7 @@ use App\Models\Club;
 use App\Services\OwnershipVerifierService;
 use Symfony\Component\HttpFoundation\Response;
 
-final class ToggleClubStatusController
+final class ClubStatusToggleController
 {
     public function __invoke(Club $club, OwnershipVerifierService $ownershipVerifier): Response
     {
