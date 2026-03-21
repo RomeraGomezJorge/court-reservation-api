@@ -16,9 +16,7 @@ final class PasswordResetController
 {
     public function store(StorePasswordResetRequest $request): Response
     {
-        info('sendResetLinkStatus', [
-            Password::broker('club_users')->sendResetLink(['email' => $request->email]),
-        ]);
+        Password::broker('club_users')->sendResetLink(['email' => $request->email]);
 
         return new Response(status: 201);
     }
