@@ -111,13 +111,13 @@ it('returns a collection of clubs for the authenticated club user', function ():
     [$ownedClub,$otherOwnedClub] = Club::factory()
         ->count(2)
         ->sequence(
-            ['organization_name' => 'Club Propio 1',],
-            ['organization_name' => 'Club Propio 2',],
+            ['organization_name' => 'Club Propio 1'],
+            ['organization_name' => 'Club Propio 2'],
         )
         ->create([
-        'club_user_id' => $this->clubUser->id,
-        'is_active' => true,
-    ]);
+            'club_user_id' => $this->clubUser->id,
+            'is_active' => true,
+        ]);
 
     Club::factory()->create([
         'club_user_id' => ClubUser::factory()->create()->id,
@@ -347,4 +347,3 @@ it('fails to delete a club that is not owned by the authenticated club user', fu
             'messages' => ['El recurso Club  no se ha encontrado.'],
         ]);
 });
-

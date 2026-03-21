@@ -83,7 +83,7 @@ it('fails login with invalid payload', function (array $invalidData, array $expe
     ],
     'invalid email format' => [
         'invalidData' => ['email' => 'invalid-email'],
-        'expectedMessages' => [ 'El campo correo electrónico no es un correo válido.'],
+        'expectedMessages' => ['El campo correo electrónico no es un correo válido.'],
     ],
     'empty password' => [
         'invalidData' => ['password' => ''],
@@ -93,4 +93,3 @@ it('fails login with invalid payload', function (array $invalidData, array $expe
         ],
     ],
 ]);
-

@@ -19,4 +19,3 @@ it('shows authenticated club profile', function (): void {
             'roles' => ['club'],
         ]);
 });
-

@@ -58,4 +58,3 @@ it('fails to toggle a club status that is not owned by the authenticated club us
             'messages' => ['El recurso Club  no se ha encontrado.'],
         ]);
 });
-

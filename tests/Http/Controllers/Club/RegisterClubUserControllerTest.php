@@ -107,7 +107,6 @@ it('verifies email and redirects to success page', function (): void {
     ]))
         ->assertRedirect(config('app.spa_url').'/#/club/auth/email-verification/success');
 
-
     expect($clubUser->fresh()?->hasVerifiedEmail())->toBeTrue();
 });
 
@@ -140,4 +139,3 @@ it('fails email verification when email is already verified', function (): void 
     ]))
         ->assertRedirect(config('app.spa_url').'/#/club/auth/email-verification/fail');
 });
-

@@ -57,8 +57,6 @@ it('fails to send password reset link with invalid data', function (array $inval
     ],
 ]);
 
-
-
 it('resets a club user password', function (): void {
     $newPassword = 'NewValidP@ss1!';
     $token = Password::broker('club_users')->createToken($this->clubUser);
@@ -121,4 +119,3 @@ it('fails to reset password with invalid data', function (array $invalidData, ar
         'expectedMessages' => ['La confirmación de contraseña no coincide.'],
     ],
 ]);
-
