@@ -25,7 +25,7 @@ final class PasswordResetController
     {
         ClubUser::query()->where('email', $request->email)->firstOrFail();
 
-        Password::reset(
+        Password::broker('club_users')->reset(
             [
                 'email' => $request->email,
                 'password' => $request->password,
