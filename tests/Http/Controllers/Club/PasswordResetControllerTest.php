@@ -47,14 +47,14 @@ it('fails to send password reset link with invalid data', function (array $inval
     Notification::assertNothingSent();
     $this->assertDatabaseEmpty('password_reset_tokens');
 })->with([
-//    'empty email' => [
+    'empty email' => [
         'invalidData' => ['email' => ''],
         'expectedMessages' => [__('validation.required', ['attribute' => __('validation.attributes.email')])],
-//    ],
-//    'email does not exist' => [
-//        'invalidData' => ['email' => 'unknown@example.com'],
-//        'expectedMessages' => [__('validation.exists', ['attribute' => __('validation.attributes.email')])],
-//    ],
+    ],
+    'email does not exist' => [
+        'invalidData' => ['email' => 'unknown@example.com'],
+        'expectedMessages' => [__('validation.exists', ['attribute' => __('validation.attributes.email')])],
+    ],
 ]);
 
 
