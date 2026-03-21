@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 use App\Models\ClubUser;
 use App\Models\User;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithCachedConfig;
+use Illuminate\Foundation\Testing\WithCachedRoutes;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Sleep;
@@ -14,7 +17,9 @@ use Tests\TestCase;
 use function Pest\Laravel\actingAs;
 
 pest()->extend(TestCase::class)
-    ->use(RefreshDatabase::class)
+    ->use(WithCachedRoutes::class)
+    ->use(WithCachedConfig::class)
+    ->use(LazilyRefreshDatabase::class)
     ->beforeEach(function (): void {
         Str::createRandomStringsNormally();
         Http::preventStrayRequests();
