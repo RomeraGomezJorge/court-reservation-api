@@ -178,5 +178,9 @@ return [
         'reservation_policies_and_payment_terms' => 'reservation policies and payment terms',
         'twitter_url' => 'twitter url',
         'whatsapp_number' => 'whatsapp number',
+        'working_days' => 'Club Opening Hours',
+        'working_days.*.day' => 'day',
+        'working_days.*.opening_hour' => 'opening hour',
+        'working_days.*.closing_hour' => 'closing hour',
     ],
 ];

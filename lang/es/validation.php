@@ -179,5 +179,9 @@ return [
         'reservation_policies_and_payment_terms' => 'políticas de reserva y términos de pago',
         'twitter_url' => 'twitter url',
         'whatsapp_number' => 'whatsapp',
+        'working_days' => 'Horarios del Club',
+        'working_days.*.day' => 'día',
+        'working_days.*.opening_hour' => 'hora de apertura',
+        'working_days.*.closing_hour' => 'hora de cierre',
     ],
 ];

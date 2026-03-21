@@ -9,6 +9,7 @@ use Database\Factories\ClubFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
 /**
@@ -102,5 +103,15 @@ final class Club extends Model
     public function clubUser(): BelongsTo
     {
         return $this->belongsTo(ClubUser::class);
+    }
+
+    /**
+     * Get the working days for this club.
+     *
+     * @return HasMany<ClubWorkingDay>
+     */
+    public function workingDays(): HasMany
+    {
+        return $this->hasMany(ClubWorkingDay::class);
     }
 }

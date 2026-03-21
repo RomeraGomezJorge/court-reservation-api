@@ -34,6 +34,10 @@ final class StoreClubRequest extends FormRequest
             'reservation_policies_and_payment_terms' => ['nullable', 'string', 'max:255'],
             'twitter_url' => ['nullable', 'url', 'max:255'],
             'whatsapp_number' => ['nullable', 'string', 'max:255'],
+            'working_days' => ['required', 'array', 'min:1'],
+            'working_days.*.day' => ['required', 'string', 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday,holiday'],
+            'working_days.*.opening_hour' => ['required', 'date_format:H:i'],
+            'working_days.*.closing_hour' => ['required', 'date_format:H:i'],
         ];
     }
 }

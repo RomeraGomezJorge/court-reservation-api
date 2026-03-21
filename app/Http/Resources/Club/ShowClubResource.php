@@ -45,6 +45,13 @@ final class ShowClubResource extends JsonResource
             'twitter_url' => $this->twitter_url,
             'whatsapp_number' => $this->whatsapp_number,
             'is_active' => $this->is_active,
+            'working_days' => $this->workingDays->map(function ($day) {
+                return [
+                    'day' => $day->day->value,
+                    'opening_hour' => $day->opening_hour,
+                    'closing_hour' => $day->closing_hour,
+                ];
+            })->values(),
         ];
     }
 }

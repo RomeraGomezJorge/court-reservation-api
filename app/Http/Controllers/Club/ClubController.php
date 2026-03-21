@@ -28,11 +28,24 @@ final class ClubController
 
     public function store(StoreClubRequest $request): Response
     {
-        Club::query()->create([
-            'club_user_id' => Auth::id(),
-            'is_active' => true,
-            ...$request->validated(),
-        ]);
+        DB::transaction(function () use ($request): void {
+            $club = Club::query()->create([
+                'club_user_id' => Auth::id(),
+                'is_active' => true,
+                ...$request->validated(['address_city', 'address_country', 'address_postal_code', 'address_state', 'address_street', 'description', 'facebook_url', 'instagram_url', 'latitude', 'longitude', 'operating_hours_additional_info', 'organization_name', 'phone_number', 'reservation_policies_and_payment_terms', 'twitter_url', 'whatsapp_number']),
+            ]);
+
+            $workingDays = collect($request->input('working_days'))->map(function (array $day) use ($club): array {
+                return [
+                    'club_id' => $club->id,
+                    'day' => $day['day'],
+                    'opening_hour' => $day['opening_hour'],
+                    'closing_hour' => $day['closing_hour'],
+                ];
+            })->toArray();
+
+            ClubWorkingDay::query()->insert($workingDays);
+        });
 
         return new Response(status: 201);
     }
@@ -40,6 +53,8 @@ final class ClubController
     public function show(Club $club, OwnershipVerifierService $ownershipVerifier): ShowClubResource
     {
         $ownershipVerifier->handle($club);
+
+        $club->load('workingDays');
 
         return new ShowClubResource($club);
     }
@@ -51,7 +66,24 @@ final class ClubController
     ): Response {
         $ownershipVerifier->handle($club);
 
-        $club->update($request->validated());
+        DB::transaction(function () use ($request, $club): void {
+            $club->update($request->validated(['address_city', 'address_country', 'address_postal_code', 'address_state', 'address_street', 'description', 'facebook_url', 'instagram_url', 'latitude', 'longitude', 'operating_hours_additional_info', 'organization_name', 'phone_number', 'reservation_policies_and_payment_terms', 'twitter_url', 'whatsapp_number']));
+
+            if ($request->has('working_days')) {
+                $club->workingDays()->delete();
+
+                $workingDays = collect($request->input('working_days'))->map(function (array $day) use ($club): array {
+                    return [
+                        'club_id' => $club->id,
+                        'day' => $day['day'],
+                        'opening_hour' => $day['opening_hour'],
+                        'closing_hour' => $day['closing_hour'],
+                    ];
+                })->toArray();
+
+                ClubWorkingDay::query()->insert($workingDays);
+            }
+        });
 
         return new Response(status: 204);
     }
