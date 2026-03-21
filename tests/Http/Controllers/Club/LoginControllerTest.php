@@ -48,7 +48,7 @@ it('fails login with incorrect password', function (): void {
         ->assertStatus(422)
         ->assertExactJson([
             'code' => 422,
-            'messages' => [__('auth.failed')],
+            'messages' => ['Estas credenciales no coinciden con nuestros registros.'],
         ]);
 });
 
@@ -62,7 +62,7 @@ it('fails login when email is not verified', function (): void {
         ->assertStatus(422)
         ->assertExactJson([
             'code' => 422,
-            'messages' => [__('auth.email_not_verified')],
+            'messages' => ['Debe verificar el correo electrónico antes de iniciar sesión.'],
         ]);
 });
 
@@ -79,15 +79,18 @@ it('fails login with invalid payload', function (array $invalidData, array $expe
 })->with([
     'empty email' => [
         'invalidData' => ['email' => ''],
-        'expectedMessages' => [__('validation.required', ['attribute' => __('validation.attributes.email')])],
+        'expectedMessages' => ['El campo correo electrónico es obligatorio.'],
     ],
     'invalid email format' => [
         'invalidData' => ['email' => 'invalid-email'],
-        'expectedMessages' => [__('validation.email', ['attribute' => __('validation.attributes.email')])],
+        'expectedMessages' => [ 'El campo correo electrónico no es un correo válido.'],
     ],
     'empty password' => [
         'invalidData' => ['password' => ''],
-        'expectedMessages' => [__('validation.required', ['attribute' => __('validation.attributes.password')])],
+        'expectedMessages' => [
+            'El campo contraseña debe ser una cadena de caracteres.',
+            'El campo contraseña es obligatorio.',
+        ],
     ],
 ]);
 
