@@ -45,8 +45,6 @@ final class ShowClubResource extends JsonResource
             'twitter_url' => $this->twitter_url,
             'whatsapp_number' => $this->whatsapp_number,
             'is_active' => $this->is_active,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
         ];
     }
 }
