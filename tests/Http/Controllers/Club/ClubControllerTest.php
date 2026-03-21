@@ -18,9 +18,14 @@ beforeEach(function (): void {
 });
 
 it('returns a collection of clubs for the authenticated club user', function (): void {
-    $ownedClub = Club::factory()->create([
+    [$ownedClub,$otherOwnedClub] = Club::factory()
+        ->count(2)
+        ->sequence(
+            ['organization_name' => 'Club Propio 1',],
+            ['organization_name' => 'Club Propio 2',],
+        )
+        ->create([
         'club_user_id' => $this->clubUser->id,
-        'organization_name' => 'Club Propio',
         'is_active' => true,
     ]);
 
@@ -34,7 +39,12 @@ it('returns a collection of clubs for the authenticated club user', function ():
         ->assertExactJson([
             [
                 'id' => $ownedClub->id,
-                'organization_name' => 'Club Propio',
+                'organization_name' => 'Club Propio 1',
+                'is_active' => true,
+            ],
+            [
+                'id' => $otherOwnedClub->id,
+                'organization_name' => 'Club Propio 2',
                 'is_active' => true,
             ],
         ]);
