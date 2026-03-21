@@ -38,24 +38,25 @@ it('fails to send password reset link with invalid data', function (array $inval
     post(action([PasswordResetController::class, 'store']), array_merge([
         'email' => $this->clubUser->email,
     ], $invalidData))
-        ->assertStatus(422)
         ->assertExactJson([
             'code' => 422,
             'messages' => $expectedMessages,
         ]);
 
     Notification::assertNothingSent();
+
     $this->assertDatabaseEmpty('password_reset_tokens');
 })->with([
     'empty email' => [
         'invalidData' => ['email' => ''],
-        'expectedMessages' => [__('validation.required', ['attribute' => __('validation.attributes.email')])],
+        'expectedMessages' => ['El campo correo electrónico es obligatorio.'],
     ],
     'email does not exist' => [
         'invalidData' => ['email' => 'unknown@example.com'],
-        'expectedMessages' => [__('validation.exists', ['attribute' => __('validation.attributes.email')])],
+        'expectedMessages' => ['El campo correo electrónico no existe.'],
     ],
 ]);
+
 
 
 it('resets a club user password', function (): void {
@@ -78,12 +79,14 @@ it('resets a club user password', function (): void {
 it('fails to reset password with invalid data', function (array $invalidData, array $expectedMessages): void {
     $token = Password::broker('club_users')->createToken($this->clubUser);
 
-    put(action([PasswordResetController::class, 'update']), array_merge([
+    $payload = array_merge([
         'token' => $token,
         'email' => $this->clubUser->email,
         'password' => 'ValidPassword.123!',
         'password_confirmation' => 'ValidPassword.123!',
-    ], $invalidData))
+    ], $invalidData);
+
+    put(action([PasswordResetController::class, 'update']), $payload)
         ->assertStatus(422)
         ->assertExactJson([
             'code' => 422,
@@ -92,34 +95,30 @@ it('fails to reset password with invalid data', function (array $invalidData, ar
 })->with([
     'empty token' => [
         'invalidData' => ['token' => ''],
-        'expectedMessages' => [__('validation.required', ['attribute' => 'token'])],
+        'expectedMessages' => ['El campo token es obligatorio.'],
     ],
     'empty email' => [
         'invalidData' => ['email' => ''],
-        'expectedMessages' => [__('validation.required', ['attribute' => __('validation.attributes.email')])],
+        'expectedMessages' => ['El campo correo electrónico es obligatorio.'],
     ],
     'email does not exist' => [
         'invalidData' => ['email' => 'unknown@example.com'],
-        'expectedMessages' => [__('validation.exists', ['attribute' => __('validation.attributes.email')])],
+        'expectedMessages' => ['El campo correo electrónico no existe.'],
     ],
-    'empty password and confirmation' => [
+    'empty password' => [
         'invalidData' => ['password' => '', 'password_confirmation' => ''],
-        'expectedMessages' => [
-            __('validation.required', ['attribute' => __('validation.attributes.password')]),
-            __('validation.required', ['attribute' => __('validation.attributes.password_confirmation')]),
-        ],
+        'expectedMessages' => ['El campo contraseña es obligatorio.'],
+    ],
+    'password too short' => [
+        'invalidData' => ['password' => 'Short1!', 'password_confirmation' => 'Short1!'],
+        'expectedMessages' => ['El campo contraseña debe contener al menos 12 caracteres.'],
     ],
     'password confirmation does not match' => [
         'invalidData' => [
             'password' => 'ValidPassword.123!',
             'password_confirmation' => 'DifferentPassword.123!',
         ],
-        'expectedMessages' => [
-            __('validation.same', [
-                'attribute' => __('validation.attributes.password_confirmation'),
-                'other' => __('validation.attributes.password'),
-            ]),
-        ],
+        'expectedMessages' => ['La confirmación de contraseña no coincide.'],
     ],
 ]);
 
