@@ -19,6 +19,15 @@ Content-Type: application/json
     "phone_number": "+56987654321",
     "reservation_policies_and_payment_terms": "Pago anticipado del 100% y cancelacion hasta 12 horas antes",
     "twitter_url": "https://x.com/club.demo.actualizado",
-    "whatsapp_number": "+56987654321"
+    "whatsapp_number": "+56987654321",
+    "working_days": [
+        { "day": "monday", "opening_hour": "09:00", "closing_hour": "03:00" },
+        { "day": "tuesday", "opening_hour": "09:00", "closing_hour": "03:00" },
+        { "day": "wednesday", "opening_hour": "09:00", "closing_hour": "03:00" },
+        { "day": "thursday", "opening_hour": "09:00", "closing_hour": "03:00" },
+        { "day": "friday", "opening_hour": "09:00", "closing_hour": "03:00" },
+        { "day": "saturday", "opening_hour": "09:00", "closing_hour": "03:00" },
+        { "day": "sunday", "opening_hour": "09:00", "closing_hour": "03:00" },
+        { "day": "holiday", "opening_hour": "09:00", "closing_hour": "03:00" }
+    ]
 }
-

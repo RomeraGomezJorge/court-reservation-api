@@ -9,7 +9,9 @@ use App\Http\Requests\Club\UpdateClubRequest;
 use App\Http\Resources\Club\ClubResource;
 use App\Http\Resources\Club\ShowClubResource;
 use App\Models\Club;
+use App\Models\ClubWorkingDay;
 use App\Services\OwnershipVerifierService;
+use DB;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +20,6 @@ final class ClubController
 {
     public function index(): AnonymousResourceCollection
     {
-
         return ClubResource::collection(
             Club::query()
                 ->where('club_user_id', Auth::id())
@@ -32,29 +33,27 @@ final class ClubController
             $club = Club::query()->create([
                 'club_user_id' => Auth::id(),
                 'is_active' => true,
-                ...$request->validated(['address_city', 'address_country', 'address_postal_code', 'address_state', 'address_street', 'description', 'facebook_url', 'instagram_url', 'latitude', 'longitude', 'operating_hours_additional_info', 'organization_name', 'phone_number', 'reservation_policies_and_payment_terms', 'twitter_url', 'whatsapp_number']),
+                ...$request->clubData(),
             ]);
 
-            $workingDays = collect($request->input('working_days'))->map(function (array $day) use ($club): array {
-                return [
-                    'club_id' => $club->id,
+            $workingDays = collect($request->workingDays())
+                ->map(fn(array $day) => [
                     'day' => $day['day'],
                     'opening_hour' => $day['opening_hour'],
                     'closing_hour' => $day['closing_hour'],
-                ];
-            })->toArray();
+                ]);
 
-            ClubWorkingDay::query()->insert($workingDays);
+            $club->workingDays()->createMany($workingDays->toArray());
         });
 
         return new Response(status: 201);
     }
 
-    public function show(Club $club, OwnershipVerifierService $ownershipVerifier): ShowClubResource
-    {
+    public function show(
+        Club $club,
+        OwnershipVerifierService $ownershipVerifier,
+    ): ShowClubResource {
         $ownershipVerifier->handle($club);
-
-        $club->load('workingDays');
 
         return new ShowClubResource($club);
     }
@@ -62,34 +61,35 @@ final class ClubController
     public function update(
         UpdateClubRequest $request,
         Club $club,
-        OwnershipVerifierService $ownershipVerifier
+        OwnershipVerifierService $ownershipVerifier,
     ): Response {
         $ownershipVerifier->handle($club);
 
         DB::transaction(function () use ($request, $club): void {
-            $club->update($request->validated(['address_city', 'address_country', 'address_postal_code', 'address_state', 'address_street', 'description', 'facebook_url', 'instagram_url', 'latitude', 'longitude', 'operating_hours_additional_info', 'organization_name', 'phone_number', 'reservation_policies_and_payment_terms', 'twitter_url', 'whatsapp_number']));
+            $club->update(...$request->clubData());
 
             if ($request->has('working_days')) {
                 $club->workingDays()->delete();
 
-                $workingDays = collect($request->input('working_days'))->map(function (array $day) use ($club): array {
-                    return [
-                        'club_id' => $club->id,
+                $workingDays = collect($request->workingDays())
+                    ->map(fn(array $day) => [
                         'day' => $day['day'],
                         'opening_hour' => $day['opening_hour'],
                         'closing_hour' => $day['closing_hour'],
-                    ];
-                })->toArray();
+                    ]);
 
-                ClubWorkingDay::query()->insert($workingDays);
+                $club->workingDays()->createMany($workingDays->toArray());
             }
         });
 
         return new Response(status: 204);
     }
 
-    public function destroy(Club $club, OwnershipVerifierService $ownershipVerifier): Response
-    {
+    public
+    function destroy(
+        Club $club,
+        OwnershipVerifierService $ownershipVerifier,
+    ): Response {
         $ownershipVerifier->handle($club);
 
         $club->delete();

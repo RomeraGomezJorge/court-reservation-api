@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Club;
 
+use App\Enums\ClubWorkingDays;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 final class StoreClubRequest extends FormRequest
 {
@@ -35,9 +37,21 @@ final class StoreClubRequest extends FormRequest
             'twitter_url' => ['nullable', 'url', 'max:255'],
             'whatsapp_number' => ['nullable', 'string', 'max:255'],
             'working_days' => ['required', 'array', 'min:1'],
-            'working_days.*.day' => ['required', 'string', 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday,holiday'],
+            'working_days.*.day' => ['required', Rule::enum(ClubWorkingDays::class)],
             'working_days.*.opening_hour' => ['required', 'date_format:H:i'],
             'working_days.*.closing_hour' => ['required', 'date_format:H:i'],
         ];
+    }
+
+    public function clubData(): array
+    {
+        return $this->safe()->except([
+            'working_days',
+        ]);
+    }
+
+    public function workingDays(): array
+    {
+        return $this->input('working_days', []);
     }
 }

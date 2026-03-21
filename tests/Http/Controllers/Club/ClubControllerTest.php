@@ -13,6 +13,34 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 use function Pest\Laravel\put;
 
+function validWorkingDays(): array
+{
+    return [
+        ['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
+        ['day' => 'tuesday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
+        ['day' => 'wednesday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
+        ['day' => 'thursday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
+        ['day' => 'friday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
+        ['day' => 'saturday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
+        ['day' => 'sunday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
+        ['day' => 'holiday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
+    ];
+}
+
+function validClubPayload(array $overrides = []): array
+{
+    return array_merge([
+        'address_city' => 'Rosario',
+        'address_country' => 'Argentina',
+        'address_postal_code' => '2000',
+        'address_state' => 'Santa Fe',
+        'address_street' => 'Av. Siempre Viva 123',
+        'description' => 'Club con canchas de futbol',
+        'organization_name' => 'Club Valido',
+        'working_days' => validWorkingDays(),
+    ], $overrides);
+}
+
 beforeEach(function (): void {
     $this->clubUser = actingAsClubUser();
 });
@@ -105,10 +133,14 @@ dataset('invalid club payload data', [
         'invalidData' => ['whatsapp_number' => $maxLengthString],
         'expectedMessages' => ['El campo whatsapp no debe ser mayor que 255 caracteres.'],
     ],
+    'working_days invalid enum day' => [
+        'invalidData' => ['working_days' => [['day' => 'funday', 'opening_hour' => '09:00', 'closing_hour' => '03:00']]],
+        'expectedMessages' => ['El campo día no está en la lista de valores permitidos.'],
+    ],
 ]);
 
 it('returns a collection of clubs for the authenticated club user', function (): void {
-    [$ownedClub,$otherOwnedClub] = Club::factory()
+    [$ownedClub, $otherOwnedClub] = Club::factory()
         ->count(2)
         ->sequence(
             ['organization_name' => 'Club Propio 1'],
@@ -141,21 +173,25 @@ it('returns a collection of clubs for the authenticated club user', function ():
 });
 
 it('stores a club', function (): void {
-    $payload = [
-        'address_city' => 'Rosario',
-        'address_country' => 'Argentina',
-        'address_postal_code' => '2000',
-        'address_state' => 'Santa Fe',
-        'address_street' => 'Av. Siempre Viva 123',
-        'description' => 'Club con canchas de futbol',
+    $payload = validClubPayload([
         'organization_name' => 'Club Nuevo',
-    ];
+    ]);
+
     post(action([ClubController::class, 'store']), $payload)->assertStatus(201);
+
+    $club = Club::query()->where('organization_name', 'Club Nuevo')->firstOrFail();
 
     $this->assertDatabaseHas('clubs', [
         'club_user_id' => $this->clubUser->id,
         'organization_name' => 'Club Nuevo',
         'is_active' => true,
+    ]);
+
+    $this->assertDatabaseHas('club_working_days', [
+        'club_id' => $club->id,
+        'day' => 'holiday',
+        'opening_hour' => '09:00:00',
+        'closing_hour' => '03:00:00',
     ]);
 });
 
@@ -164,17 +200,7 @@ it('fails to store a club with invalid data', function (array $invalidData, arra
         Club::factory()->create(['organization_name' => 'Club Duplicado']);
     }
 
-    $clubData = [
-        'address_city' => 'Rosario',
-        'address_country' => 'Argentina',
-        'address_postal_code' => '2000',
-        'address_state' => 'Santa Fe',
-        'address_street' => 'Av. Siempre Viva 123',
-        'description' => 'Club con canchas de futbol',
-        'organization_name' => 'Club Valido',
-    ];
-
-    post(action([ClubController::class, 'store']), array_merge($clubData, $invalidData))
+    post(action([ClubController::class, 'store']), validClubPayload($invalidData))
         ->assertExactJson([
             'code' => 422,
             'messages' => $expectedMessages,
@@ -187,6 +213,19 @@ it('shows a club', function (): void {
         'organization_name' => 'Club Show',
         'is_active' => true,
     ]);
+
+    $club->workingDays()->createMany([
+        ['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
+        ['day' => 'holiday', 'opening_hour' => '10:00', 'closing_hour' => '02:00'],
+    ]);
+
+    $expectedWorkingDays = $club->workingDays()->get()->map(function ($day): array {
+        return [
+            'day' => $day->day->value,
+            'opening_hour' => $day->opening_hour,
+            'closing_hour' => $day->closing_hour,
+        ];
+    })->values()->toArray();
 
     get(action([ClubController::class, 'show'], $club))
         ->assertOk()
@@ -210,6 +249,7 @@ it('shows a club', function (): void {
             'twitter_url' => $club->twitter_url,
             'whatsapp_number' => $club->whatsapp_number,
             'is_active' => $club->is_active,
+            'working_days' => $expectedWorkingDays,
         ]);
 });
 
@@ -239,33 +279,38 @@ it('updates a club', function (): void {
         'organization_name' => 'Club Base',
     ]);
 
-    put(action([ClubController::class, 'update'], $club), [
+    $club->workingDays()->createMany([
+        ['day' => 'monday', 'opening_hour' => '08:00', 'closing_hour' => '01:00'],
+    ]);
+
+    put(action([ClubController::class, 'update'], $club), validClubPayload([
         'address_city' => 'Cordoba',
-        'address_country' => 'Argentina',
-        'address_postal_code' => '5000',
         'address_state' => 'Cordoba',
         'address_street' => 'Calle Falsa 742',
-        'description' => 'Club actualizado',
         'organization_name' => 'Club Actualizado',
-    ])->assertNoContent();
+    ]))->assertNoContent();
 
     $this->assertDatabaseHas('clubs', [
         'id' => $club->id,
         'organization_name' => 'Club Actualizado',
         'address_city' => 'Cordoba',
     ]);
+
+    $this->assertDatabaseHas('club_working_days', [
+        'club_id' => $club->id,
+        'day' => 'holiday',
+        'opening_hour' => '09:00:00',
+        'closing_hour' => '03:00:00',
+    ]);
 });
 
 it('fails to update a club that does not exist', function (): void {
-    put(action([ClubController::class, 'update'], 999), [
+    put(action([ClubController::class, 'update'], 999), validClubPayload([
         'address_city' => 'Cordoba',
-        'address_country' => 'Argentina',
-        'address_postal_code' => '5000',
         'address_state' => 'Cordoba',
         'address_street' => 'Calle Falsa 742',
-        'description' => 'Club actualizado',
         'organization_name' => 'Club Actualizado',
-    ])
+    ]))
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
@@ -283,15 +328,7 @@ it('fails to update a club with invalid data', function (array $invalidData, arr
         Club::factory()->create(['organization_name' => 'Club Duplicado']);
     }
 
-    put(action([ClubController::class, 'update'], $club), array_merge([
-        'address_city' => 'Rosario',
-        'address_country' => 'Argentina',
-        'address_postal_code' => '2000',
-        'address_state' => 'Santa Fe',
-        'address_street' => 'Av. Siempre Viva 123',
-        'description' => 'Club con canchas de futbol',
-        'organization_name' => 'Club Valido',
-    ], $invalidData))
+    put(action([ClubController::class, 'update'], $club), validClubPayload($invalidData))
         ->assertExactJson([
             'code' => 422,
             'messages' => $expectedMessages,
@@ -301,15 +338,12 @@ it('fails to update a club with invalid data', function (array $invalidData, arr
 it('fails to update a club that is not owned by the authenticated club user', function (): void {
     $club = Club::factory()->create();
 
-    put(action([ClubController::class, 'update'], $club), [
+    put(action([ClubController::class, 'update'], $club), validClubPayload([
         'address_city' => 'Cordoba',
-        'address_country' => 'Argentina',
-        'address_postal_code' => '5000',
         'address_state' => 'Cordoba',
         'address_street' => 'Calle Falsa 742',
-        'description' => 'Club actualizado',
         'organization_name' => 'Club Actualizado',
-    ])
+    ]))
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
