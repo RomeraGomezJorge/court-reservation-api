@@ -76,16 +76,19 @@ it('resets password', function (): void {
 it('fails to reset password with invalid data', function (array $invalidData, array $expectedMessages): void {
     $token = Password::createToken($this->user);
 
-    put(action([PasswordResetController::class, 'update']), array_merge([
+    $payload = array_merge([
         'token' => $token,
         'email' => $this->user->email,
         'password' => 'ValidPassword.123!',
         'password_confirmation' => 'ValidPassword.123!',
-    ], $invalidData))
+    ], $invalidData);
+
+    put(action([PasswordResetController::class, 'update']), $payload)
         ->assertExactJson([
             'code' => 422,
             'messages' => $expectedMessages,
         ]);
+
 })->with([
     'empty token' => [
         'invalidData' => ['token' => ''],
