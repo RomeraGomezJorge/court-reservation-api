@@ -15,7 +15,7 @@ Accept: application/json
     "latitude": -33.4489,
     "longitude": -70.6693,
     "operating_hours_additional_info": "Lunes a domingo de 08:00 a 23:00",
-    "organization_name": "Club Deportivo Demo",
+    "organization_name": "Club Deportivo Demo 1",
     "phone_number": "+56912345678",
     "reservation_policies_and_payment_terms": "Pago anticipado del 50% y cancelacion hasta 24 horas antes",
     "twitter_url": "https://x.com/club.demo",
@@ -23,7 +23,7 @@ Accept: application/json
     "working_days": [
         { "day": "monday", "opening_hour": "09:00", "closing_hour": "03:00" },
         { "day": "tuesday", "opening_hour": "09:00", "closing_hour": "03:00" },
-        { "day": "wednesday", "opening_hour": "09:00", "closing_hour": "03:00" },
+        { "day": "wednesday", "opening_hour": "09:00", "closing_hour": "08:59" },
         { "day": "thursday", "opening_hour": "09:00", "closing_hour": "03:00" },
         { "day": "friday", "opening_hour": "09:00", "closing_hour": "03:00" },
         { "day": "saturday", "opening_hour": "09:00", "closing_hour": "03:00" },
