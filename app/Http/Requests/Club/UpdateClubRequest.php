@@ -41,7 +41,7 @@ final class UpdateClubRequest extends BaseClubRequest
             'twitter_url' => ['nullable', 'url', 'max:255'],
             'whatsapp_number' => ['nullable', 'string', 'max:255'],
             'working_days' => ['nullable', 'array', 'min:1'],
-            'working_days.*.day' => ['required', Rule::enum(ClubWorkingDays::class)],
+            'working_days.*.day' => ['required', 'distinct', Rule::enum(ClubWorkingDays::class)],
             'working_days.*.opening_hour' => ['required', 'date_format:H:i'],
             'working_days.*.closing_hour' => ['required', 'date_format:H:i'],
         ];

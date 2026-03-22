@@ -12,7 +12,7 @@ use Illuminate\Validation\Validator;
 
 abstract class BaseClubRequest extends FormRequest
 {
-    protected const int MAX_WORKING_HOURS_IN_SECONDS = 64800;
+    protected const MAX_WORKING_HOURS_IN_SECONDS = 57600;
 
     /** @return array<string, mixed> */
     final public function clubData(): array

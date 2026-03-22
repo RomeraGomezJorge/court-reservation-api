@@ -16,14 +16,14 @@ use function Pest\Laravel\put;
 function validWorkingDays(): array
 {
     return [
-        ['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
-        ['day' => 'tuesday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
-        ['day' => 'wednesday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
-        ['day' => 'thursday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
-        ['day' => 'friday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
-        ['day' => 'saturday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
-        ['day' => 'sunday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
-        ['day' => 'holiday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
+        ['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
+        ['day' => 'tuesday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
+        ['day' => 'wednesday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
+        ['day' => 'thursday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
+        ['day' => 'friday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
+        ['day' => 'saturday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
+        ['day' => 'sunday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
+        ['day' => 'holiday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
     ];
 }
 
@@ -134,19 +134,33 @@ dataset('invalid club payload data', [
         'expectedMessages' => ['El campo whatsapp no debe ser mayor que 255 caracteres.'],
     ],
     'working_days invalid enum day' => [
-        'invalidData' => ['working_days' => [['day' => 'funday', 'opening_hour' => '09:00', 'closing_hour' => '03:00']]],
+        'invalidData' => ['working_days' => [['day' => 'funday', 'opening_hour' => '09:00', 'closing_hour' => '01:00']]],
         'expectedMessages' => ['El campo día no está en la lista de valores permitidos.'],
     ],
     'working_days invalid opening hour format' => [
-        'invalidData' => ['working_days' => [['day' => 'monday', 'opening_hour' => '25:00', 'closing_hour' => '03:00']]],
+        'invalidData' => ['working_days' => [['day' => 'monday', 'opening_hour' => 'aa:bb', 'closing_hour' => 'aa:bb']]],
         'expectedMessages' => [
             'El campo hora de apertura debe coincidir con el formato H:i.',
             'El formato de hora de lunes es inválido.',
+            'El campo hora de cierre debe coincidir con el formato H:i.',
+
         ],
     ],
     'working_days schedule too wide' => [
-        'invalidData' => ['working_days' => [['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '02:00']]],
+        'invalidData' => ['working_days' => [['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '04:00']]],
         'expectedMessages' => ['El horario para lunes es demasiado amplio.'],
+    ],
+    'working_days duplicate day' => [
+        'invalidData' => [
+            'working_days' => [
+                ['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
+                ['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
+            ],
+        ],
+        'expectedMessages' => [
+            'El campo día contiene un valor duplicado.',
+            'El campo día contiene un valor duplicado.',
+        ],
     ],
 ]);
 
@@ -202,7 +216,7 @@ it('stores a club', function (): void {
         'club_id' => $club->id,
         'day' => 'holiday',
         'opening_hour' => '09:00:00',
-        'closing_hour' => '03:00:00',
+        'closing_hour' => '01:00:00',
     ]);
 });
 
@@ -311,7 +325,7 @@ it('updates a club', function (): void {
         'club_id' => $club->id,
         'day' => 'holiday',
         'opening_hour' => '09:00:00',
-        'closing_hour' => '03:00:00',
+        'closing_hour' => '01:00:00',
     ]);
 });
 
