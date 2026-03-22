@@ -5,17 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Requests\Club;
 
 use App\Enums\ClubWorkingDays;
-use Carbon\Carbon;
-use Exception;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
-final class StoreClubRequest extends FormRequest
+final class StoreClubRequest extends BaseClubRequest
 {
-    private const MAX_WORKING_HOURS_IN_SECONDS = 57600;
-
     public function authorize(): bool
     {
         return true;
@@ -55,67 +50,5 @@ final class StoreClubRequest extends FormRequest
                 $this->validateWorkingDays($validator);
             },
         ];
-    }
-
-    public function clubData(): array
-    {
-        return $this->safe()->except([
-            'working_days',
-        ]);
-    }
-
-    public function workingDays(): array
-    {
-        return $this->input('working_days', []);
-    }
-
-    private function validateWorkingDays(Validator $validator): void
-    {
-        $workingDays = $this->workingDays();
-
-        foreach ($workingDays as $index => $workingDay) {
-            $this->validateWorkingHours($validator, $workingDay, $index);
-        }
-    }
-
-    private function validateWorkingHours(Validator $validator, array $workingDay, int $index): void
-    {
-        if (! isset($workingDay['opening_hour'], $workingDay['closing_hour'])) {
-            return;
-        }
-
-        $day = $workingDay['day'] ?? 'desconocido';
-
-        try {
-            $opening = Carbon::createFromFormat('H:i', $workingDay['opening_hour']);
-            $closing = Carbon::createFromFormat('H:i', $workingDay['closing_hour']);
-        } catch (Exception) {
-            $day = $workingDay['day'] ?? 'desconocido';
-            $validator->errors()->add(
-                "working_days.$index.opening_hour",
-                "El formato de hora de {$day} es inválido."
-            );
-
-            return;
-        }
-
-        if ($this->isInvalidRange($opening, $closing)) {
-
-            $validator->errors()->add(
-                "working_days.$index.closing_hour",
-                "El horario para {$day} es demasiado amplio."
-            );
-        }
-    }
-
-    private function isInvalidRange(Carbon $opening, Carbon $closing): bool
-    {
-        if ($closing->lessThanOrEqualTo($opening)) {
-            $closing = $closing->copy()->addDay();
-        }
-
-        $diffInSeconds = $opening->diffInSeconds($closing);
-
-        return $diffInSeconds <= 0 || $diffInSeconds > self::MAX_WORKING_HOURS_IN_SECONDS;
     }
 }

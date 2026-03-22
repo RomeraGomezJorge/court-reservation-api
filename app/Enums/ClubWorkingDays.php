@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use App\Enums\Traits\EnumHasLabels;
+
 enum ClubWorkingDays: string
 {
+    use EnumHasLabels;
+
     case Monday = 'monday';
     case Tuesday = 'tuesday';
     case Wednesday = 'wednesday';
@@ -15,4 +19,3 @@ enum ClubWorkingDays: string
     case Sunday = 'sunday';
     case Holiday = 'holiday';
 }
-

@@ -45,5 +45,13 @@
     "Unauthorized": "No autorizado",
     "Verify Email Address": "Confirme su correo electrónico",
     "Whoops!": "¡Ups!",
-    "You are receiving this email because we received a password reset request for your account.": "Ha recibido este mensaje porque se solicitó un restablecimiento de contraseña para su cuenta."
+    "You are receiving this email because we received a password reset request for your account.": "Ha recibido este mensaje porque se solicitó un restablecimiento de contraseña para su cuenta.",
+    "monday": "lunes",
+    "tuesday": "martes",
+    "wednesday": "miercoles",
+    "thursday": "jueves",
+    "friday": "viernes",
+    "saturday": "sabado",
+    "sunday": "domingo",
+    "holiday": "feriado"
 }

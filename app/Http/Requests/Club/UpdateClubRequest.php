@@ -7,10 +7,10 @@ namespace App\Http\Requests\Club;
 use App\Enums\ClubWorkingDays;
 use App\Models\Club;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
-final class UpdateClubRequest extends FormRequest
+final class UpdateClubRequest extends BaseClubRequest
 {
     public function authorize(): bool
     {
@@ -47,17 +47,12 @@ final class UpdateClubRequest extends FormRequest
         ];
     }
 
-    /** @return array<string, mixed> */
-    public function clubData(): array
+    public function after(): array
     {
-        return $this->safe()->except([
-            'working_days',
-        ]);
-    }
-
-    /* @return array<int, array<string, mixed>> */
-    public function workingDays(): array
-    {
-        return $this->input('working_days', []);
+        return [
+            function (Validator $validator): void {
+                $this->validateWorkingDays($validator);
+            },
+        ];
     }
 }

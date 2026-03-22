@@ -137,6 +137,17 @@ dataset('invalid club payload data', [
         'invalidData' => ['working_days' => [['day' => 'funday', 'opening_hour' => '09:00', 'closing_hour' => '03:00']]],
         'expectedMessages' => ['El campo día no está en la lista de valores permitidos.'],
     ],
+    'working_days invalid opening hour format' => [
+        'invalidData' => ['working_days' => [['day' => 'monday', 'opening_hour' => '25:00', 'closing_hour' => '03:00']]],
+        'expectedMessages' => [
+            'El campo hora de apertura debe coincidir con el formato H:i.',
+            'El formato de hora de lunes es inválido.',
+        ],
+    ],
+    'working_days schedule too wide' => [
+        'invalidData' => ['working_days' => [['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '02:00']]],
+        'expectedMessages' => ['El horario para lunes es demasiado amplio.'],
+    ],
 ]);
 
 it('returns a collection of clubs for the authenticated club user', function (): void {
@@ -301,6 +312,40 @@ it('updates a club', function (): void {
         'day' => 'holiday',
         'opening_hour' => '09:00:00',
         'closing_hour' => '03:00:00',
+    ]);
+});
+
+it('updates a club without working days payload', function (): void {
+    $club = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+        'organization_name' => 'Club Base',
+    ]);
+
+    $club->workingDays()->createMany([
+        ['day' => 'monday', 'opening_hour' => '08:00', 'closing_hour' => '01:00'],
+    ]);
+
+    $payload = validClubPayload([
+        'address_city' => 'Mendoza',
+        'organization_name' => 'Club Sin Cambiar Horarios',
+    ]);
+
+    unset($payload['working_days']);
+
+    put(action([ClubController::class, 'update'], $club), $payload)
+        ->assertNoContent();
+
+    $this->assertDatabaseHas('clubs', [
+        'id' => $club->id,
+        'organization_name' => 'Club Sin Cambiar Horarios',
+        'address_city' => 'Mendoza',
+    ]);
+
+    $this->assertDatabaseHas('club_working_days', [
+        'club_id' => $club->id,
+        'day' => 'monday',
+        'opening_hour' => '08:00:00',
+        'closing_hour' => '01:00:00',
     ]);
 });
 
