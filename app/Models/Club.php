@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Override;
 
 /**
@@ -34,11 +35,14 @@ use Override;
  * @property-read bool $is_active
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
+ * @property-read CarbonInterface $deleted_at
  */
 final class Club extends Model
 {
     /** @use HasFactory<ClubFactory> */
     use HasFactory;
+
+    use SoftDeletes;
 
     /**
      * @var list<string>
@@ -92,6 +96,7 @@ final class Club extends Model
             'is_active' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 
@@ -108,7 +113,7 @@ final class Club extends Model
     /**
      * Get the working days for this club.
      *
-     * @return HasMany<ClubWorkingDay>
+     * @return HasMany<ClubWorkingDay, $this>
      */
     public function workingDays(): HasMany
     {

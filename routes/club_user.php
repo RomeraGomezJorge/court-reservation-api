@@ -30,6 +30,7 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
         PROFILE
     =============================================*/
     Route::get('profile', [ProfileController::class, 'show']);
+    Route::delete('profile', [ProfileController::class, 'destroy']);
 
     /*=============================================
         CLUB ONBOARDING

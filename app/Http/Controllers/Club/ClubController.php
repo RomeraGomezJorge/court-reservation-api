@@ -91,13 +91,22 @@ final class ClubController
         return new Response(status: 204);
     }
 
+    /**
+     * @throws Throwable
+     */
     public function destroy(
         Club $club,
         OwnershipVerifierService $ownershipVerifier,
     ): Response {
         $ownershipVerifier->handle($club);
 
-        $club->delete();
+        DB::transaction(function () use ($club): void {
+            $club->update([
+                'organization_name' => "{$club->organization_name} (deleted #{$club->id})",
+            ]);
+
+            $club->delete();
+        });
 
         return new Response(status: 204);
     }
