@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Resources\Club;
 
 use App\Models\Club;
+use App\Models\ClubService;
+use App\Models\ClubWorkingDay;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -45,11 +48,18 @@ final class ShowClubResource extends JsonResource
             'twitter_url' => $this->twitter_url,
             'whatsapp_number' => $this->whatsapp_number,
             'is_active' => $this->is_active,
-            'working_days' => $this->workingDays->map(function ($day) {
+            'working_days' => $this->workingDays->map(function (ClubWorkingDay $day) {
                 return [
                     'day' => $day->day->value,
-                    'opening_hour' => $day->opening_hour,
-                    'closing_hour' => $day->closing_hour,
+                    'opening_hour' => Carbon::createFromFormat('H:i:s', $day->opening_hour)->format('H:i'),
+                    'closing_hour' => Carbon::createFromFormat('H:i:s', $day->closing_hour)->format('H:i'),
+                ];
+            })->values(),
+            'services' => $this->services->map(function (ClubService $service) {
+                return [
+                    'id' => $service->id,
+                    'service' => $service->service->value,
+                    'icon' => $service->service->getIcon(),
                 ];
             })->values(),
         ];

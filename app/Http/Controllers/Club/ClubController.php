@@ -40,13 +40,20 @@ final class ClubController
             ]);
 
             $workingDays = collect($request->workingDays())
-                ->map(fn(array $day) => [
+                ->map(fn (array $day) => [
                     'day' => $day['day'],
                     'opening_hour' => $day['opening_hour'],
                     'closing_hour' => $day['closing_hour'],
                 ]);
 
             $club->workingDays()->createMany($workingDays->toArray());
+
+            if ($request->has('services')) {
+                $services = collect($request->services())
+                    ->map(fn (string $service) => ['service' => $service]);
+
+                $club->services()->createMany($services->toArray());
+            }
         });
 
         return new Response(status: 201);
@@ -57,6 +64,8 @@ final class ClubController
         OwnershipVerifierService $ownershipVerifier,
     ): ShowClubResource {
         $ownershipVerifier->handle($club);
+
+        $club->loadMissing(['workingDays', 'services']);
 
         return new ShowClubResource($club);
     }
@@ -78,13 +87,22 @@ final class ClubController
                 $club->workingDays()->delete();
 
                 $workingDays = collect($request->workingDays())
-                    ->map(fn(array $day) => [
+                    ->map(fn (array $day) => [
                         'day' => $day['day'],
                         'opening_hour' => $day['opening_hour'],
                         'closing_hour' => $day['closing_hour'],
                     ]);
 
                 $club->workingDays()->createMany($workingDays->toArray());
+            }
+
+            if ($request->has('services')) {
+                $club->services()->delete();
+
+                $services = collect($request->services())
+                    ->map(fn (string $service) => ['service' => $service]);
+
+                $club->services()->createMany($services->toArray());
             }
         });
 

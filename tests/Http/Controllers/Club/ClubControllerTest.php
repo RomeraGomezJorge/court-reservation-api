@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Http\Controllers\Club;
 
+use App\Enums\ClubServices;
+use App\Enums\ClubWorkingDays;
 use App\Http\Controllers\Club\ClubController;
 use App\Models\Club;
+use App\Models\ClubService;
 use App\Models\ClubUser;
+
+use App\Models\ClubWorkingDay;
 
 use function Pest\Laravel\delete;
 use function Pest\Laravel\get;
@@ -37,6 +42,7 @@ function validClubPayload(array $overrides = []): array
         'address_street' => 'Av. Siempre Viva 123',
         'description' => 'Club con canchas de futbol',
         'organization_name' => 'Club Valido',
+        'services' => ['wifi', 'parking'],
         'working_days' => validWorkingDays(),
     ], $overrides);
 }
@@ -162,6 +168,17 @@ dataset('invalid club payload data', [
             'El campo día contiene un valor duplicado.',
         ],
     ],
+    'services invalid enum value' => [
+        'invalidData' => ['services' => ['invalid-service']],
+        'expectedMessages' => ['El campo servicio no está en la lista de valores permitidos.'],
+    ],
+    'services duplicate value' => [
+        'invalidData' => ['services' => ['wifi', 'wifi']],
+        'expectedMessages' => [
+            'El campo servicio contiene un valor duplicado.',
+            'El campo servicio contiene un valor duplicado.',
+        ],
+    ],
 ]);
 
 it('returns a collection of clubs for the authenticated club user', function (): void {
@@ -218,6 +235,16 @@ it('stores a club', function (): void {
         'opening_hour' => '09:00:00',
         'closing_hour' => '01:00:00',
     ]);
+
+    $this->assertDatabaseHas('club_services', [
+        'club_id' => $club->id,
+        'service' => 'wifi',
+    ]);
+
+    $this->assertDatabaseHas('club_services', [
+        'club_id' => $club->id,
+        'service' => 'parking',
+    ]);
 });
 
 it('fails to store a club with invalid data', function (array $invalidData, array $expectedMessages): void {
@@ -233,24 +260,30 @@ it('fails to store a club with invalid data', function (array $invalidData, arra
 })->with('invalid club payload data');
 
 it('shows a club', function (): void {
+
     $club = Club::factory()->create([
         'club_user_id' => $this->clubUser->id,
         'organization_name' => 'Club Show',
         'is_active' => true,
     ]);
 
-    $club->workingDays()->createMany([
-        ['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '03:00'],
-        ['day' => 'holiday', 'opening_hour' => '10:00', 'closing_hour' => '02:00'],
-    ]);
+    [$clubService, $otherOwnedClub] = ClubService::factory()
+        ->count(2)
+        ->sequence(
+            ['service' =>ClubServices::Wifi->value ],
+            ['service' =>ClubServices::FirstAid->value ],
+        )->create([
+            'club_id' => $club->id,
+        ]);
 
-    $expectedWorkingDays = $club->workingDays()->get()->map(function ($day): array {
-        return [
-            'day' => $day->day->value,
-            'opening_hour' => $day->opening_hour,
-            'closing_hour' => $day->closing_hour,
-        ];
-    })->values()->toArray();
+    [$workingDay, $otherWorkingDay] = ClubWorkingDay::factory()
+        ->count(2)
+        ->sequence(
+            ['day' => ClubWorkingDays::Monday],
+            ['day' => ClubWorkingDays::Tuesday],
+        )->create([
+            'club_id' => $club->id,
+        ]);
 
     get(action([ClubController::class, 'show'], $club))
         ->assertOk()
@@ -274,7 +307,32 @@ it('shows a club', function (): void {
             'twitter_url' => $club->twitter_url,
             'whatsapp_number' => $club->whatsapp_number,
             'is_active' => $club->is_active,
-            'working_days' => $expectedWorkingDays,
+            'working_days' => [
+
+                [
+                    'day' => $workingDay->day->value,
+                    'opening_hour' => $workingDay->opening_hour,
+                    'closing_hour' => $workingDay->closing_hour,
+                ],
+                [
+                    'day' => $otherWorkingDay->day->value,
+                    'opening_hour' => $otherWorkingDay->opening_hour,
+                    'closing_hour' => $otherWorkingDay->closing_hour,
+                ],
+
+            ],
+            'services' => [
+                [
+                    'id' => $otherOwnedClub->id,
+                    'service' => $otherOwnedClub->service->value,
+                    'icon' => $otherOwnedClub->service->getIcon(),
+                ],
+                [
+                    'id' => $clubService->id,
+                    'service' => $clubService->service->value,
+                    'icon' => $clubService->service->getIcon(),
+                ],
+            ],
         ]);
 });
 
@@ -308,11 +366,16 @@ it('updates a club', function (): void {
         ['day' => 'monday', 'opening_hour' => '08:00', 'closing_hour' => '01:00'],
     ]);
 
+    $club->services()->createMany([
+        ['service' => ClubServices::Wifi->value],
+    ]);
+
     put(action([ClubController::class, 'update'], $club), validClubPayload([
         'address_city' => 'Cordoba',
         'address_state' => 'Cordoba',
         'address_street' => 'Calle Falsa 742',
         'organization_name' => 'Club Actualizado',
+        'services' => [ClubServices::Restaurant->value, ClubServices::Tournaments->value],
     ]))->assertNoContent();
 
     $this->assertDatabaseHas('clubs', [
@@ -327,6 +390,21 @@ it('updates a club', function (): void {
         'opening_hour' => '09:00:00',
         'closing_hour' => '01:00:00',
     ]);
+
+    $this->assertDatabaseMissing('club_services', [
+        'club_id' => $club->id,
+        'service' => ClubServices::Wifi->value,
+    ]);
+
+    $this->assertDatabaseHas('club_services', [
+        'club_id' => $club->id,
+        'service' => ClubServices::Restaurant->value,
+    ]);
+
+    $this->assertDatabaseHas('club_services', [
+        'club_id' => $club->id,
+        'service' => ClubServices::Tournaments->value,
+    ]);
 });
 
 it('updates a club without working days payload', function (): void {
@@ -337,6 +415,10 @@ it('updates a club without working days payload', function (): void {
 
     $club->workingDays()->createMany([
         ['day' => 'monday', 'opening_hour' => '08:00', 'closing_hour' => '01:00'],
+    ]);
+
+    $club->services()->createMany([
+        ['service' => ClubServices::Wifi->value],
     ]);
 
     $payload = validClubPayload([
@@ -360,6 +442,37 @@ it('updates a club without working days payload', function (): void {
         'day' => 'monday',
         'opening_hour' => '08:00:00',
         'closing_hour' => '01:00:00',
+    ]);
+
+    $this->assertDatabaseHas('club_services', [
+        'club_id' => $club->id,
+        'service' => ClubServices::Wifi->value,
+    ]);
+});
+
+it('updates a club clearing services', function (): void {
+    $club = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $club->services()->createMany([
+        ['service' => ClubServices::Wifi->value],
+        ['service' => ClubServices::Parking->value],
+    ]);
+
+    put(action([ClubController::class, 'update'], $club), validClubPayload([
+        'organization_name' => 'Club Limpia Servicios',
+        'services' => [],
+    ]))->assertNoContent();
+
+    $this->assertDatabaseMissing('club_services', [
+        'club_id' => $club->id,
+        'service' => ClubServices::Wifi->value,
+    ]);
+
+    $this->assertDatabaseMissing('club_services', [
+        'club_id' => $club->id,
+        'service' => ClubServices::Parking->value,
     ]);
 });
 

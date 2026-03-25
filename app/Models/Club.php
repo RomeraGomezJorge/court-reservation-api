@@ -6,12 +6,14 @@ namespace App\Models;
 
 use Carbon\CarbonInterface;
 use Database\Factories\ClubFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Override;
+use Src\Domain\Chat\Models\ChatMessage;
 
 /**
  * @property-read string $id
@@ -36,6 +38,8 @@ use Override;
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read CarbonInterface $deleted_at
+ * @property-read Collection<int, ClubWorkingDay> $workingDays
+ * @property-read Collection<int, ClubService> $services
  */
 final class Club extends Model
 {
@@ -118,5 +122,15 @@ final class Club extends Model
     public function workingDays(): HasMany
     {
         return $this->hasMany(ClubWorkingDay::class);
+    }
+
+    /**
+     * Get the services for this club.
+     *
+     * @return HasMany<ClubService, $this>
+     */
+    public function services(): HasMany
+    {
+        return $this->hasMany(ClubService::class);
     }
 }

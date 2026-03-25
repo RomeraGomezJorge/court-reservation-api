@@ -177,6 +177,8 @@ return [
         'password_confirmation' => 'confirmación de contraseña',
         'phone_number' => 'teléfono',
         'reservation_policies_and_payment_terms' => 'políticas de reserva y términos de pago',
+        'services' => 'servicios',
+        'services.*' => 'servicio',
         'twitter_url' => 'twitter url',
         'whatsapp_number' => 'whatsapp',
         'working_days' => 'Horarios del Club',

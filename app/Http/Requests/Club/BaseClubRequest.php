@@ -19,13 +19,24 @@ abstract class BaseClubRequest extends FormRequest
     {
         return $this->safe()->except([
             'working_days',
+            'services',
         ]);
     }
 
     /** @return array<int, array<string, mixed>> */
     final public function workingDays(): array
     {
-        return $this->input('working_days', []);
+        $workingDays = $this->input('working_days', []);
+
+        return is_array($workingDays) ? $workingDays : [];
+    }
+
+    /** @return array<int, string> */
+    final public function services(): array
+    {
+        $services = $this->input('services', []);
+
+        return is_array($services) ? $services : [];
     }
 
     protected function validateWorkingDays(Validator $validator): void

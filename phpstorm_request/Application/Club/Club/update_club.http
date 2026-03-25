@@ -20,6 +20,11 @@ Content-Type: application/json
     "reservation_policies_and_payment_terms": "Pago anticipado del 100% y cancelacion hasta 12 horas antes",
     "twitter_url": "https://x.com/club.demo.actualizado",
     "whatsapp_number": "+56987654321",
+    "services": [
+        "wifi",
+        "first_aid",
+        "group_classes"
+    ],
     "working_days": [
         { "day": "monday", "opening_hour": "09:00", "closing_hour": "03:00" },
         { "day": "tuesday", "opening_hour": "09:00", "closing_hour": "03:00" },

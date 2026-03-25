@@ -1,0 +1,59 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use App\Enums\ClubServices;
+use Carbon\CarbonInterface;
+use Database\Factories\ClubServiceFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Override;
+
+/**
+ * @property-read string $id
+ * @property-read string $club_id
+ * @property-read ClubServices $service
+ * @property-read CarbonInterface $created_at
+ * @property-read CarbonInterface $updated_at
+ */
+final class ClubService extends Model
+{
+    /** @use HasFactory<ClubServiceFactory> */
+    use HasFactory;
+
+    /**
+     * @var list<string>
+     */
+    #[Override]
+    protected $fillable = [
+        'club_id',
+        'service',
+    ];
+
+    /**
+     * @return array<string, string>
+     */
+    public function casts(): array
+    {
+        return [
+            'id' => 'string',
+            'club_id' => 'string',
+            'service' => ClubServices::class,
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
+
+    /**
+     * Get the club that owns this club service.
+     *
+     * @return BelongsTo<Club, $this>
+     */
+    public function club(): BelongsTo
+    {
+        return $this->belongsTo(Club::class);
+    }
+}
