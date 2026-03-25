@@ -8,6 +8,7 @@ use App\Enums\ClubServicesType;
 use App\Enums\ClubWorkingDays;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Validator;
 
 final class StoreClubRequest extends BaseClubRequest
@@ -17,7 +18,7 @@ final class StoreClubRequest extends BaseClubRequest
         return true;
     }
 
-    /** @return array<string, array<int, ValidationRule|string>> */
+    /** @return array<string, array<int, ValidationRule|string|Enum>> */
     public function rules(): array
     {
         return [

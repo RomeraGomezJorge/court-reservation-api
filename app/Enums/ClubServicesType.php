@@ -25,8 +25,6 @@ enum ClubServicesType: string
 
     /**
      * Get the icon URL for the club service.
-     *
-     * @return non-empty-string
      */
     public function getIcon(): string
     {

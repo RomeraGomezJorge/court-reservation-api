@@ -10,6 +10,7 @@ use App\Models\Club;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
+use Illuminate\Validation\Rules\Enum;
 
 final class UpdateClubRequest extends BaseClubRequest
 {
@@ -18,7 +19,7 @@ final class UpdateClubRequest extends BaseClubRequest
         return true;
     }
 
-    /** @return array<string, array<int, ValidationRule|string>> */
+    /** @return array<string, array<int, ValidationRule|string|Enum>> */
     public function rules(): array
     {
         /** @var Club $club */
