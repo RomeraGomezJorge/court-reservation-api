@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Club;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use App\Enums\ClubWorkingDays;
 use Carbon\Carbon;
@@ -60,12 +61,9 @@ abstract class BaseClubRequest extends FormRequest
         $dayLabel = ClubWorkingDays::tryFrom($day)?->label() ?? $day;
 
         try {
-            $opening = Date::createFromFormat('H:i', (string) $workingDay['opening_hour']);
-            $closing = Date::createFromFormat('H:i', (string) $workingDay['closing_hour']);
+            $opening = Date::createFromFormat('H:i',  $workingDay['opening_hour']);
+            $closing = Date::createFromFormat('H:i',  $workingDay['closing_hour']);
 
-            if (! $opening instanceof Carbon || ! $closing instanceof Carbon) {
-                throw new Exception('Invalid time format.');
-            }
         } catch (Exception) {
             $validator->errors()->add(
                 "working_days.{$index}.opening_hour",
@@ -83,7 +81,7 @@ abstract class BaseClubRequest extends FormRequest
         }
     }
 
-    protected function isInvalidRange(Carbon $opening, Carbon $closing): bool
+    protected function isInvalidRange(CarbonImmutable $opening, CarbonImmutable $closing): bool
     {
         if ($closing->lessThanOrEqualTo($opening)) {
             $closing = $closing->copy()->addDay();

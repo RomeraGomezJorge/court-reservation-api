@@ -218,7 +218,8 @@ it('stores a club', function (): void {
         'organization_name' => 'Club Nuevo',
     ]);
 
-    post(action([ClubController::class, 'store']), $payload)->assertStatus(201);
+    post(action([ClubController::class, 'store']), $payload)
+        ->assertStatus(201);
 
     $club = Club::query()->where('organization_name', 'Club Nuevo')->firstOrFail();
 

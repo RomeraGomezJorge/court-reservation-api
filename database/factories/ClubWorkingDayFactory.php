@@ -22,8 +22,8 @@ final class ClubWorkingDayFactory extends Factory
         return [
             'club_id' => Club::factory(),
             'day' => fake()->randomElement(ClubWorkingDays::cases()),
-            'opening_hour' => fake()->time('H:i'),
-            'closing_hour' => fake()->time('H:i'),
+            'opening_hour' => fake()->time(),
+            'closing_hour' => fake()->time(),
         ];
     }
 }
