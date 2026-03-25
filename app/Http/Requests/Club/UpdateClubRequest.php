@@ -9,8 +9,8 @@ use App\Enums\ClubWorkingDays;
 use App\Models\Club;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Validator;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Validator;
 
 final class UpdateClubRequest extends BaseClubRequest
 {
@@ -51,6 +51,7 @@ final class UpdateClubRequest extends BaseClubRequest
         ];
     }
 
+    /** @return array<int, callable(Validator): void> */
     public function after(): array
     {
         return [

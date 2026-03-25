@@ -51,8 +51,8 @@ final class ShowClubResource extends JsonResource
             'working_days' => $this->workingDays->map(function (ClubWorkingDay $day) {
                 return [
                     'day' => $day->day->value,
-                    'opening_hour' => Carbon::createFromFormat('H:i:s', $day->opening_hour)->format('H:i'),
-                    'closing_hour' => Carbon::createFromFormat('H:i:s', $day->closing_hour)->format('H:i'),
+                    'opening_hour' => $this->formatHour($day->opening_hour),
+                    'closing_hour' => $this->formatHour($day->closing_hour),
                 ];
             })->values(),
             'services' => $this->services->map(function (ClubService $service) {
@@ -63,5 +63,12 @@ final class ShowClubResource extends JsonResource
                 ];
             })->values(),
         ];
+    }
+
+    private function formatHour(string $hour): string
+    {
+        $parsedHour = Carbon::createFromFormat('H:i:s', $hour);
+
+        return $parsedHour instanceof Carbon ? $parsedHour->format('H:i') : $hour;
     }
 }

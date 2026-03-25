@@ -47,6 +47,7 @@ final class StoreClubRequest extends BaseClubRequest
         ];
     }
 
+    /** @return array<int, callable(Validator): void> */
     public function after(): array
     {
         return [
