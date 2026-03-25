@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Club;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Http\Resources\Club\ClubUserResource;
 use App\Models\ClubUser;
-use DB;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Str;
-use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Throwable;
 
 final class ProfileController
@@ -26,9 +25,9 @@ final class ProfileController
     /**
      * @throws Throwable
      */
-    public function destroy(): SymfonyResponse
+    public function destroy(): Response
     {
-        DB::transaction(function () {
+        DB::transaction(function (): void {
             /** @var ClubUser $clubUser */
             $clubUser = Auth::user();
 

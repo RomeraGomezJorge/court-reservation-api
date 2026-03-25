@@ -12,4 +12,3 @@ return [
     'sunday' => 'domingo',
     'holiday' => 'feriado',
 ];
-

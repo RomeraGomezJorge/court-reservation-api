@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Club;
 
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Club\StoreClubRequest;
 use App\Http\Requests\Club\UpdateClubRequest;
 use App\Http\Resources\Club\ClubResource;
 use App\Http\Resources\Club\ShowClubResource;
 use App\Models\Club;
 use App\Services\OwnershipVerifierService;
-use DB;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,19 +40,19 @@ final class ClubController
             ]);
 
             $workingDays = collect($request->workingDays())
-                ->map(fn (array $day) => [
+                ->map(fn (array $day): array => [
                     'day' => $day['day'],
                     'opening_hour' => $day['opening_hour'],
                     'closing_hour' => $day['closing_hour'],
                 ]);
 
-            $club->workingDays()->createMany($workingDays->toArray());
+            $club->workingDays()->createMany($workingDays->all());
 
             if ($request->has('services')) {
                 $services = collect($request->services())
-                    ->map(fn (string $service) => ['type' => $service]);
+                    ->map(fn (string $service): array => ['type' => $service]);
 
-                $club->services()->createMany($services->toArray());
+                $club->services()->createMany($services->all());
             }
         });
 
@@ -87,22 +87,22 @@ final class ClubController
                 $club->workingDays()->delete();
 
                 $workingDays = collect($request->workingDays())
-                    ->map(fn (array $day) => [
+                    ->map(fn (array $day): array => [
                         'day' => $day['day'],
                         'opening_hour' => $day['opening_hour'],
                         'closing_hour' => $day['closing_hour'],
                     ]);
 
-                $club->workingDays()->createMany($workingDays->toArray());
+                $club->workingDays()->createMany($workingDays->all());
             }
 
             if ($request->has('services')) {
                 $club->services()->delete();
 
                 $services = collect($request->services())
-                    ->map(fn (string $service) => ['type' => $service]);
+                    ->map(fn (string $service): array => ['type' => $service]);
 
-                $club->services()->createMany($services->toArray());
+                $club->services()->createMany($services->all());
             }
         });
 

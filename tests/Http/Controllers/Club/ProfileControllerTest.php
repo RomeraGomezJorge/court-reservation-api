@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Http\Controllers\Club;
 
 use App\Http\Controllers\Club\ProfileController;
-use App\Models\ClubUser;
 
 use function Pest\Laravel\delete;
 use function Pest\Laravel\get;

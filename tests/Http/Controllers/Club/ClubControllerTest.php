@@ -10,7 +10,6 @@ use App\Http\Controllers\Club\ClubController;
 use App\Models\Club;
 use App\Models\ClubService;
 use App\Models\ClubUser;
-
 use App\Models\ClubWorkingDay;
 
 use function Pest\Laravel\delete;
@@ -270,8 +269,8 @@ it('shows a club', function (): void {
     [$clubService, $otherOwnedClub] = ClubService::factory()
         ->count(2)
         ->sequence(
-            ['type' =>ClubServicesType::Wifi->value ],
-            ['type' =>ClubServicesType::FirstAid->value ],
+            ['type' => ClubServicesType::Wifi->value],
+            ['type' => ClubServicesType::FirstAid->value],
         )->create([
             'club_id' => $club->id,
         ]);

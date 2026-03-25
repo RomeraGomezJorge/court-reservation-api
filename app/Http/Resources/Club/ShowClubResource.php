@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Club;
 
+use Illuminate\Support\Facades\Date;
 use App\Models\Club;
 use App\Models\ClubService;
 use App\Models\ClubWorkingDay;
@@ -48,26 +49,22 @@ final class ShowClubResource extends JsonResource
             'twitter_url' => $this->twitter_url,
             'whatsapp_number' => $this->whatsapp_number,
             'is_active' => $this->is_active,
-            'working_days' => $this->workingDays->map(function (ClubWorkingDay $day) {
-                return [
-                    'day' => $day->day->value,
-                    'opening_hour' => $this->formatHour($day->opening_hour),
-                    'closing_hour' => $this->formatHour($day->closing_hour),
-                ];
-            })->values(),
-            'services' => $this->services->map(function (ClubService $service) {
-                return [
-                    'id' => $service->id,
-                    'type' => $service->type->value,
-                    'icon' => $service->type->getIcon(),
-                ];
-            })->values(),
+            'working_days' => $this->workingDays->map(fn(ClubWorkingDay $day): array => [
+                'day' => $day->day->value,
+                'opening_hour' => $this->formatHour($day->opening_hour),
+                'closing_hour' => $this->formatHour($day->closing_hour),
+            ])->values(),
+            'services' => $this->services->map(fn(ClubService $service): array => [
+                'id' => $service->id,
+                'type' => $service->type->value,
+                'icon' => $service->type->getIcon(),
+            ])->values(),
         ];
     }
 
     private function formatHour(string $hour): string
     {
-        $parsedHour = Carbon::createFromFormat('H:i:s', $hour);
+        $parsedHour = Date::createFromFormat('H:i:s', $hour);
 
         return $parsedHour instanceof Carbon ? $parsedHour->format('H:i') : $hour;
     }

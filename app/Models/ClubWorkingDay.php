@@ -63,4 +63,3 @@ final class ClubWorkingDay extends Model
         return $this->belongsTo(Club::class);
     }
 }
-
