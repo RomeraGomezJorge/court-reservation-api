@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Club\ClubController;
+use App\Http\Controllers\Club\ClubServiceTypesController;
 use App\Http\Controllers\Club\ClubStatusToggleController;
 use App\Http\Controllers\Club\LoginController;
 use App\Http\Controllers\Club\PasswordResetController;
 use App\Http\Controllers\Club\ProfileController;
 use App\Http\Controllers\Club\RegisterClubUserController;
+use App\Http\Controllers\Club\WorkingDaysController;
 use Illuminate\Support\Facades\Route;
 
 /*=============================================
@@ -31,6 +33,12 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
     =============================================*/
     Route::get('profile', [ProfileController::class, 'show']);
     Route::delete('profile', [ProfileController::class, 'destroy']);
+
+    /*=============================================
+        CATALOGS
+    =============================================*/
+    Route::get('working-days', WorkingDaysController::class);
+    Route::get('club-service-types', ClubServiceTypesController::class);
 
     /*=============================================
         CLUB ONBOARDING

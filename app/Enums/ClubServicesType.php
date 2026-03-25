@@ -20,7 +20,7 @@ enum ClubServicesType: string
 
     public function label(): string
     {
-        return __('club-services.'.$this->value);
+        return __('club-services-type.'.$this->value);
     }
 
     /**
