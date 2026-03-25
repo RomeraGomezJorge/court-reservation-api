@@ -18,4 +18,9 @@ enum ClubWorkingDays: string
     case Saturday = 'saturday';
     case Sunday = 'sunday';
     case Holiday = 'holiday';
+
+    public function label(): string
+    {
+        return __('club-working-days.'.$this->value);
+    }
 }
