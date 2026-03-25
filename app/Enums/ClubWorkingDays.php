@@ -8,8 +8,6 @@ use App\Enums\Traits\EnumHasLabels;
 
 enum ClubWorkingDays: string
 {
-    use EnumHasLabels;
-
     case Monday = 'monday';
     case Tuesday = 'tuesday';
     case Wednesday = 'wednesday';

@@ -8,8 +8,6 @@ use App\Enums\Traits\EnumHasLabels;
 
 enum ClubServices: string
 {
-    use EnumHasLabels;
-
     case TennisCourt = 'tennis_court';
     case Wifi = 'wifi';
     case Parking = 'parking';
