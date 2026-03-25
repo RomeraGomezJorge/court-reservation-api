@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum ClubWorkingDays: string
+enum WorkingDays: string
 {
     case Monday = 'monday';
     case Tuesday = 'tuesday';

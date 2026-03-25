@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\ClubWorkingDays;
+use App\Enums\WorkingDays;
 use Carbon\CarbonInterface;
 use Database\Factories\ClubWorkingDayFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +15,7 @@ use Override;
 /**
  * @property-read string $id
  * @property-read string $club_id
- * @property-read ClubWorkingDays $day
+ * @property-read WorkingDays $day
  * @property-read string $opening_hour
  * @property-read string $closing_hour
  * @property-read CarbonInterface $created_at
@@ -45,7 +45,7 @@ final class ClubWorkingDay extends Model
         return [
             'id' => 'string',
             'club_id' => 'string',
-            'day' => ClubWorkingDays::class,
+            'day' => WorkingDays::class,
             'opening_hour' => 'string',
             'closing_hour' => 'string',
             'created_at' => 'datetime',

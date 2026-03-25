@@ -6,7 +6,7 @@ namespace App\Http\Requests\Club;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
-use App\Enums\ClubWorkingDays;
+use App\Enums\WorkingDays;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Foundation\Http\FormRequest;
@@ -58,7 +58,7 @@ abstract class BaseClubRequest extends FormRequest
         }
 
         $day = is_string($workingDay['day'] ?? null) ? $workingDay['day'] : 'unknown';
-        $dayLabel = ClubWorkingDays::tryFrom($day)?->label() ?? $day;
+        $dayLabel = WorkingDays::tryFrom($day)?->label() ?? $day;
 
         try {
             $opening = Date::createFromFormat('H:i',  $workingDay['opening_hour']);

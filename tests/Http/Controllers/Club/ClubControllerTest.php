@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Http\Controllers\Club;
 
 use App\Enums\ClubServicesType;
-use App\Enums\ClubWorkingDays;
+use App\Enums\WorkingDays;
 use App\Http\Controllers\Club\ClubController;
 use App\Models\Club;
 use App\Models\ClubService;
@@ -279,8 +279,8 @@ it('shows a club', function (): void {
     [$workingDay, $otherWorkingDay] = ClubWorkingDay::factory()
         ->count(2)
         ->sequence(
-            ['day' => ClubWorkingDays::Monday],
-            ['day' => ClubWorkingDays::Tuesday],
+            ['day' => WorkingDays::Monday],
+            ['day' => WorkingDays::Tuesday],
         )->create([
             'club_id' => $club->id,
         ]);

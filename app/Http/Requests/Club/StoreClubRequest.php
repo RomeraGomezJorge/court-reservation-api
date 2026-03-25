@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Club;
 
 use App\Enums\ClubServicesType;
-use App\Enums\ClubWorkingDays;
+use App\Enums\WorkingDays;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -39,7 +39,7 @@ final class StoreClubRequest extends BaseClubRequest
             'twitter_url' => ['nullable', 'url', 'max:255'],
             'whatsapp_number' => ['nullable', 'string', 'max:255'],
             'working_days' => ['required', 'array', 'min:1'],
-            'working_days.*.day' => ['required', 'distinct', Rule::enum(ClubWorkingDays::class)],
+            'working_days.*.day' => ['required', 'distinct', Rule::enum(WorkingDays::class)],
             'working_days.*.opening_hour' => ['required', 'date_format:H:i'],
             'working_days.*.closing_hour' => ['required', 'date_format:H:i'],
             'services' => ['nullable', 'array'],
