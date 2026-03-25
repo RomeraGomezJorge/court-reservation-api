@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\ClubServices;
+use App\Enums\ClubServicesType;
 use Carbon\CarbonInterface;
 use Database\Factories\ClubServiceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +15,7 @@ use Override;
 /**
  * @property-read string $id
  * @property-read string $club_id
- * @property-read ClubServices $service
+ * @property-read ClubServicesType $type
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */
@@ -30,7 +30,7 @@ final class ClubService extends Model
     #[Override]
     protected $fillable = [
         'club_id',
-        'service',
+        'type',
     ];
 
     /**
@@ -41,7 +41,7 @@ final class ClubService extends Model
         return [
             'id' => 'string',
             'club_id' => 'string',
-            'service' => ClubServices::class,
+            'type' => ClubServicesType::class,
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

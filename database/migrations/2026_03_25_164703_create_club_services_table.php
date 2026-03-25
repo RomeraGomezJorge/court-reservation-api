@@ -13,10 +13,10 @@ return new class extends Migration
         Schema::create('club_services', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('club_id')->constrained('clubs')->cascadeOnDelete();
-            $table->string('service');
+            $table->string('type');
             $table->timestamps();
 
-            $table->unique(['club_id', 'service']);
+            $table->unique(['club_id', 'type']);
             $table->index('club_id');
         });
     }

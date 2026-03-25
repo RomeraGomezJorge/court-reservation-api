@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Enums\ClubServices;
+use App\Enums\ClubServicesType;
 use App\Models\Club;
 use App\Models\ClubService;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,10 +23,7 @@ final class ClubServiceFactory extends Factory
     {
         return [
             'club_id' => Club::factory(),
-            'service' => fake()->randomElement(array_map(
-                static fn (ClubServices $service): string => $service->value,
-                ClubServices::cases(),
-            )),
+            'type' => fake()->randomElement(ClubServicesType::cases()),
         ];
     }
 }

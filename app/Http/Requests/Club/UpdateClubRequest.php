@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Club;
 
-use App\Enums\ClubServices;
+use App\Enums\ClubServicesType;
 use App\Enums\ClubWorkingDays;
 use App\Models\Club;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -46,7 +46,7 @@ final class UpdateClubRequest extends BaseClubRequest
             'working_days.*.opening_hour' => ['required', 'date_format:H:i'],
             'working_days.*.closing_hour' => ['required', 'date_format:H:i'],
             'services' => ['nullable', 'array'],
-            'services.*' => ['nullable', 'distinct', Rule::enum(ClubServices::class)],
+            'services.*' => ['nullable', 'distinct', Rule::enum(ClubServicesType::class)],
         ];
     }
 

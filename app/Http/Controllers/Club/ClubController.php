@@ -50,7 +50,7 @@ final class ClubController
 
             if ($request->has('services')) {
                 $services = collect($request->services())
-                    ->map(fn (string $service) => ['service' => $service]);
+                    ->map(fn (string $service) => ['type' => $service]);
 
                 $club->services()->createMany($services->toArray());
             }
@@ -100,7 +100,7 @@ final class ClubController
                 $club->services()->delete();
 
                 $services = collect($request->services())
-                    ->map(fn (string $service) => ['service' => $service]);
+                    ->map(fn (string $service) => ['type' => $service]);
 
                 $club->services()->createMany($services->toArray());
             }

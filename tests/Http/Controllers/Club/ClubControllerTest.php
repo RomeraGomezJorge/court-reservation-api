@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Http\Controllers\Club;
 
-use App\Enums\ClubServices;
+use App\Enums\ClubServicesType;
 use App\Enums\ClubWorkingDays;
 use App\Http\Controllers\Club\ClubController;
 use App\Models\Club;
@@ -238,12 +238,12 @@ it('stores a club', function (): void {
 
     $this->assertDatabaseHas('club_services', [
         'club_id' => $club->id,
-        'service' => 'wifi',
+        'type' => 'wifi',
     ]);
 
     $this->assertDatabaseHas('club_services', [
         'club_id' => $club->id,
-        'service' => 'parking',
+        'type' => 'parking',
     ]);
 });
 
@@ -270,8 +270,8 @@ it('shows a club', function (): void {
     [$clubService, $otherOwnedClub] = ClubService::factory()
         ->count(2)
         ->sequence(
-            ['service' =>ClubServices::Wifi->value ],
-            ['service' =>ClubServices::FirstAid->value ],
+            ['type' =>ClubServicesType::Wifi->value ],
+            ['type' =>ClubServicesType::FirstAid->value ],
         )->create([
             'club_id' => $club->id,
         ]);
@@ -324,13 +324,13 @@ it('shows a club', function (): void {
             'services' => [
                 [
                     'id' => $otherOwnedClub->id,
-                    'service' => $otherOwnedClub->service->value,
-                    'icon' => $otherOwnedClub->service->getIcon(),
+                    'type' => $otherOwnedClub->type->value,
+                    'icon' => $otherOwnedClub->type->getIcon(),
                 ],
                 [
                     'id' => $clubService->id,
-                    'service' => $clubService->service->value,
-                    'icon' => $clubService->service->getIcon(),
+                    'type' => $clubService->type->value,
+                    'icon' => $clubService->type->getIcon(),
                 ],
             ],
         ]);
@@ -367,7 +367,7 @@ it('updates a club', function (): void {
     ]);
 
     $club->services()->createMany([
-        ['service' => ClubServices::Wifi->value],
+        ['type' => ClubServicesType::Wifi->value],
     ]);
 
     put(action([ClubController::class, 'update'], $club), validClubPayload([
@@ -375,7 +375,7 @@ it('updates a club', function (): void {
         'address_state' => 'Cordoba',
         'address_street' => 'Calle Falsa 742',
         'organization_name' => 'Club Actualizado',
-        'services' => [ClubServices::Restaurant->value, ClubServices::Tournaments->value],
+        'services' => [ClubServicesType::Restaurant->value, ClubServicesType::Tournaments->value],
     ]))->assertNoContent();
 
     $this->assertDatabaseHas('clubs', [
@@ -393,17 +393,17 @@ it('updates a club', function (): void {
 
     $this->assertDatabaseMissing('club_services', [
         'club_id' => $club->id,
-        'service' => ClubServices::Wifi->value,
+        'type' => ClubServicesType::Wifi->value,
     ]);
 
     $this->assertDatabaseHas('club_services', [
         'club_id' => $club->id,
-        'service' => ClubServices::Restaurant->value,
+        'type' => ClubServicesType::Restaurant->value,
     ]);
 
     $this->assertDatabaseHas('club_services', [
         'club_id' => $club->id,
-        'service' => ClubServices::Tournaments->value,
+        'type' => ClubServicesType::Tournaments->value,
     ]);
 });
 
@@ -418,7 +418,7 @@ it('updates a club without working days payload', function (): void {
     ]);
 
     $club->services()->createMany([
-        ['service' => ClubServices::Wifi->value],
+        ['type' => ClubServicesType::Wifi->value],
     ]);
 
     $payload = validClubPayload([
@@ -446,7 +446,7 @@ it('updates a club without working days payload', function (): void {
 
     $this->assertDatabaseHas('club_services', [
         'club_id' => $club->id,
-        'service' => ClubServices::Wifi->value,
+        'type' => ClubServicesType::Wifi->value,
     ]);
 });
 
@@ -456,8 +456,8 @@ it('updates a club clearing services', function (): void {
     ]);
 
     $club->services()->createMany([
-        ['service' => ClubServices::Wifi->value],
-        ['service' => ClubServices::Parking->value],
+        ['type' => ClubServicesType::Wifi->value],
+        ['type' => ClubServicesType::Parking->value],
     ]);
 
     put(action([ClubController::class, 'update'], $club), validClubPayload([
@@ -467,12 +467,12 @@ it('updates a club clearing services', function (): void {
 
     $this->assertDatabaseMissing('club_services', [
         'club_id' => $club->id,
-        'service' => ClubServices::Wifi->value,
+        'type' => ClubServicesType::Wifi->value,
     ]);
 
     $this->assertDatabaseMissing('club_services', [
         'club_id' => $club->id,
-        'service' => ClubServices::Parking->value,
+        'type' => ClubServicesType::Parking->value,
     ]);
 });
 

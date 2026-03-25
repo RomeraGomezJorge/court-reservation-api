@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum ClubServices: string
+enum ClubServicesType: string
 {
     case TennisCourt = 'tennis_court';
     case Wifi = 'wifi';
