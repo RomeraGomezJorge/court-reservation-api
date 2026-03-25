@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-use App\Enums\Traits\EnumHasLabels;
-
 enum ClubServices: string
 {
     case TennisCourt = 'tennis_court';
