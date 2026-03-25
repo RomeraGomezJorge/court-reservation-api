@@ -411,14 +411,19 @@ it('fails to update a club that is not owned by the authenticated club user', fu
 });
 
 it('deletes a club', function (): void {
+    $organizationName = 'Club Eliminado';
     $club = Club::factory()->create([
         'club_user_id' => $this->clubUser->id,
+        'organization_name' => $organizationName,
     ]);
 
     delete(action([ClubController::class, 'destroy'], $club))
         ->assertNoContent();
 
-    $this->assertDatabaseMissing('clubs', ['id' => $club->id]);
+    $club->refresh();
+    $this->assertSoftDeleted($club);
+    $this->assertNotEquals($organizationName, $club->organization_name);
+    $this->assertEquals($club->organization_name, "Club Eliminado (deleted #{$club->id})");
 });
 
 it('fails to delete a club that does not exist', function (): void {
