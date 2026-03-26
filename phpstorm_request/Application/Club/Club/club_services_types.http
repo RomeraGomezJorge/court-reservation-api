@@ -1,4 +1,4 @@
-GET {{base_url}}/api/club/clubs/1
+GET {{base_url}}/api/club/service-types
 Authorization: Bearer {{token_club_user}}
 Accept: application/json
 

@@ -38,7 +38,7 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
         CATALOGS
     =============================================*/
     Route::get('working-days', WorkingDaysController::class);
-    Route::get('club-service-types', ClubServiceTypesController::class);
+    Route::get('service-types', ClubServiceTypesController::class);
 
     /*=============================================
         CLUB ONBOARDING
