@@ -29,12 +29,12 @@ Route::middleware(['auth:sanctum', 'admin_user'])->group(function (): void {
     /*=============================================
        SPORT TYPES
     =============================================*/
-    Route::apiResource('sport-types', SportTypeController::class);
+    Route::apiResource('court/sport-types', SportTypeController::class);
 
     /*=============================================
        FEATURES
     =============================================*/
-    Route::apiResource('features', FeatureController::class);
+    Route::apiResource('court/features', FeatureController::class);
 
     /*=============================================
         PROFILE

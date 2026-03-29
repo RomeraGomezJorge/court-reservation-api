@@ -1,4 +1,4 @@
-GET {{base_url}}/api/features
+GET {{base_url}}/api/admin/court/sport-types
 Authorization: Bearer {{token_admin_user}}
 Accept: application/json
 
