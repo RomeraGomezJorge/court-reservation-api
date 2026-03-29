@@ -39,6 +39,7 @@ use Override;
  * @property-read CarbonInterface $deleted_at
  * @property-read Collection<int, ClubWorkingDay> $workingDays
  * @property-read Collection<int, ClubService> $services
+ * @property-read Collection<int, Court> $courts
  */
 final class Club extends Model
 {
@@ -131,5 +132,15 @@ final class Club extends Model
     public function services(): HasMany
     {
         return $this->hasMany(ClubService::class);
+    }
+
+    /**
+     * Get the courts for this club.
+     *
+     * @return HasMany<Court, $this>
+     */
+    public function courts(): HasMany
+    {
+        return $this->hasMany(Court::class);
     }
 }

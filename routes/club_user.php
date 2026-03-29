@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Http\Controllers\Club\ClubController;
 use App\Http\Controllers\Club\ClubServiceTypesController;
 use App\Http\Controllers\Club\ClubStatusToggleController;
+use App\Http\Controllers\Club\CourtAvailabilityToggleController;
+use App\Http\Controllers\Club\CourtController;
 use App\Http\Controllers\Club\LoginController;
 use App\Http\Controllers\Club\PasswordResetController;
 use App\Http\Controllers\Club\ProfileController;
@@ -41,9 +43,15 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
     Route::get('service-types', ClubServiceTypesController::class);
 
     /*=============================================
-        CLUB ONBOARDING
+        CLUB
     =============================================*/
     Route::apiResource('clubs', ClubController::class);
     Route::patch('clubs/{club}/toggle-active', ClubStatusToggleController::class);
+
+    /*=============================================
+        COURT
+    =============================================*/
+    Route::apiResource('clubs.courts', CourtController::class)->scoped();
+    Route::patch('clubs/{club}/courts/{court}/toggle-availability', CourtAvailabilityToggleController::class);
 
 });

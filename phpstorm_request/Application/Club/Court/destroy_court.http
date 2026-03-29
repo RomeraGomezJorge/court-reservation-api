@@ -1,0 +1,5 @@
+DELETE {{base_url}}/api/club/clubs/1/courts/1
+Authorization: Bearer {{token_club_user}}
+Accept: application/json
+
+

@@ -1,0 +1,124 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Club;
+
+use App\Http\Requests\Club\StoreCourtRequest;
+use App\Http\Requests\Club\UpdateCourtRequest;
+use App\Http\Resources\Club\CourtResource;
+use App\Http\Resources\Club\ShowCourtResource;
+use App\Models\Club;
+use App\Models\Court;
+use App\Services\OwnershipVerifierService;
+use Auth;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
+
+final class CourtController
+{
+    public function index(Club $club, OwnershipVerifierService $ownershipVerifier): AnonymousResourceCollection
+    {
+        $ownershipVerifier->handle($club);
+
+        return CourtResource::collection(
+            $club->courts()
+                ->get(),
+        );
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function store(
+        StoreCourtRequest $request,
+
+        Club $club,
+        OwnershipVerifierService $ownershipVerifier,
+    ): Response {
+        $ownershipVerifier->handle($club);
+
+        DB::transaction(function () use ($request, $club): void {
+            $court = $club->courts()->create([
+                ...$request->courtData(),
+                'is_available' => true,
+            ]);
+
+            if ($request->has('features')) {
+                $court->features()->sync($request->featureIds());
+            }
+        });
+
+        return new Response(status: 201);
+    }
+
+    public function show(
+        Club $club,
+        Court $court,
+        OwnershipVerifierService $ownershipVerifier,
+    ): ShowCourtResource {
+        $this->ensureCourtBelongsToClub($club, $court);
+        $ownershipVerifier->handle($court->club);
+
+        $court->loadMissing([
+            'sportType',
+            'features',
+        ]);
+
+        return new ShowCourtResource($court);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function update(
+        UpdateCourtRequest $request,
+        Club $club,
+        Court $court,
+        OwnershipVerifierService $ownershipVerifier,
+    ): Response {
+        $this->ensureCourtBelongsToClub($club, $court);
+        $ownershipVerifier->handle($court->club);
+
+        DB::transaction(function () use ($request, $court): void {
+            $court->update($request->courtData());
+
+            if ($request->has('features')) {
+                $court->features()->sync($request->featureIds());
+            }
+        });
+
+        return new Response(status: 204);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function destroy(
+        Club $club,
+        Court $court,
+        OwnershipVerifierService $ownershipVerifier,
+    ): Response {
+        $this->ensureCourtBelongsToClub($club, $court);
+        $ownershipVerifier->handle($court->club);
+
+        DB::transaction(function () use ($court): void {
+            $court->update([
+                'name' => "{$court->name} (deleted #{$court->id})",
+            ]);
+
+            $court->delete();
+        });
+
+        return new Response(status: 204);
+    }
+
+    private function ensureCourtBelongsToClub(Club $club, Court $court): void
+    {
+        if ($court->club_id !== $club->id) {
+            abort(404, __('validation.resource_not_found', ['resource' => 'Court']));
+        }
+    }
+}

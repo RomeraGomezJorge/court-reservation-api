@@ -1,0 +1,12 @@
+PUT {{base_url}}/api/club/clubs/1/courts/1
+Authorization: Bearer {{token_club_user}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "Cancha Norte Actualizada",
+    "description": "Cancha remodelada",
+    "sport_type_id": 1,
+    "features": [2, 3]
+}
+

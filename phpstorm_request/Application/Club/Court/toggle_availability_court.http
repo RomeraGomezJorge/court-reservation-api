@@ -1,0 +1,5 @@
+PATCH {{base_url}}/api/club/clubs/1/courts/1/toggle-availability
+Authorization: Bearer {{token_club_user}}
+Accept: application/json
+
+

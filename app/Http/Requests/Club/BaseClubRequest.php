@@ -29,7 +29,9 @@ abstract class BaseClubRequest extends FormRequest
     {
         $workingDays = $this->input('working_days', []);
 
-        return is_array($workingDays) ? $workingDays : [];
+        return is_array($workingDays)
+            ? $workingDays
+            : [];
     }
 
     /** @return array<int, string> */
@@ -37,7 +39,9 @@ abstract class BaseClubRequest extends FormRequest
     {
         $services = $this->input('services', []);
 
-        return is_array($services) ? $services : [];
+        return is_array($services)
+            ? $services
+            : [];
     }
 
     protected function validateWorkingDays(Validator $validator): void
