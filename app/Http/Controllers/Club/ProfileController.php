@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Club;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use App\Http\Resources\Club\ClubUserResource;
 use App\Models\ClubUser;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Throwable;
 
 final class ProfileController

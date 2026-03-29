@@ -48,12 +48,12 @@ final class ShowClubResource extends JsonResource
             'twitter_url' => $this->twitter_url,
             'whatsapp_number' => $this->whatsapp_number,
             'is_active' => $this->is_active,
-            'working_days' => $this->workingDays->map(fn(ClubWorkingDay $day): array => [
+            'working_days' => $this->workingDays->map(fn (ClubWorkingDay $day): array => [
                 'day' => $day->day->value,
                 'opening_hour' => $this->formatHour($day->opening_hour),
                 'closing_hour' => $this->formatHour($day->closing_hour),
             ])->values(),
-            'services' => $this->services->map(fn(ClubService $service): array => [
+            'services' => $this->services->map(fn (ClubService $service): array => [
                 'id' => $service->id,
                 'type' => $service->type->value,
                 'icon' => $service->type->getIcon(),

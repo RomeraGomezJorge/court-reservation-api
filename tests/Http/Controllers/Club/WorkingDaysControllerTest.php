@@ -6,8 +6,6 @@ namespace Tests\Http\Controllers\Club;
 
 use App\Enums\WorkingDays;
 use App\Http\Controllers\Club\WorkingDaysController;
-use App\Models\ClubUser;
-use Laravel\Sanctum\Sanctum;
 
 use function Pest\Laravel\get;
 
