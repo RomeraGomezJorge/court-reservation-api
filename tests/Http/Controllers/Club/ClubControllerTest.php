@@ -279,8 +279,8 @@ it('shows a club', function (): void {
     [$workingDay, $otherWorkingDay] = ClubWorkingDay::factory()
         ->count(2)
         ->sequence(
-            ['day' => WorkingDays::Monday],
-            ['day' => WorkingDays::Tuesday],
+            ['day' => WorkingDays::Monday, 'opening_hour' => '09:00:00', 'closing_hour' => '01:00:00'],
+            ['day' => WorkingDays::Tuesday, 'opening_hour' => '09:00:00', 'closing_hour' => '01:00:00'],
         )->create([
             'club_id' => $club->id,
         ]);
@@ -311,13 +311,13 @@ it('shows a club', function (): void {
 
                 [
                     'day' => $workingDay->day->value,
-                    'opening_hour' => $workingDay->opening_hour,
-                    'closing_hour' => $workingDay->closing_hour,
+                    'opening_hour' => '09:00',
+                    'closing_hour' => '01:00',
                 ],
                 [
                     'day' => $otherWorkingDay->day->value,
-                    'opening_hour' => $otherWorkingDay->opening_hour,
-                    'closing_hour' => $otherWorkingDay->closing_hour,
+                    'opening_hour' => '09:00',
+                    'closing_hour' => '01:00',
                 ],
 
             ],

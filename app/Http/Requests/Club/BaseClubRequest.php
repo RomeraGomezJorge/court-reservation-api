@@ -60,10 +60,19 @@ abstract class BaseClubRequest extends FormRequest
         $dayLabel = WorkingDays::tryFrom($day)?->label() ?? $day;
 
         try {
-            $opening = Date::createFromFormat('H:i',  $workingDay['opening_hour']);
-            $closing = Date::createFromFormat('H:i',  $workingDay['closing_hour']);
+            $opening = Date::createFromFormat('H:i', $workingDay['opening_hour']);
+            $closing = Date::createFromFormat('H:i', $workingDay['closing_hour']);
 
         } catch (Exception) {
+            $validator->errors()->add(
+                "working_days.{$index}.opening_hour",
+                __('club_working_day.invalid_time_format', ['day' => $dayLabel])
+            );
+
+            return;
+        }
+
+        if (! $opening instanceof CarbonImmutable || ! $closing instanceof CarbonImmutable) {
             $validator->errors()->add(
                 "working_days.{$index}.opening_hour",
                 __('club_working_day.invalid_time_format', ['day' => $dayLabel])

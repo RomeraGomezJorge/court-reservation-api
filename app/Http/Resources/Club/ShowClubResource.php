@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Club;
 
-use Illuminate\Support\Facades\Date;
 use App\Models\Club;
 use App\Models\ClubService;
 use App\Models\ClubWorkingDay;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Date;
 
 /**
  * @mixin Club
@@ -66,6 +65,6 @@ final class ShowClubResource extends JsonResource
     {
         $parsedHour = Date::createFromFormat('H:i:s', $hour);
 
-        return $parsedHour instanceof Date ? $parsedHour->format('H:i') : $hour;
+        return $parsedHour?->format('H:i') ?? $hour;
     }
 }
