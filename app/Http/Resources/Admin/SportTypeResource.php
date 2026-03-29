@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Admin;
 
-use App\Models\Service;
+use App\Models\SportType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin Service
+ * @mixin SportType
  */
-final class ServiceResource extends JsonResource
+final class SportTypeResource extends JsonResource
 {
-    public function __construct(Service $resource)
+    public function __construct(SportType $resource)
     {
         parent::__construct($resource);
     }

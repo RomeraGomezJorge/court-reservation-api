@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Admin\Service;
+namespace App\Http\Requests\Admin\SportType;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-final class StoreServiceRequest extends FormRequest
+final class StoreSportTypeRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -18,7 +18,7 @@ final class StoreServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'unique:services,name', 'max:255'],
+            'name' => ['required', 'unique:sport_types,name', 'max:255'],
         ];
     }
 }

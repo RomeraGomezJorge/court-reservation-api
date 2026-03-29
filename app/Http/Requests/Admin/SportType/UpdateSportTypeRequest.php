@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Admin\Service;
+namespace App\Http\Requests\Admin\SportType;
 
-use App\Models\Service;
+use App\Models\SportType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-final class UpdateServiceRequest extends FormRequest
+final class UpdateSportTypeRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -18,11 +18,11 @@ final class UpdateServiceRequest extends FormRequest
     /** @return array<string, array<ValidationRule|string>> */
     public function rules(): array
     {
-        /** @var Service $service */
-        $service = $this->route('service');
+        /** @var SportType $sport_type */
+        $sport_type = $this->route('sport_type');
 
         return [
-            'name' => ['required', 'unique:services,name,'.$service->id, 'max:255'],
+            'name' => ['required', 'unique:sport_types,name,'.$sport_type->id, 'max:255'],
         ];
     }
 }

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\Service;
+use App\Models\SportType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Service>
+ * @extends Factory<SportType>
  */
-final class ServicerFactory extends Factory
+final class SportTypeFactory extends Factory
 {
     /**
      * @return array<string, mixed>

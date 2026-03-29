@@ -66,6 +66,6 @@ final class ShowClubResource extends JsonResource
     {
         $parsedHour = Date::createFromFormat('H:i:s', $hour);
 
-        return $parsedHour instanceof Carbon ? $parsedHour->format('H:i') : $hour;
+        return $parsedHour instanceof Date ? $parsedHour->format('H:i') : $hour;
     }
 }

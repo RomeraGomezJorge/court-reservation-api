@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\CarbonInterface;
-use Database\Factories\ServicerFactory;
+use Database\Factories\SportTypeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Override;
@@ -16,9 +16,9 @@ use Override;
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */
-final class Service extends Model
+final class SportType extends Model
 {
-    /** @use HasFactory<ServicerFactory> */
+    /** @use HasFactory<SportTypeFactory> */
     use HasFactory;
 
     /**

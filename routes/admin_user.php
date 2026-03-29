@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\FeatureController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\PasswordResetController;
 use App\Http\Controllers\Admin\ProfileController;
-use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\SportTypeController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,9 +27,9 @@ Route::middleware(['auth:sanctum', 'admin_user'])->group(function (): void {
     Route::apiResource('users', UserController::class);
 
     /*=============================================
-       SERVICES
+       SPORT TYPES
     =============================================*/
-    Route::apiResource('services', ServiceController::class);
+    Route::apiResource('sport-types', SportTypeController::class);
 
     /*=============================================
        FEATURES
