@@ -32,52 +32,6 @@ beforeEach(function (): void {
     $this->clubUser = actingAsClubUser();
 });
 
-it('returns a collection of courts for the selected owned club', function (): void {
-    $club = Club::factory()->create([
-        'club_user_id' => $this->clubUser->id,
-    ]);
-
-    $otherOwnedClub = Club::factory()->create([
-        'club_user_id' => $this->clubUser->id,
-    ]);
-
-    $sportType = SportType::factory()->create();
-
-    [$firstCourt, $secondCourt] = Court::factory()
-        ->count(2)
-        ->sequence(
-            ['name' => 'Cancha 1', 'is_available' => true],
-            ['name' => 'Cancha 2', 'is_available' => false],
-        )
-        ->create([
-            'club_id' => $club->id,
-            'sport_type_id' => $sportType->id,
-        ]);
-
-    Court::factory()->create([
-        'club_id' => $otherOwnedClub->id,
-        'sport_type_id' => $sportType->id,
-    ]);
-
-    get(action([CourtController::class, 'index'], ['club' => $club]))
-        ->assertOk()
-        ->assertExactJson([
-            ['id' => $firstCourt->id, 'name' => 'Cancha 1', 'is_available' => true],
-            ['id' => $secondCourt->id, 'name' => 'Cancha 2', 'is_available' => false],
-        ]);
-});
-
-it('fails to list courts for a club not owned by the authenticated user', function (): void {
-    $otherClub = Club::factory()->create();
-
-    get(action([CourtController::class, 'index'], ['club' => $otherClub]))
-        ->assertNotFound()
-        ->assertExactJson([
-            'code' => 404,
-            'messages' => ['El recurso Club  no se ha encontrado.'],
-        ]);
-});
-
 it('stores a court with default availability in true', function (): void {
     $club = Club::factory()->create([
         'club_user_id' => $this->clubUser->id,

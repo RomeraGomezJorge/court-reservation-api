@@ -6,29 +6,16 @@ namespace App\Http\Controllers\Club;
 
 use App\Http\Requests\Club\StoreCourtRequest;
 use App\Http\Requests\Club\UpdateCourtRequest;
-use App\Http\Resources\Club\CourtResource;
 use App\Http\Resources\Club\ShowCourtResource;
 use App\Models\Club;
 use App\Models\Court;
 use App\Services\OwnershipVerifierService;
-use Auth;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 final class CourtController
 {
-    public function index(Club $club, OwnershipVerifierService $ownershipVerifier): AnonymousResourceCollection
-    {
-        $ownershipVerifier->handle($club);
-
-        return CourtResource::collection(
-            $club->courts()
-                ->get(),
-        );
-    }
-
     /**
      * @throws Throwable
      */
