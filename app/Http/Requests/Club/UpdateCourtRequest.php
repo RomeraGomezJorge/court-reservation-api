@@ -10,6 +10,7 @@ use Illuminate\Contracts\Validation\Rule as ValidationRuleContract;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Unique;
 
 final class UpdateCourtRequest extends FormRequest
 {
@@ -18,7 +19,7 @@ final class UpdateCourtRequest extends FormRequest
         return true;
     }
 
-    /** @return array<string, array<int, ValidationRule|ValidationRuleContract|string>> */
+    /** @return array<string, array<int, ValidationRule|ValidationRuleContract|Unique|string>> */
     public function rules(): array
     {
         /** @var Club $club */
@@ -43,7 +44,7 @@ final class UpdateCourtRequest extends FormRequest
         ];
     }
 
-    /** @return array{name: string, description: string|null, sport_type_id: int} */
+    /** @return array<string, mixed> */
     public function courtData(): array
     {
         return $this->safe()->except([

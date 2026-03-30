@@ -9,6 +9,7 @@ use Illuminate\Contracts\Validation\Rule as ValidationRuleContract;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Unique;
 
 final class StoreCourtRequest extends FormRequest
 {
@@ -17,7 +18,7 @@ final class StoreCourtRequest extends FormRequest
         return true;
     }
 
-    /** @return array<string, array<int, ValidationRule|ValidationRuleContract|string>> */
+    /** @return array<string, array<int, ValidationRule|ValidationRuleContract|Unique|string>> */
     public function rules(): array
     {
         /** @var Club $club */
@@ -29,7 +30,7 @@ final class StoreCourtRequest extends FormRequest
                 'string',
                 'max:100',
                 Rule::unique('courts', 'name')->where(
-                    fn($query) => $query->where('club_id', $club->id),
+                    fn ($query) => $query->where('club_id', $club->id),
                 ),
             ],
             'description' => ['nullable', 'string', 'max:255'],
@@ -39,7 +40,7 @@ final class StoreCourtRequest extends FormRequest
         ];
     }
 
-    /** @return array{name: string, description: string|null, sport_type_id: int} */
+    /** @return array<string, mixed> */
     public function courtData(): array
     {
         return $this->safe()->except([
