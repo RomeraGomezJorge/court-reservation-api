@@ -31,14 +31,18 @@ Route::middleware(['auth:sanctum', 'admin_user'])->group(function (): void {
     /*=============================================
        SPORT TYPES
     =============================================*/
-    Route::apiResource('court/sport-types', SportTypeController::class);
-    Route::patch('court/sport-types/{sport_type}/toggle-active', SportTypeStatusToggleController::class);
+    Route::apiResource('court-sport-types', SportTypeController::class)->parameters([
+        'court-sport-types' => 'sport_type',
+    ]);
+    Route::patch('court-sport-types/{sport_type}/toggle-active', SportTypeStatusToggleController::class);
 
     /*=============================================
        FEATURES
     =============================================*/
-    Route::apiResource('court/features', FeatureController::class);
-    Route::patch('court/features/{feature}/toggle-active', FeatureStatusToggleController::class);
+    Route::apiResource('court-features', FeatureController::class)->parameters([
+        'court-features' => 'feature',
+    ]);
+    Route::patch('court-features/{feature}/toggle-active', FeatureStatusToggleController::class);
 
     /*=============================================
         PROFILE

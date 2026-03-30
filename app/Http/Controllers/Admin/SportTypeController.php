@@ -20,7 +20,10 @@ final class SportTypeController
 
     public function store(StoreSportTypeRequest $request): Response
     {
-        SportType::query()->create($request->validated());
+        SportType::query()->create([
+            ...$request->validated(),
+            'is_active' => true,
+        ]);
 
         return new Response(status: 201);
     }

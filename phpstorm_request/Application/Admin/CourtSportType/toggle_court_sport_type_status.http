@@ -1,4 +1,5 @@
-DELETE {{base_url}}/api/admin/court-features/1
+PATCH {{base_url}}/api/admin/court-sport-types/1/toggle-active
 Authorization: Bearer {{token_admin_user}}
 Accept: application/json
+
 

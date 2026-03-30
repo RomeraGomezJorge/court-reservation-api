@@ -15,6 +15,7 @@ use Override;
 /**
  * @property-read string $id
  * @property-read non-empty-string $name
+ * @property-read bool $is_active
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read Collection<int, Court> $courts
@@ -30,6 +31,7 @@ final class SportType extends Model
     #[Override]
     protected $fillable = [
         'name',
+        'is_active',
     ];
 
     /**
@@ -40,6 +42,7 @@ final class SportType extends Model
         return [
             'id' => 'integer',
             'name' => 'string',
+            'is_active' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

@@ -21,6 +21,7 @@ final class FeatureFactory extends Factory
     {
         return [
             'name' => fake()->unique()->name(),
+            'is_active' => true,
         ];
     }
 }

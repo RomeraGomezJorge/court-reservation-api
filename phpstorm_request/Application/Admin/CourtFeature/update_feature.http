@@ -1,4 +1,4 @@
-PUT {{base_url}}/api/admin/court/features/1
+PUT {{base_url}}/api/admin/court-features/1
 Authorization: Bearer {{token_admin_user}}
 Accept: application/json
 Content-Type: application/json

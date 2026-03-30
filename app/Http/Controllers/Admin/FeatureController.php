@@ -20,7 +20,10 @@ final class FeatureController
 
     public function store(StoreFeatureRequest $request): Response
     {
-        Feature::query()->create($request->validated());
+        Feature::query()->create([
+            ...$request->validated(),
+            'is_active' => true,
+        ]);
 
         return new Response(status: 201);
     }

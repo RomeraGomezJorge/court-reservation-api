@@ -1,5 +1,5 @@
 ### Show Event
-GET {{base_url}}/api/admin/court/features/1
+GET {{base_url}}/api/admin/court-features/1
 Authorization: Bearer {{token_admin_user}}
 Accept: application/json
 
