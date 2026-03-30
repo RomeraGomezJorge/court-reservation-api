@@ -11,6 +11,8 @@ use App\Models\Club;
 use App\Models\ClubService;
 use App\Models\ClubUser;
 use App\Models\ClubWorkingDay;
+use App\Models\Court;
+use App\Models\SportType;
 
 use function Pest\Laravel\delete;
 use function Pest\Laravel\get;
@@ -197,6 +199,22 @@ it('returns a collection of clubs for the authenticated club user', function ():
         'organization_name' => 'Club Ajeno',
     ]);
 
+    $sportType = SportType::factory()->create();
+
+    $firstCourt = Court::factory()->create([
+        'club_id' => $ownedClub->id,
+        'sport_type_id' => $sportType->id,
+        'name' => 'Cancha Principal',
+        'is_available' => true,
+    ]);
+
+    $secondCourt = Court::factory()->create([
+        'club_id' => $ownedClub->id,
+        'sport_type_id' => $sportType->id,
+        'name' => 'Cancha Auxiliar',
+        'is_available' => false,
+    ]);
+
     get(action([ClubController::class, 'index']))
         ->assertOk()
         ->assertExactJson([
@@ -204,11 +222,25 @@ it('returns a collection of clubs for the authenticated club user', function ():
                 'id' => $ownedClub->id,
                 'organization_name' => 'Club Propio 1',
                 'is_active' => true,
+                'courts' => [
+
+                    [
+                        'id' => $secondCourt->id,
+                        'name' => 'Cancha Auxiliar',
+                        'is_available' => false,
+                    ],
+                    [
+                        'id' => $firstCourt->id,
+                        'name' => 'Cancha Principal',
+                        'is_available' => true,
+                    ],
+                ],
             ],
             [
                 'id' => $otherOwnedClub->id,
                 'organization_name' => 'Club Propio 2',
                 'is_active' => true,
+                'courts' => [],
             ],
         ]);
 });

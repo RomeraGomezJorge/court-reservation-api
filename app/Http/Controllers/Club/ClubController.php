@@ -23,6 +23,7 @@ final class ClubController
         return ClubResource::collection(
             Club::query()
                 ->where('club_user_id', Auth::id())
+                ->with('courts')
                 ->get(),
         );
     }
