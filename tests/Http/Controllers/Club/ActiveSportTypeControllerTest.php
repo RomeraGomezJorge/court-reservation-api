@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Http\Controllers\Club;
 
-use App\Http\Controllers\Club\SportTypeController;
+use App\Http\Controllers\Club\ActiveSportTypeController;
 use App\Models\SportType;
 
 use function Pest\Laravel\get;
@@ -24,13 +24,12 @@ it('returns only active sport types', function (): void {
         'is_active' => false,
     ]);
 
-    get(action([SportTypeController::class, 'index']))
+    get(action([ActiveSportTypeController::class, 'index']))
         ->assertOk()
         ->assertExactJson([
             [
                 'id' => $activeSportType->id,
                 'name' => 'Padel',
-                'is_active' => true,
             ],
         ]);
 });

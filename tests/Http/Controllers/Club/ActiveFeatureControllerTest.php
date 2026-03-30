@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Http\Controllers\Club;
 
-use App\Http\Controllers\Club\FeatureController;
+use App\Http\Controllers\Club\ActiveFeatureController;
 use App\Models\Feature;
 
 use function Pest\Laravel\get;
@@ -24,13 +24,12 @@ it('returns only active features', function (): void {
         'is_active' => false,
     ]);
 
-    get(action([FeatureController::class, 'index']))
+    get(action([ActiveFeatureController::class, 'index']))
         ->assertOk()
         ->assertExactJson([
             [
                 'id' => $activeFeature->id,
                 'name' => 'Iluminacion',
-                'is_active' => true,
             ],
         ]);
 });

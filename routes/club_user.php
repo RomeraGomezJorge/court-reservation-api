@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Club\ActiveFeatureController;
+use App\Http\Controllers\Club\ActiveSportTypeController;
 use App\Http\Controllers\Club\ClubController;
 use App\Http\Controllers\Club\ClubStatusToggleController;
 use App\Http\Controllers\Club\CourtAvailabilityToggleController;
 use App\Http\Controllers\Club\CourtController;
-use App\Http\Controllers\Club\FeatureController;
 use App\Http\Controllers\Club\LoginController;
 use App\Http\Controllers\Club\PasswordResetController;
 use App\Http\Controllers\Club\ProfileController;
 use App\Http\Controllers\Club\RegisterClubUserController;
-use App\Http\Controllers\Club\SportTypeController;
 use Illuminate\Support\Facades\Route;
 
 /*=============================================
@@ -49,9 +49,15 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
     Route::patch('clubs/{club}/courts/{court}/toggle-availability', CourtAvailabilityToggleController::class);
 
     /*=============================================
-        COURT CATALOGS
+        FEATURE
     =============================================*/
-    Route::get('court/sport-types', [SportTypeController::class, 'index']);
-    Route::get('court/features', [FeatureController::class, 'index']);
+    Route::get('court/active-features', [ActiveFeatureController::class, 'index']);
+
+
+    /*=============================================
+        SPORT TYPE
+    =============================================*/
+    Route::get('court/active-sport-types', [ActiveSportTypeController::class, 'index']);
+
 
 });

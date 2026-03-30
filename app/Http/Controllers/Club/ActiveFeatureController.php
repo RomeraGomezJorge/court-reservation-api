@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Club;
 
-use App\Http\Resources\Admin\FeatureResource;
+use App\Http\Resources\Club\FeatureResource;
 use App\Models\Feature;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-final class FeatureController
+final class ActiveFeatureController
 {
     public function index(): AnonymousResourceCollection
     {
