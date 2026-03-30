@@ -26,12 +26,13 @@ it('stores a sport type', function (): void {
 
     $this->assertDatabaseHas('sport_types', [
         'name' => 'Paddle',
+        'is_active' => true,
     ]);
 });
 
 it('fails to store a sport type with invalid data', function (array $invalidData, array $expectedMessages): void {
     if (($invalidData['name'] ?? null) === 'Sport Type Duplicate') {
-        SportType::query()->create(['name' => 'Sport Type Duplicate']);
+        SportType::query()->create(['name' => 'Sport Type Duplicate', 'is_active' => true]);
     }
 
     $serviceData = [
@@ -62,6 +63,7 @@ it('fails to store a sport type with invalid data', function (array $invalidData
 it('updates a sport type', function (): void {
     $service = SportType::query()->create([
         'name' => 'Sport Type base',
+        'is_active' => true,
     ]);
 
     put(action([SportTypeController::class, 'update'], $service->id), [
@@ -88,10 +90,11 @@ it('fails to update a sport type that does not exist', function (): void {
 it('fails to update a sport type with invalid data', function (array $invalidData, array $expectedMessages): void {
     $service = SportType::query()->create([
         'name' => 'Sport Type base',
+        'is_active' => true,
     ]);
 
     if (($invalidData['name'] ?? null) === 'Sport Type Duplicated') {
-        SportType::query()->create(['name' => 'Sport Type Duplicated']);
+        SportType::query()->create(['name' => 'Sport Type Duplicated', 'is_active' => true]);
     }
 
     put(action([SportTypeController::class, 'update'], $service->id), array_merge([
@@ -120,6 +123,7 @@ it('fails to update a sport type with invalid data', function (array $invalidDat
 it('deletes a sport type', function (): void {
     $service = SportType::query()->create([
         'name' => 'Sport Type to delete',
+        'is_active' => true,
     ]);
 
     delete(action([SportTypeController::class, 'destroy'], $service->id))
@@ -140,6 +144,7 @@ it('fails to delete a sport type that does not exist', function (): void {
 it('shows a sport type', function (): void {
     $service = SportType::query()->create([
         'name' => 'Sport type show',
+        'is_active' => true,
     ]);
 
     get(action([SportTypeController::class, 'show'], $service->id))
@@ -147,6 +152,7 @@ it('shows a sport type', function (): void {
         ->assertExactJson([
             'id' => $service->id,
             'name' => 'Sport type show',
+            'is_active' => true,
         ]);
 });
 
@@ -163,8 +169,8 @@ it('returns a collection of sport types', function (): void {
     [$firstSportType, $secondSportType] = SportType::factory()
         ->count(2)
         ->sequence(
-            ['name' => 'Paddle'],
-            ['name' => 'Tennis'],
+            ['name' => 'Paddle', 'is_active' => true],
+            ['name' => 'Tennis', 'is_active' => false],
         )->create();
 
     get(action([SportTypeController::class, 'index']))
@@ -173,10 +179,12 @@ it('returns a collection of sport types', function (): void {
             [
                 'id' => $firstSportType->id,
                 'name' => 'Paddle',
+                'is_active' => true,
             ],
             [
                 'id' => $secondSportType->id,
                 'name' => 'Tennis',
+                'is_active' => false,
             ],
         ]);
 });

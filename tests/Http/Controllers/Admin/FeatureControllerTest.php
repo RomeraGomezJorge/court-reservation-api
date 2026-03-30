@@ -26,12 +26,13 @@ it('stores a feature', function (): void {
 
     $this->assertDatabaseHas('features', [
         'name' => 'Iluminacion',
+        'is_active' => true,
     ]);
 });
 
 it('fails to store a feature with invalid data', function (array $invalidData, array $expectedMessages): void {
     if (($invalidData['name'] ?? null) === 'Feature duplicada') {
-        Feature::query()->create(['name' => 'Feature duplicada']);
+        Feature::query()->create(['name' => 'Feature duplicada', 'is_active' => true]);
     }
 
     $featureData = [
@@ -62,6 +63,7 @@ it('fails to store a feature with invalid data', function (array $invalidData, a
 it('updates a feature', function (): void {
     $feature = Feature::query()->create([
         'name' => 'Feature base',
+        'is_active' => true,
     ]);
 
     put(action([FeatureController::class, 'update'], $feature->id), [
@@ -88,10 +90,11 @@ it('fails to update a feature that does not exist', function (): void {
 it('fails to update a feature with invalid data', function (array $invalidData, array $expectedMessages): void {
     $feature = Feature::query()->create([
         'name' => 'Feature base',
+        'is_active' => true,
     ]);
 
     if (($invalidData['name'] ?? null) === 'Feature duplicada') {
-        Feature::query()->create(['name' => 'Feature duplicada']);
+        Feature::query()->create(['name' => 'Feature duplicada', 'is_active' => true]);
     }
 
     put(action([FeatureController::class, 'update'], $feature->id), array_merge([
@@ -120,6 +123,7 @@ it('fails to update a feature with invalid data', function (array $invalidData, 
 it('deletes a feature', function (): void {
     $feature = Feature::query()->create([
         'name' => 'Feature a eliminar',
+        'is_active' => true,
     ]);
 
     delete(action([FeatureController::class, 'destroy'], $feature->id))
@@ -140,6 +144,7 @@ it('fails to delete a feature that does not exist', function (): void {
 it('shows a feature', function (): void {
     $feature = Feature::query()->create([
         'name' => 'Feature show',
+        'is_active' => true,
     ]);
 
     get(action([FeatureController::class, 'show'], $feature->id))
@@ -147,6 +152,7 @@ it('shows a feature', function (): void {
         ->assertExactJson([
             'id' => $feature->id,
             'name' => 'Feature show',
+            'is_active' => true,
         ]);
 });
 
@@ -160,8 +166,8 @@ it('fails to show a feature that does not exist', function (): void {
 });
 
 it('returns a collection of features', function (): void {
-    $firstFeature = Feature::query()->create(['name' => 'Feature 1']);
-    $secondFeature = Feature::query()->create(['name' => 'Feature 2']);
+    $firstFeature = Feature::query()->create(['name' => 'Feature 1', 'is_active' => true]);
+    $secondFeature = Feature::query()->create(['name' => 'Feature 2', 'is_active' => false]);
 
     get(action([FeatureController::class, 'index']))
         ->assertOk()
@@ -169,10 +175,12 @@ it('returns a collection of features', function (): void {
             [
                 'id' => $firstFeature->id,
                 'name' => 'Feature 1',
+                'is_active' => true,
             ],
             [
                 'id' => $secondFeature->id,
                 'name' => 'Feature 2',
+                'is_active' => false,
             ],
         ]);
 });
