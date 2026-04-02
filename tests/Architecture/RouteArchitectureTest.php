@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Routing\Route as IlluminateRoute;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
@@ -31,7 +30,6 @@ it('ensures all loaded route URIs follow the kebab-case convention', function ()
     );
 
 });
-
 
 function isKebabCaseUri(string $uri): bool
 {
