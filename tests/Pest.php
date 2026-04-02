@@ -27,7 +27,7 @@ pest()->extend(TestCase::class)
 
         $this->freezeTime();
     })
-    ->in('Http');
+    ->in('Http', 'Architecture');
 
 expect()->extend('toBeOne', fn () => $this->toBe(1));
 

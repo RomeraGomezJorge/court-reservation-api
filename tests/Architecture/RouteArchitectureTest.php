@@ -26,9 +26,10 @@ it('ensures all loaded route URIs follow the kebab-case convention', function ()
     $this->assertEmpty(
         $invalidRoutes,
         "The following route URIs do not follow the kebab-case convention:\n- "
-        .$invalidRoutes->implode("\n")
+        .$invalidRoutes->implode("\n- ")
         ."\nIf any URI is a valid third-party exception, add it to ignoredUris.",
     );
+
 });
 
 
