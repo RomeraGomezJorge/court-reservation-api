@@ -81,9 +81,55 @@ it('migrations must not use enums', function () {
     }
 
     expect($violations)->toBeEmpty(
-        "The following migration files use enums and violate the architecture convention:\n- "
+        "The following migration files use PHP enums and violate the architecture convention:\n- "
         .implode("\n- ", $violations)
         ."\nAvoid enums in migrations to keep them database-agnostic; add a documented exception only if required."
+    );
+});
+
+it('ensures no migrations use database enums', function (): void {
+    $violations = [];
+
+    foreach (migrationFiles() as $file) {
+        $content = $file->getContents();
+
+        if (fileContainsAny(Str::lower($content), ['->enum('])) {
+            $violations[] = $file->getRelativePathname();
+        }
+    }
+
+    expect($violations)->toBeEmpty(
+        "The following migration files use database enums (->enum()) and violate the architecture convention:\n- "
+        .implode("\n- ", $violations)
+        ."\nUse strings plus application-level validation/casting, or document an explicit exception if truly required."
+    );
+});
+
+it('ensures no migrations use default values except whitelisted ones', function (): void {
+    $whitelistedMigrationFiles = [
+        // Add relative migration file names here when a default value is explicitly approved.
+    ];
+
+    $violations = [];
+
+    foreach (migrationFiles() as $file) {
+        $relativePath = $file->getRelativePathname();
+
+        if (in_array($relativePath, $whitelistedMigrationFiles, true)) {
+            continue;
+        }
+
+        $content = $file->getContents();
+
+        if (fileContainsAny(Str::lower($content), ['->default('])) {
+            $violations[] = $relativePath;
+        }
+    }
+
+    expect($violations)->toBeEmpty(
+        "The following migration files use default values (->default()) and violate the architecture convention:\n- "
+        .implode("\n- ", $violations)
+        ."\nIf a default is intentionally required, add the migration file to the whitelist explicitly."
     );
 });
 
