@@ -1,0 +1,61 @@
+name: Rector
+
+on:
+  pull_request:
+
+jobs:
+  rector:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        # Trae solo el diff del PR → mejora velocidad de análisis
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          coverage: none
+          tools: composer:v2
+          extensions: mbstring, intl
+
+      # Cache de composer (instalación rapidísima)
+      - name: Cache Composer Dependencies
+        id: cache-composer
+        uses: actions/cache@v4
+        with:
+          path: |
+            vendor
+            ~/.composer/cache
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            composer-
+
+      # Instalación de dependencias (si ya hay cache, tarda 1–2s)
+      - name: Install dependencies
+        if: steps.cache-composer.outputs.cache-hit != 'true'
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+
+      # Generar autoloader (siempre necesario, pero rápido con cache)
+      - name: Generate autoloader
+        run: composer dump-autoload --no-interaction --optimize --classmap-authoritative --no-scripts
+
+      # Cache del cache interno de Rector
+      - name: Cache Rector Cache
+        uses: actions/cache@v4
+        with:
+          path: storage/rector/cache
+          key: rector-cache-${{ hashFiles('rector.php') }}
+          restore-keys: rector-cache-
+
+      - name: Run Rector
+        run: vendor/bin/rector process --ansi --no-progress-bar
+
+      # Para permitir autofixes automáticos en PRs
+      - name: Commit Rector fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Rector: automated refactor"

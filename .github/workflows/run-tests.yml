@@ -1,0 +1,92 @@
+name: Tests
+
+on: [pull_request]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    environment: Actions
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+        php: [8.3]
+        stability: [prefer-stable]
+
+    name: PHP ${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_USER: user
+          MYSQL_DATABASE: back_template_filament
+          MYSQL_PASSWORD: secret
+          MYSQL_ROOT_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Verify MySQL Connection
+        run: |
+          mysql --version
+          sudo apt-get install -y mysql-client
+          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uuser -psecret -e "SHOW DATABASES;"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
+          coverage: none
+      - name: Setup problem matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Limpiar caché de Composer VCS (por cambio de SSH a HTTPS)
+        run: composer clear-cache
+
+      - name: Eliminar repositorio cacheado (por si persiste en SSH)
+        run: rm -rf ~/.composer/cache/vcs/*
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Instalar dependencias
+        run: composer update --prefer-stable --prefer-dist --no-interaction
+
+        ##--------
+        ##      - name: Configure Composer auth for GitHub
+        ##env:
+        ##GH_TOKEN: ${{ secrets.GH_COMPOSER_PAT }}
+        ##run: composer config -g github-oauth.github.com $GH_TOKEN
+        ##
+        ##- name: Install dependencies
+        ##run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+      ##--------
+
+      - name: Generate Key
+        run: php artisan key:generate
+
+      - name: Migrate
+        run: |
+          php artisan migrate --force
+        env:
+          DB_USERNAME: user
+          DB_PASSWORD: secret
+          DB_DATABASE: back_template_filament
+          DB_HOST: 127.0.0.1
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+
+      - name: Execute tests
+        run: ./vendor/bin/pest --parallel
+        env:
+          DB_DATABASE: back_template_filament
+          DB_PASSWORD: secret
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
