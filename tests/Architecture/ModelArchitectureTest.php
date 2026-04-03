@@ -117,7 +117,7 @@ it('ensures model properties and attributes are in snake_case', function (): voi
             }
 
             // Check for CamelCase, kebab-case, or any non-snake_case format
-            if (Str::snake($property) !== $property || Str::contains($property, '-')) {
+            if (! isStrictlySnakeCase($property)) {
                 $violations[] = "[{$file->getRelativePathname()}] -> Property/Key '{$property}' should be snake_case.";
             }
         }
