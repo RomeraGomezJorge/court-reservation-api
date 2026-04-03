@@ -59,7 +59,7 @@ jobs:
         run: cp .env.example .env
 
       - name: Instalar dependencias
-        run: composer update --prefer-stable --prefer-dist --no-interaction
+        run: composer install --prefer-stable --prefer-dist --no-interaction
 
         ##--------
         ##      - name: Configure Composer auth for GitHub
