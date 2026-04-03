@@ -90,8 +90,7 @@ it('ensures model relationships follow singular/plural conventions', function ()
 
 /**
  * Test: Model Properties in snake_case.
- * Ensures that any manual property definitions or array keys (fillable, casts, etc.)
- * follow the snake_case convention.
+ * Updated to capture both list values (like $fillable) and associative keys (like $casts).
  */
 it('ensures model properties and attributes are in snake_case', function (): void {
     $violations = [];
@@ -99,21 +98,22 @@ it('ensures model properties and attributes are in snake_case', function (): voi
     foreach (modelFiles() as $file) {
         $content = $file->getContents();
 
-        // 1. Validate Accessors/Mutators naming logic
-        // Note: Laravel uses CamelCase for method names (getFooAttribute),
-        // but we ensure the intended attribute is logically snake_case.
-        preg_match_all('/public function (get|set)([a-zA-Z0-9_]+)Attribute/', $content, $matches);
+        /**
+         * This regex captures strings inside quotes that are either:
+         * 1. Followed by => (associative keys)
+         * 2. Followed by , or ] (list values like in $fillable)
+         */
+        preg_match_all('/[\'"]([a-zA-Z0-9_\-]+)[\'"]\s*(?==>|,|\])/', $content, $matches);
 
-        // 2. Validate keys in $fillable, $casts, or method arrays
-        // Detects patterns like 'is_active' => or "phone_number" =>
-        preg_match_all('/[\'"]([a-zA-Z0-9_]+)[\'"]\s*=>/', $content, $matches);
+        $potentialProperties = array_unique($matches[1] ?? []);
 
-        foreach ($matches[1] as $property) {
-            if (is_numeric($property)) {
+        foreach ($potentialProperties as $property) {
+            // Ignore numeric strings and known standard non-snake methods/classes
+            if (is_numeric($property) || in_array($property, ['string', 'integer', 'boolean', 'datetime', 'float'])) {
                 continue;
             }
 
-            // Reject CamelCase or kebab-case (-) in property naming
+            // Check for CamelCase, kebab-case, or any non-snake_case format
             if (Str::snake($property) !== $property || Str::contains($property, '-')) {
                 $violations[] = "[{$file->getRelativePathname()}] -> Property/Key '{$property}' should be snake_case.";
             }
