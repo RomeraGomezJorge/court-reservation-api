@@ -4,44 +4,42 @@ on: [pull_request]
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
-    environment: Actions
-    env:
-      DB_CONNECTION: mysql
-      DB_HOST: 127.0.0.1
-      DB_PORT: 3306
-      DB_DATABASE: testing
-      DB_USERNAME: user
-      DB_PASSWORD: secret
+    runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        php: [8.5]
-        stability: [prefer-stable]
-
-    name: PHP ${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
+        php: [8.4, 8.5]
 
     services:
       mysql:
         image: mysql:8.0
         env:
           MYSQL_USER: user
-          MYSQL_DATABASE: testing
           MYSQL_PASSWORD: secret
           MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: testing
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: testing
+      DB_USERNAME: user
+      DB_PASSWORD: secret
+      CACHE_DRIVER: array
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: array
 
     steps:
-      - name: Verify MySQL Connection
-        run: |
-          mysql --version
-          sudo apt-get install -y mysql-client
-          mysql --host 127.0.0.1 --port ${{ env.DB_PORT }} -uuser -psecret -e "SHOW DATABASES;"
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -49,31 +47,39 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
           coverage: none
-      - name: Setup problem matchers
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction --optimize-autoloader
+
+      - name: Prepare environment
         run: |
-          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
-          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+          cp .env.testing .env || cp .env.example .env
+          php artisan key:generate --force
 
-      - name: Limpiar caché de Composer VCS (por cambio de SSH a HTTPS)
-        run: composer clear-cache
-
-      - name: Eliminar repositorio cacheado (por si persiste en SSH)
-        run: rm -rf ~/.composer/cache/vcs/*
-
-      - name: Copy .env
-        run: cp .env.example .env
-
-      - name: Instalar dependencias
-        run: composer install --no-interaction --no-progress
-
-      - name: Generate Key
-        run: php artisan key:generate
-
-      - name: Migrate
+      - name: Grant MySQL permissions
         run: |
-          php artisan migrate --force
+          mysql -h 127.0.0.1 -uroot -psecret -e "
+            GRANT ALL PRIVILEGES ON *.* TO 'user'@'%' WITH GRANT OPTION;
+            FLUSH PRIVILEGES;
+          "
 
-      - name: Execute tests
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h"$DB_HOST" --silent; do
+            sleep 1
+          done
+
+      - name: Run migrations
+        run: php artisan migrate:fresh --force
+
+      - name: Run tests
         run: ./vendor/bin/pest --parallel
