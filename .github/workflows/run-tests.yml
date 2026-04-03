@@ -59,17 +59,7 @@ jobs:
         run: cp .env.example .env
 
       - name: Instalar dependencias
-        run: composer install --prefer-stable --prefer-dist --no-interaction
-
-        ##--------
-        ##      - name: Configure Composer auth for GitHub
-        ##env:
-        ##GH_TOKEN: ${{ secrets.GH_COMPOSER_PAT }}
-        ##run: composer config -g github-oauth.github.com $GH_TOKEN
-        ##
-        ##- name: Install dependencies
-        ##run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction
-      ##--------
+        run: composer install --prefer-dist --no-interaction
 
       - name: Generate Key
         run: php artisan key:generate
