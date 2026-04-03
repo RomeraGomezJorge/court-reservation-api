@@ -12,6 +12,23 @@ function formRequestFiles(): array
     return File::exists($path) ? File::allFiles($path) : [];
 }
 
+function isValidLaravelRuleKey(string $value): bool
+{
+    $segments = explode('.', $value);
+
+    foreach ($segments as $segment) {
+        if ($segment === '*') {
+            continue;
+        }
+
+        if (! isStrictlySnakeCase($segment)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 it('ensures all form request files have the Request suffix', function (): void {
     $violations = [];
 
@@ -56,7 +73,7 @@ it('ensures all validation keys in FormRequests are strictly snake_case', functi
             // For wildcards, we replace the .* with _ to validate the snake_case logic
             $keyToValidate = (string) Str::replace('.*.', '_', $key);
 
-            if (! isStrictlySnakeCase($keyToValidate)) {
+            if (! isValidLaravelRuleKey($keyToValidate) ) {
                 $violations[] = sprintf(
                     '[%s] -> invalid key: "%s"',
                     $file->getRelativePathname(),
