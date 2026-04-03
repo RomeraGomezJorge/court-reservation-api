@@ -5,9 +5,6 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
-/**
- * Get all files from the App/Http/Resources directory.
- */
 function resourceFiles(): array
 {
     $path = app_path('Http/Resources');
@@ -15,9 +12,6 @@ function resourceFiles(): array
     return File::exists($path) ? File::allFiles($path) : [];
 }
 
-/**
- * Validates if a key is strictly snake_case.
- */
 function isStrictlySnakeCase(string $value): bool
 {
     if (is_numeric($value)) {
@@ -37,12 +31,6 @@ function isStrictlySnakeCase(string $value): bool
     return Str::snake($value) === $value;
 }
 
-// --- Architecture Tests ---
-
-/**
- * Ensures that all files in the Resources directory end with the 'Resource' suffix.
- * Example: UserResource.php (Valid), User.php (Invalid)
- */
 it('ensures all resource files have the Resource suffix', function (): void {
     $violations = [];
 
@@ -62,9 +50,6 @@ it('ensures all resource files have the Resource suffix', function (): void {
     );
 });
 
-/**
- * Ensures all attributes defined in the Resources are strictly snake_case.
- */
 it('ensures all attributes in Http Resources are strictly defined in snake_case', function (): void {
     $violations = [];
 
