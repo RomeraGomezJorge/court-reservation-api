@@ -63,5 +63,5 @@ function isStrictlySnakeCase(string $value): bool
         return false;
     }
 
-    return preg_match('/^[a-z0-9_]+$/', $value) === 1;;
+    return preg_match('/^[a-z0-9_]+$/', $value) === 1;
 }

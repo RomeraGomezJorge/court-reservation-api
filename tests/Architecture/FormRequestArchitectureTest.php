@@ -73,7 +73,7 @@ it('ensures all validation keys in FormRequests are strictly snake_case', functi
             // For wildcards, we replace the .* with _ to validate the snake_case logic
             $keyToValidate = (string) Str::replace('.*.', '_', $key);
 
-            if (! isValidLaravelRuleKey($keyToValidate) ) {
+            if (! isValidLaravelRuleKey($keyToValidate)) {
                 $violations[] = sprintf(
                     '[%s] -> invalid key: "%s"',
                     $file->getRelativePathname(),

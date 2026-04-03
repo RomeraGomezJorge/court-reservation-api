@@ -148,7 +148,7 @@ it('migrations must not define default values except allowed ones', function ():
         preg_match_all('/->default\((.*?)\)/', (string) $content, $matches);
 
         foreach ($matches[1] as $default) {
-            $normalized = trim($default, " \t\n\r\0\x0B'\"");
+            $normalized = mb_trim($default, " \t\n\r\0\x0B'\"");
 
             if (! in_array($normalized, $allowedDefaults, true)) {
                 $violations[] = sprintf(
