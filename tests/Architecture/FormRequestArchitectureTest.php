@@ -12,25 +12,6 @@ function formRequestFiles(): array
     return File::exists($path) ? File::allFiles($path) : [];
 }
 
-function isStrictlySnakeCase(string $value): bool
-{
-    if (is_numeric($value)) {
-        return true;
-    }
-
-    // Rule 1: No hyphens allowed (kebab-case)
-    if (Str::contains($value, '-')) {
-        return false;
-    }
-
-    // Rule 2: No capital letters allowed (camelCase)
-    if (strtolower($value) !== $value) {
-        return false;
-    }
-
-    return Str::snake($value) === $value;
-}
-
 it('ensures all form request files have the Request suffix', function (): void {
     $violations = [];
 

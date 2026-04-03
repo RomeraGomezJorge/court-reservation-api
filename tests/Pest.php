@@ -46,3 +46,23 @@ function actingAsUser(): User
 
     return $user;
 }
+
+
+function isStrictlySnakeCase(string $value): bool
+{
+    if (is_numeric($value)) {
+        return true;
+    }
+
+    // Rule 1: No hyphens (kebab-case)
+    if (Str::contains($value, '-')) {
+        return false;
+    }
+
+    // Rule 2: No capitals (camelCase)
+    if (strtolower($value) !== $value) {
+        return false;
+    }
+
+    return Str::snake($value) === $value;
+}

@@ -12,24 +12,7 @@ function resourceFiles(): array
     return File::exists($path) ? File::allFiles($path) : [];
 }
 
-function isStrictlySnakeCase(string $value): bool
-{
-    if (is_numeric($value)) {
-        return true;
-    }
 
-    // Rule 1: No hyphens (kebab-case)
-    if (Str::contains($value, '-')) {
-        return false;
-    }
-
-    // Rule 2: No capitals (camelCase)
-    if (strtolower($value) !== $value) {
-        return false;
-    }
-
-    return Str::snake($value) === $value;
-}
 
 it('ensures all resource files have the Resource suffix', function (): void {
     $violations = [];

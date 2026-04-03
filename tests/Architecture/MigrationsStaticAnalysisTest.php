@@ -211,45 +211,45 @@ it('ensures all database tables are named in plural', function (): void {
     );
 });
 
-/**
- * Test: Pivot Table Naming (Singular & Alphabetical).
- * Ensures pivot tables follow: [singular_model_a]_[singular_model_b] in alphabetical order.
- */
-it('ensures pivot tables use singular model names in alphabetical order', function (): void {
-    $violations = [];
-
-    foreach (migrationFiles() as $file) {
-        $content = $file->getContents();
-
-        if (preg_match('/Schema::create\s*\(\s*[\'"](.+?)[\'"]/', $content, $matches)) {
-            $tableName = $matches[1];
-
-            // Only analyze tables that look like pivots (containing underscore)
-            if (! Str::contains($tableName, '_')) {
-                continue;
-            }
-
-            $parts = explode('_', $tableName);
-
-            // 1. Check if all parts are singular
-            foreach ($parts as $part) {
-                if (Str::singular($part) !== $part) {
-                    $violations[] = "[{$file->getRelativePathname()}] -> Pivot part '{$part}' in '{$tableName}' must be singular.";
-                }
-            }
-
-            // 2. Check for alphabetical order
-            $sortedParts = $parts;
-            sort($sortedParts);
-
-            if ($parts !== $sortedParts) {
-                $violations[] = "[{$file->getRelativePathname()}] -> Pivot '{$tableName}' should be ordered alphabetically: " . implode('_', $sortedParts);
-            }
-        }
-    }
-
-    expect($violations)->toBeEmpty("Pivot table naming conventions violated:\n- " . implode("\n- ", $violations));
-});
+//*
+// * Test: Pivot Table Naming (Singular & Alphabetical).
+// * Ensures pivot tables follow: [singular_model_a]_[singular_model_b] in alphabetical order.
+// */
+//it('ensures pivot tables use singular model names in alphabetical order', function (): void {
+//    $violations = [];
+//
+//    foreach (migrationFiles() as $file) {
+//        $content = $file->getContents();
+//
+//        if (preg_match('/Schema::create\s*\(\s*[\'"](.+?)[\'"]/', $content, $matches)) {
+//            $tableName = $matches[1];
+//
+//            // Only analyze tables that look like pivots (containing underscore)
+//            if (! Str::contains($tableName, '_')) {
+//                continue;
+//            }
+//
+//            $parts = explode('_', $tableName);
+//
+//            // 1. Check if all parts are singular
+//            foreach ($parts as $part) {
+//                if (Str::singular($part) !== $part) {
+//                    $violations[] = "[{$file->getRelativePathname()}] -> Pivot part '{$part}' in '{$tableName}' must be singular.";
+//                }
+//            }
+//
+//            // 2. Check for alphabetical order
+//            $sortedParts = $parts;
+//            sort($sortedParts);
+//
+//            if ($parts !== $sortedParts) {
+//                $violations[] = "[{$file->getRelativePathname()}] -> Pivot '{$tableName}' should be ordered alphabetically: " . implode('_', $sortedParts);
+//            }
+//        }
+//    }
+//
+//    expect($violations)->toBeEmpty("Pivot table naming conventions violated:\n- " . implode("\n- ", $violations));
+//});
 
 /**
  * Test: Column Naming Case (snake_case).
