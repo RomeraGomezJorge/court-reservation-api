@@ -5,7 +5,7 @@ declare(strict_types=1);
 arch()->preset()->php();
 
 arch('No debugging functions in Src')
-    ->expect('Src')
+    ->expect('App')
     ->toUseStrictTypes()
     ->not->toUse(['die', 'dd', 'dump']);
 
