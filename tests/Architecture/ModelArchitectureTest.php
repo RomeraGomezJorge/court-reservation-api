@@ -122,3 +122,52 @@ it('ensures model properties and attributes are in snake_case', function (): voi
 
     expect($violations)->toBeEmpty("Model properties must be snake_case.\n- " . implode("\n- ", $violations));
 });
+
+
+/**
+ * Test: Mass Assignment Protection.
+ * Ensures all models define a $fillable property to avoid security risks
+ * and explicitly define their allowed attributes.
+ */
+it('ensures all models have a fillable property to define their attributes', function (): void {
+    $violations = [];
+
+    foreach (modelFiles() as $file) {
+        $content = $file->getContents();
+
+        // Check for the existence of 'protected $fillable' or 'protected array $fillable'
+        if (! Str::contains($content, 'protected $fillable') && ! Str::contains($content, 'protected array $fillable')) {
+            $violations[] = $file->getRelativePathname();
+        }
+    }
+
+    expect($violations)->toBeEmpty(
+        "The following models are missing a \$fillable property:\n- "
+        . implode("\n- ", $violations)
+        . "\n\nNote: Always use \$fillable for mass assignment protection."
+    );
+});
+
+/**
+ * Test: Query Logic Decoupling.
+ * Forbids the use of 'scopeName' methods in favor of Custom Query Builders.
+ * This keeps the Model clean and improves type-hinting.
+ */
+it('ensures that models do not use scopes and use custom query builders instead', function (): void {
+    $violations = [];
+
+    foreach (modelFiles() as $file) {
+        $content = $file->getContents();
+
+        // Regex to find methods starting with 'scope' (e.g., scopeActive)
+        if (preg_match('/public function scope[A-Z]/', $content)) {
+            $violations[] = $file->getRelativePathname();
+        }
+    }
+
+    expect($violations)->toBeEmpty(
+        "The following models are using 'scope' methods:\n- "
+        . implode("\n- ", $violations)
+        . "\n\nNote: Remove scopes and move the logic to a Custom Query Builder by overriding the newQuery() method."
+    );
+});
