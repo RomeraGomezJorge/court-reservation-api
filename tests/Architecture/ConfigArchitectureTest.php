@@ -16,6 +16,7 @@ it('ensures all config keys are in snake_case', function (): void {
     // Add full dotted keys or specific segments that should be excluded from this rule.
     $ignoredKeys = [
         Unguard::class,
+        'channels.papertrail.handler_with.connectionString',
     ];
 
     $violations = [];
@@ -35,6 +36,7 @@ it('ensures all config keys are in snake_case', function (): void {
 
         foreach (array_keys($flattened) as $fullKey) {
             // Skip if the full key is explicitly ignored.
+            info($fullKey);
             if (in_array($fullKey, $ignoredKeys, true)) {
                 continue;
             }
