@@ -1,0 +1,82 @@
+name: Rector
+
+on:
+  pull_request:
+
+jobs:
+  rector:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # necesario para comparar correctamente con el base branch
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          coverage: none
+          tools: composer:v2
+          extensions: mbstring, intl
+
+      # ⚡ Cache de Composer (mejorado)
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            vendor
+            ~/.composer/cache
+          key: ${{ runner.os }}-php-8.5-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.5-composer-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+
+      - name: Generate autoloader
+        run: composer dump-autoload --no-interaction --optimize
+
+      # ⚡ Cache de Rector
+      - name: Cache Rector cache
+        uses: actions/cache@v4
+        with:
+          path: storage/rector/cache
+          key: ${{ runner.os }}-rector-${{ hashFiles('rector.php') }}
+          restore-keys: |
+            ${{ runner.os }}-rector-
+
+      #  obtener archivos sin romper GITHUB_OUTPUT
+      - name: Get changed PHP files
+        id: changed-files
+        run: |
+          FILES=$(git diff --name-only origin/${{ github.base_ref }} | grep '\.php$' | tr '\n' ' ' || true)
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
+      # 🚀 Ejecutar solo si hay archivos PHP modificados
+      - name: Run Rector
+        if: steps.changed-files.outputs.files != ''
+        run: vendor/bin/rector process ${{ steps.changed-files.outputs.files }} --ansi --no-progress-bar
+
+      # 🔍 Detectar cambios reales
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      # 🔒 Commit solo si:
+      # - hay cambios
+      # - el PR NO es de fork (seguridad)
+      - name: Commit changes
+        if: steps.changes.outputs.has_changes == 'true' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Rector: automated refactor"

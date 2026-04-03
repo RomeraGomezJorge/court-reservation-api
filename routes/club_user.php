@@ -53,11 +53,9 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
     =============================================*/
     Route::get('court/active-features', [ActiveFeatureController::class, 'index']);
 
-
     /*=============================================
         SPORT TYPE
     =============================================*/
     Route::get('court/active-sport-types', [ActiveSportTypeController::class, 'index']);
-
 
 });

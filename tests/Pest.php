@@ -27,7 +27,7 @@ pest()->extend(TestCase::class)
 
         $this->freezeTime();
     })
-    ->in('Http');
+    ->in('Http', 'Architecture');
 
 expect()->extend('toBeOne', fn () => $this->toBe(1));
 
@@ -45,4 +45,23 @@ function actingAsUser(): User
     actingAs($user);
 
     return $user;
+}
+
+function isStrictlySnakeCase(string $value): bool
+{
+    if (is_numeric($value)) {
+        return true;
+    }
+
+    // Rule 1: No hyphens (kebab-case)
+    if (Str::contains($value, '-')) {
+        return false;
+    }
+
+    // Rule 2: No capitals (camelCase)
+    if (mb_strtolower($value) !== $value) {
+        return false;
+    }
+
+    return preg_match('/^[a-z0-9_]+$/', $value) === 1;
 }

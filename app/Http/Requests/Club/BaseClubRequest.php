@@ -70,7 +70,7 @@ abstract class BaseClubRequest extends FormRequest
         } catch (Exception) {
             $validator->errors()->add(
                 "working_days.{$index}.opening_hour",
-                __('club_working_day.invalid_time_format', ['day' => $dayLabel])
+                __('club-working-day.invalid_time_format', ['day' => $dayLabel])
             );
 
             return;
@@ -79,7 +79,7 @@ abstract class BaseClubRequest extends FormRequest
         if (! $opening instanceof CarbonImmutable || ! $closing instanceof CarbonImmutable) {
             $validator->errors()->add(
                 "working_days.{$index}.opening_hour",
-                __('club_working_day.invalid_time_format', ['day' => $dayLabel])
+                __('club-working-day.invalid_time_format', ['day' => $dayLabel])
             );
 
             return;
@@ -88,7 +88,7 @@ abstract class BaseClubRequest extends FormRequest
         if ($this->isInvalidRange($opening, $closing)) {
             $validator->errors()->add(
                 "working_days.{$index}.closing_hour",
-                __('club_working_day.range_too_wide', ['day' => $dayLabel])
+                __('club-working-day.range_too_wide', ['day' => $dayLabel])
             );
         }
     }

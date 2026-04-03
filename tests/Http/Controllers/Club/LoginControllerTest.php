@@ -36,7 +36,7 @@ it('fails login with non existing club user email', function (): void {
         ->assertStatus(422)
         ->assertExactJson([
             'code' => 422,
-            'messages' => [__('auth.failed')],
+            'messages' => ['Estas credenciales no coinciden con nuestros registros.'],
         ]);
 });
 

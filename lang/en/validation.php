@@ -179,6 +179,8 @@ return [
         'phone_number' => 'phone number',
         'reservation_policies_and_payment_terms' => 'reservation policies and payment terms',
         'sport_type_id' => 'sport type',
+        'services' => 'services',
+        'services.*' => 'services',
         'twitter_url' => 'twitter url',
         'whatsapp_number' => 'whatsapp number',
         'working_days' => 'Club Opening Hours',
