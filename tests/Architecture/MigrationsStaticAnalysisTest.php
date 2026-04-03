@@ -271,8 +271,7 @@ it('ensures table columns are snake_case', function (): void {
                 preg_match_all('/->(?:string|integer|bigInteger|text|boolean|date|datetime|timestamp|decimal|float|json|uuid|id|foreignId|foreignUuid)\s*\(\s*[\'"](.+?)[\'"]/', $block, $matches);
 
                 foreach ($matches[1] as $column) {
-                    // Check for CamelCase or kebab-case
-                    if (Str::snake($column) !== $column || Str::contains($column, '-')) {
+                    if (! isStrictlySnakeCase($column)) {
                         $violations[] = sprintf(
                             "[%s] Table '%s': Column '%s' should be snake_case (e.g., '%s').",
                             $file->getRelativePathname(),
