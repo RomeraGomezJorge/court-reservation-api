@@ -6,6 +6,8 @@ on:
 jobs:
   rector:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -54,8 +56,7 @@ jobs:
       - name: Run Rector
         run: vendor/bin/rector process --ansi --no-progress-bar
 
-      # Para permitir autofixes automáticos en PRs
-      - name: Commit Rector fixes
+      - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Rector: automated refactor"
