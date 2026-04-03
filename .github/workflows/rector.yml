@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # necesario para comparar correctamente con el base branch
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -24,7 +24,8 @@ jobs:
           tools: composer:v2
           extensions: mbstring, intl
 
-      - name: Cache Composer
+      # ⚡ Cache de Composer (mejorado)
+      - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
           path: |
@@ -40,7 +41,8 @@ jobs:
       - name: Generate autoloader
         run: composer dump-autoload --no-interaction --optimize
 
-      - name: Cache Rector
+      # ⚡ Cache de Rector
+      - name: Cache Rector cache
         uses: actions/cache@v4
         with:
           path: storage/rector/cache
@@ -48,16 +50,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-rector-
 
+      #  obtener archivos sin romper GITHUB_OUTPUT
       - name: Get changed PHP files
         id: changed-files
         run: |
-          FILES=$(git diff --name-only origin/${{ github.base_ref }} | grep '\.php$' || true)
+          FILES=$(git diff --name-only origin/${{ github.base_ref }} | grep '\.php$' | tr '\n' ' ' || true)
           echo "files=$FILES" >> $GITHUB_OUTPUT
 
+      # 🚀 Ejecutar solo si hay archivos PHP modificados
       - name: Run Rector
         if: steps.changed-files.outputs.files != ''
         run: vendor/bin/rector process ${{ steps.changed-files.outputs.files }} --ansi --no-progress-bar
 
+      # 🔍 Detectar cambios reales
       - name: Check for changes
         id: changes
         run: |
@@ -67,6 +72,9 @@ jobs:
             echo "has_changes=true" >> $GITHUB_OUTPUT
           fi
 
+      # 🔒 Commit solo si:
+      # - hay cambios
+      # - el PR NO es de fork (seguridad)
       - name: Commit changes
         if: steps.changes.outputs.has_changes == 'true' && github.event.pull_request.head.repo.full_name == github.repository
         uses: stefanzweifel/git-auto-commit-action@v5
