@@ -26,8 +26,8 @@ it('ensures all form request files have the Request suffix', function (): void {
 
     expect($violations)->toBeEmpty(
         "The following files in App/Http/Requests are missing the 'Request' suffix:\n- "
-        . implode("\n- ", $violations)
-        . "\n\nStandardize naming to [Action][Entity]Request.php (e.g., UpdateProfileRequest.php)."
+        .implode("\n- ", $violations)
+        ."\n\nStandardize naming to [Action][Entity]Request.php (e.g., UpdateProfileRequest.php)."
     );
 });
 
@@ -39,7 +39,7 @@ it('ensures all validation keys in FormRequests are strictly snake_case', functi
 
         // 1. Extract only the rules() method content to avoid false positives in other methods
         // This regex captures everything inside public function rules(): array { ... }
-        if (! preg_match('/public function rules\(\): array\s*\{(.*?)\s*\}\s*(?:public|protected|private|final|$)/s', $content, $methodMatch)) {
+        if (! preg_match('/public function rules\(\): array\s*\{(.*?)\s*\}\s*(?:public|protected|private|final|$)/s', (string) $content, $methodMatch)) {
             continue;
         }
 
@@ -54,7 +54,7 @@ it('ensures all validation keys in FormRequests are strictly snake_case', functi
         foreach ($keys as $key) {
             // We ignore numeric keys and wildcard patterns (e.g., working_days.*.day)
             // For wildcards, we replace the .* with _ to validate the snake_case logic
-            $keyToValidate = (string) Str::replace('.*.', '_', (string) $key);
+            $keyToValidate = (string) Str::replace('.*.', '_', $key);
 
             if (! isStrictlySnakeCase($keyToValidate)) {
                 $violations[] = sprintf(
@@ -68,7 +68,7 @@ it('ensures all validation keys in FormRequests are strictly snake_case', functi
 
     expect($violations)->toBeEmpty(
         "The following FormRequest validation keys do not follow the strict snake_case convention:\n- "
-        . implode("\n- ", $violations)
-        . "\n\nNote: This check is now isolated to the rules() method."
+        .implode("\n- ", $violations)
+        ."\n\nNote: This check is now isolated to the rules() method."
     );
 });

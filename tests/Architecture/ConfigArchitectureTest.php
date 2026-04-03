@@ -5,17 +5,17 @@ declare(strict_types=1);
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use NunoMaduro\Essentials\Configurables\Unguard;
 
 function configFiles(): array
 {
     return File::allFiles(config_path());
 }
 
-
 it('ensures all config keys are in snake_case', function (): void {
     // Add full dotted keys or specific segments that should be excluded from this rule.
     $ignoredKeys = [
-        'NunoMaduro\Essentials\Configurables\Unguard',
+        Unguard::class,
     ];
 
     $violations = [];
@@ -60,8 +60,8 @@ it('ensures all config keys are in snake_case', function (): void {
 
     expect($violations)->toBeEmpty(
         "The following configuration keys do not follow the snake_case convention:\n- "
-        . implode("\n- ", $violations)
-        . "\n\nIf these are required by a third-party package, add them to the ignoredKeys array."
+        .implode("\n- ", $violations)
+        ."\n\nIf these are required by a third-party package, add them to the ignoredKeys array."
     );
 });
 

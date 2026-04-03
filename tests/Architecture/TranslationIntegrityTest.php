@@ -19,7 +19,7 @@ function testFiles(): array
  */
 function isStrictlyKebabCase(string $value): bool
 {
-    if (Str::contains($value, '_') || strtolower($value) !== $value) {
+    if (Str::contains($value, '_') || mb_strtolower($value) !== $value) {
         return false;
     }
 
@@ -45,7 +45,7 @@ it('ensures all translation files in lang/ use kebab-case naming', function (): 
 
     expect($violations)->toBeEmpty(
         "The following translation files do not follow the kebab-case naming convention:\n- "
-        . implode("\n- ", $violations)
+        .implode("\n- ", $violations)
     );
 });
 
@@ -53,7 +53,9 @@ it('ensures all translation keys in Spanish files are also defined in English fi
     $violations = [];
     $esPath = lang_path('es');
 
-    if (! File::exists($esPath)) return;
+    if (! File::exists($esPath)) {
+        return;
+    }
 
     foreach (File::allFiles($esPath) as $file) {
         $fileName = $file->getFilename();
@@ -61,6 +63,7 @@ it('ensures all translation keys in Spanish files are also defined in English fi
 
         if (! File::exists($enFilePath)) {
             $violations[] = "Missing English file: [lang/en/{$fileName}]";
+
             continue;
         }
 
@@ -75,7 +78,7 @@ it('ensures all translation keys in Spanish files are also defined in English fi
     }
 
     expect($violations)->toBeEmpty(
-        "Translation parity issues found:\n- " . implode("\n- ", $violations)
+        "Translation parity issues found:\n- ".implode("\n- ", $violations)
     );
 });
 
@@ -106,7 +109,7 @@ it('ensures __() function is not used in tests', function (): void {
 
     expect($violations)->toBeEmpty(
         "The following test files are using translation helpers (__, trans or Lang::get):\n- "
-        . implode("\n- ", $violations)
-        . "\n\nReason: Tests should be deterministic. Use hardcoded strings to verify that translations actually render what you expect."
+        .implode("\n- ", $violations)
+        ."\n\nReason: Tests should be deterministic. Use hardcoded strings to verify that translations actually render what you expect."
     );
 });

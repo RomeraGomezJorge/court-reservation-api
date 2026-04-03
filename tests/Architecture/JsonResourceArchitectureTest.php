@@ -12,8 +12,6 @@ function resourceFiles(): array
     return File::exists($path) ? File::allFiles($path) : [];
 }
 
-
-
 it('ensures all resource files have the Resource suffix', function (): void {
     $violations = [];
 
@@ -28,8 +26,8 @@ it('ensures all resource files have the Resource suffix', function (): void {
 
     expect($violations)->toBeEmpty(
         "The following files in App/Http/Resources are missing the 'Resource' suffix:\n- "
-        . implode("\n- ", $violations)
-        . "\n\nStandardize your naming convention to [Name]Resource.php for better code discovery."
+        .implode("\n- ", $violations)
+        ."\n\nStandardize your naming convention to [Name]Resource.php for better code discovery."
     );
 });
 
@@ -40,12 +38,12 @@ it('ensures all attributes in Http Resources are strictly defined in snake_case'
         $content = $file->getContents();
 
         // Capture keys before the '=>' operator in the toArray method
-        preg_match_all('/[\'"](.*?)[\'"]\s*=>/', $content, $matches);
+        preg_match_all('/[\'"](.*?)[\'"]\s*=>/', (string) $content, $matches);
 
         $keys = $matches[1] ?? [];
 
         foreach ($keys as $key) {
-            if (! isStrictlySnakeCase((string) $key)) {
+            if (! isStrictlySnakeCase($key)) {
                 $violations[] = sprintf(
                     '[%s] -> invalid key: "%s"',
                     $file->getRelativePathname(),
@@ -57,6 +55,6 @@ it('ensures all attributes in Http Resources are strictly defined in snake_case'
 
     expect($violations)->toBeEmpty(
         "The following Resource attributes do not follow the strict snake_case convention:\n- "
-        . implode("\n- ", $violations)
+        .implode("\n- ", $violations)
     );
 });

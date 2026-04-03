@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 function modelFiles(): array
 {
     $path = app_path('Models');
+
     return File::exists($path) ? File::allFiles($path) : [];
 }
 
@@ -32,7 +33,7 @@ it('ensures model classes and files are named in singular', function (): void {
         }
 
         // Check if the class name defined inside the file is singular
-        if (preg_match('/class\s+([a-zA-Z0-9_]+)/', $content, $matches)) {
+        if (preg_match('/class\s+(\w+)/', (string) $content, $matches)) {
             $className = $matches[1];
             if (Str::singular($className) !== $className) {
                 $violations[] = "Class [{$className}] in [{$file->getRelativePathname()}] should be singular.";
@@ -40,7 +41,7 @@ it('ensures model classes and files are named in singular', function (): void {
         }
     }
 
-    expect($violations)->toBeEmpty("Model naming must be singular.\n- " . implode("\n- ", $violations));
+    expect($violations)->toBeEmpty("Model naming must be singular.\n- ".implode("\n- ", $violations));
 });
 
 /**
@@ -62,7 +63,7 @@ it('ensures model relationships follow singular/plural conventions', function ()
          */
         preg_match_all(
             '/public function\s+(?!casts)([a-zA-Z0-9_]+)\s*\(.*?\)\s*(?::\s*[a-zA-Z0-9_|]+)?\s*\{\s*return\s+\$this->(hasOne|belongsTo|hasMany|belongsToMany|morphMany|morphToMany|hasManyThrough)\(/s',
-            $content,
+            (string) $content,
             $matches,
             PREG_SET_ORDER
         );
@@ -71,21 +72,19 @@ it('ensures model relationships follow singular/plural conventions', function ()
             $methodName = $match[1];
             $relationType = $match[2];
 
-            if (in_array($relationType, ['hasOne', 'belongsTo'])) {
+            if (in_array($relationType, ['hasOne', 'belongsTo'], true)) {
                 // Singular case
                 if (Str::singular($methodName) !== $methodName) {
                     $violations[] = "[{$file->getRelativePathname()}] -> Method '{$methodName}' ({$relationType}) should be singular.";
                 }
-            } else {
+            } elseif (Str::plural($methodName) !== $methodName) {
                 // Plural case
-                if (Str::plural($methodName) !== $methodName) {
-                    $violations[] = "[{$file->getRelativePathname()}] -> Method '{$methodName}' ({$relationType}) should be plural.";
-                }
+                $violations[] = "[{$file->getRelativePathname()}] -> Method '{$methodName}' ({$relationType}) should be plural.";
             }
         }
     }
 
-    expect($violations)->toBeEmpty("Relationship naming conventions violated:\n- " . implode("\n- ", $violations));
+    expect($violations)->toBeEmpty("Relationship naming conventions violated:\n- ".implode("\n- ", $violations));
 });
 
 /**
@@ -103,16 +102,18 @@ it('ensures model properties and attributes are in snake_case', function (): voi
          * 1. Followed by => (associative keys)
          * 2. Followed by , or ] (list values like in $fillable)
          */
-        preg_match_all('/[\'"]([a-zA-Z0-9_\-]+)[\'"]\s*(?==>|,|\])/', $content, $matches);
+        preg_match_all('/[\'"]([a-zA-Z0-9_\-]+)[\'"]\s*(?==>|,|\])/', (string) $content, $matches);
 
         $potentialProperties = array_unique($matches[1] ?? []);
 
         foreach ($potentialProperties as $property) {
             // Ignore numeric strings and known standard non-snake methods/classes
-            if (is_numeric($property) || in_array($property, ['string', 'integer', 'boolean', 'datetime', 'float'])) {
+            if (is_numeric($property)) {
                 continue;
             }
-
+            if (in_array($property, ['string', 'integer', 'boolean', 'datetime', 'float'])) {
+                continue;
+            }
             // Check for CamelCase, kebab-case, or any non-snake_case format
             if (Str::snake($property) !== $property || Str::contains($property, '-')) {
                 $violations[] = "[{$file->getRelativePathname()}] -> Property/Key '{$property}' should be snake_case.";
@@ -120,9 +121,8 @@ it('ensures model properties and attributes are in snake_case', function (): voi
         }
     }
 
-    expect($violations)->toBeEmpty("Model properties must be snake_case.\n- " . implode("\n- ", $violations));
+    expect($violations)->toBeEmpty("Model properties must be snake_case.\n- ".implode("\n- ", $violations));
 });
-
 
 /**
  * Test: Mass Assignment Protection.
@@ -143,8 +143,8 @@ it('ensures all models have a fillable property to define their attributes', fun
 
     expect($violations)->toBeEmpty(
         "The following models are missing a \$fillable property:\n- "
-        . implode("\n- ", $violations)
-        . "\n\nNote: Always use \$fillable for mass assignment protection."
+        .implode("\n- ", $violations)
+        ."\n\nNote: Always use \$fillable for mass assignment protection."
     );
 });
 
@@ -160,14 +160,14 @@ it('ensures that models do not use scopes and use custom query builders instead'
         $content = $file->getContents();
 
         // Regex to find methods starting with 'scope' (e.g., scopeActive)
-        if (preg_match('/public function scope[A-Z]/', $content)) {
+        if (preg_match('/public function scope[A-Z]/', (string) $content)) {
             $violations[] = $file->getRelativePathname();
         }
     }
 
     expect($violations)->toBeEmpty(
         "The following models are using 'scope' methods:\n- "
-        . implode("\n- ", $violations)
-        . "\n\nNote: Remove scopes and move the logic to a Custom Query Builder by overriding the newQuery() method."
+        .implode("\n- ", $violations)
+        ."\n\nNote: Remove scopes and move the logic to a Custom Query Builder by overriding the newQuery() method."
     );
 });

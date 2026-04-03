@@ -18,8 +18,8 @@ it('ensures all loaded route URIs follow the kebab-case convention', function ()
 
     $invalidRoutes = collect(Route::getRoutes())
         ->map(fn ($route) => $route->uri())
-        ->reject(fn ($uri) => in_array($uri, $ignoredUris))
-        ->filter(fn ($uri) => ! isKebabCaseUri($uri))
+        ->reject(fn ($uri): bool => in_array($uri, $ignoredUris))
+        ->reject(fn (string $uri): bool => isKebabCaseUri($uri))
         ->values();
 
     $this->assertEmpty(
@@ -51,9 +51,6 @@ function isKebabCaseUri(string $uri): bool
     }
 
     $hasInvalidCharacters = (bool) preg_match('/[^a-z0-9\/-]/', $uriWithoutParams);
-    if ($hasInvalidCharacters) {
-        return false;
-    }
 
-    return true;
+    return ! $hasInvalidCharacters;
 }

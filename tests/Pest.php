@@ -47,7 +47,6 @@ function actingAsUser(): User
     return $user;
 }
 
-
 function isStrictlySnakeCase(string $value): bool
 {
     if (is_numeric($value)) {
@@ -60,7 +59,7 @@ function isStrictlySnakeCase(string $value): bool
     }
 
     // Rule 2: No capitals (camelCase)
-    if (strtolower($value) !== $value) {
+    if (mb_strtolower($value) !== $value) {
         return false;
     }
 

@@ -15,7 +15,7 @@ function fileContainsAny(string $content, array $needles): bool
     return Str::contains($content, $needles);
 }
 
-it('migrations must not use eloquent models', function () {
+it('migrations must not use eloquent models', function (): void {
 
     $forbidden = [
         'App\\Models',
@@ -38,7 +38,7 @@ it('migrations must not use eloquent models', function () {
     );
 });
 
-it('migrations must not use factories', function () {
+it('migrations must not use factories', function (): void {
 
     $forbidden = [
         'Database\\Factories',
@@ -63,7 +63,7 @@ it('migrations must not use factories', function () {
     );
 });
 
-it('migrations must not use enums', function () {
+it('migrations must not use enums', function (): void {
 
     $forbidden = [
         'App\\Enums',
@@ -133,7 +133,7 @@ it('ensures no migrations use default values except whitelisted ones', function 
     );
 });
 
-it('migrations must not define default values except allowed ones', function () {
+it('migrations must not define default values except allowed ones', function (): void {
 
     $allowedDefaults = [
         'CURRENT_TIMESTAMP',
@@ -145,7 +145,7 @@ it('migrations must not define default values except allowed ones', function () 
     foreach (migrationFiles() as $file) {
         $content = $file->getContents();
 
-        preg_match_all('/->default\((.*?)\)/', $content, $matches);
+        preg_match_all('/->default\((.*?)\)/', (string) $content, $matches);
 
         foreach ($matches[1] as $default) {
             $normalized = mb_trim($default, " \t\n\r\0\x0B'\"");
@@ -184,7 +184,7 @@ it('ensures all database tables are named in plural', function (): void {
         $content = $file->getContents();
 
         // Regex to capture the table name in Schema::create or Schema::table
-        if (preg_match('/Schema::(?:create|table)\s*\(\s*[\'"](.+?)[\'"]/', $content, $matches)) {
+        if (preg_match('/Schema::(?:create|table)\s*\(\s*[\'"](.+?)[\'"]/', (string) $content, $matches)) {
             $tableName = $matches[1];
 
             // 1. Skip explicitly excluded tables
@@ -206,16 +206,16 @@ it('ensures all database tables are named in plural', function (): void {
 
     expect($violations)->toBeEmpty(
         "The following database tables are not named in plural and are not in the exclusion list:\n- "
-        . implode("\n- ", $violations)
-        . "\n\nNote: If this table comes from a third-party package, add it to the \$excludedTables array in this test."
+        .implode("\n- ", $violations)
+        ."\n\nNote: If this table comes from a third-party package, add it to the \$excludedTables array in this test."
     );
 });
 
-//*
+// *
 // * Test: Pivot Table Naming (Singular & Alphabetical).
 // * Ensures pivot tables follow: [singular_model_a]_[singular_model_b] in alphabetical order.
 // */
-//it('ensures pivot tables use singular model names in alphabetical order', function (): void {
+// it('ensures pivot tables use singular model names in alphabetical order', function (): void {
 //    $violations = [];
 //
 //    foreach (migrationFiles() as $file) {
@@ -249,7 +249,7 @@ it('ensures all database tables are named in plural', function (): void {
 //    }
 //
 //    expect($violations)->toBeEmpty("Pivot table naming conventions violated:\n- " . implode("\n- ", $violations));
-//});
+// });
 
 /**
  * Test: Column Naming Case (snake_case).
@@ -260,7 +260,7 @@ it('ensures table columns are snake_case', function (): void {
 
     foreach (migrationFiles() as $file) {
         $content = $file->getContents();
-        $blocks = preg_split('/Schema::(?:create|table)/', $content);
+        $blocks = preg_split('/Schema::(?:create|table)/', (string) $content);
         array_shift($blocks);
 
         foreach ($blocks as $block) {
@@ -286,7 +286,7 @@ it('ensures table columns are snake_case', function (): void {
         }
     }
 
-    expect($violations)->toBeEmpty("Column naming case violations:\n- " . implode("\n- ", $violations));
+    expect($violations)->toBeEmpty("Column naming case violations:\n- ".implode("\n- ", $violations));
 });
 
 /**
@@ -305,7 +305,7 @@ it('ensures table columns do not include the model name', function (): void {
 
     foreach (migrationFiles() as $file) {
         $content = $file->getContents();
-        $blocks = preg_split('/Schema::(?:create|table)/', $content);
+        $blocks = preg_split('/Schema::(?:create|table)/', (string) $content);
         array_shift($blocks);
 
         foreach ($blocks as $block) {
@@ -317,17 +317,19 @@ it('ensures table columns do not include the model name', function (): void {
 
                 foreach ($matches[1] as $column) {
                     $identifier = "{$tableName}.{$column}";
-                    if (in_array($identifier, $excludedColumns, true)) continue;
+                    if (in_array($identifier, $excludedColumns, true)) {
+                        continue;
+                    }
 
                     // Skip foreign keys as they require the model name by convention
                     if ($singularTable !== '' && ! Str::endsWith($column, ['_id', '_uuid'])) {
-                        $hasPrefix = Str::startsWith($column, $singularTable . '_');
-                        $hasSuffix = Str::endsWith($column, '_' . $singularTable);
+                        $hasPrefix = Str::startsWith($column, $singularTable.'_');
+                        $hasSuffix = Str::endsWith($column, '_'.$singularTable);
 
                         if ($hasPrefix || $hasSuffix) {
                             $suggested = $hasPrefix
-                                ? Str::after($column, $singularTable . '_')
-                                : Str::beforeLast($column, '_' . $singularTable);
+                                ? Str::after($column, $singularTable.'_')
+                                : Str::beforeLast($column, '_'.$singularTable);
 
                             $violations[] = sprintf(
                                 "[%s] Table '%s': Column '%s' is redundant. Suggestion: '%s'.",
@@ -343,5 +345,5 @@ it('ensures table columns do not include the model name', function (): void {
         }
     }
 
-    expect($violations)->toBeEmpty("Column redundancy violations:\n- " . implode("\n- ", $violations));
+    expect($violations)->toBeEmpty("Column redundancy violations:\n- ".implode("\n- ", $violations));
 });
