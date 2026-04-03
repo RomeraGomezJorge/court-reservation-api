@@ -6,15 +6,15 @@ on:
 jobs:
   rector:
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
 
     steps:
       - name: Checkout
-        # Trae solo el diff del PR → mejora velocidad de análisis
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -24,39 +24,51 @@ jobs:
           tools: composer:v2
           extensions: mbstring, intl
 
-      # Cache de composer (instalación rapidísima)
-      - name: Cache Composer Dependencies
-        id: cache-composer
+      - name: Cache Composer
         uses: actions/cache@v4
         with:
           path: |
             vendor
             ~/.composer/cache
-          key: composer-${{ hashFiles('composer.lock') }}
+          key: ${{ runner.os }}-php-8.5-composer-${{ hashFiles('composer.lock') }}
           restore-keys: |
-            composer-
+            ${{ runner.os }}-php-8.5-composer-
 
-      # Instalación de dependencias (si ya hay cache, tarda 1–2s)
       - name: Install dependencies
-        if: steps.cache-composer.outputs.cache-hit != 'true'
         run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
 
-      # Generar autoloader (siempre necesario, pero rápido con cache)
       - name: Generate autoloader
-        run: composer dump-autoload --no-interaction --optimize --classmap-authoritative --no-scripts
+        run: composer dump-autoload --no-interaction --optimize
 
-      # Cache del cache interno de Rector
-      - name: Cache Rector Cache
+      - name: Cache Rector
         uses: actions/cache@v4
         with:
           path: storage/rector/cache
-          key: rector-cache-${{ hashFiles('rector.php') }}
-          restore-keys: rector-cache-
+          key: ${{ runner.os }}-rector-${{ hashFiles('rector.php') }}
+          restore-keys: |
+            ${{ runner.os }}-rector-
+
+      - name: Get changed PHP files
+        id: changed-files
+        run: |
+          FILES=$(git diff --name-only origin/${{ github.base_ref }} | grep '\.php$' || true)
+          echo "files=$FILES" >> $GITHUB_OUTPUT
 
       - name: Run Rector
-        run: vendor/bin/rector process --ansi --no-progress-bar
+        if: steps.changed-files.outputs.files != ''
+        run: vendor/bin/rector process ${{ steps.changed-files.outputs.files }} --ansi --no-progress-bar
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Commit changes
+        if: steps.changes.outputs.has_changes == 'true' && github.event.pull_request.head.repo.full_name == github.repository
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Rector: automated refactor"
