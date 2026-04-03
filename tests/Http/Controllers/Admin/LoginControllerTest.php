@@ -44,7 +44,7 @@ it('fails login with non exist user email', function (): void {
 
     $response->assertStatus(422);
     $response->assertJson([
-        'messages' => [__('auth.failed')],
+        'messages' => ['Estas credenciales no coinciden con nuestros registros.'],
         'code' => 422,
     ]);
 });
@@ -77,7 +77,7 @@ it('fails login with unverify email', function (): void {
 
     $response->assertStatus(422);
     $response->assertJson([
-        'messages' => [__('auth.email_not_verified')],
+        'messages' => ['Debe verificar el correo electrónico antes de iniciar sesión.'],
         'code' => 422,
     ]);
 });
