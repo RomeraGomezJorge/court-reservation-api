@@ -252,69 +252,96 @@ it('ensures pivot tables use singular model names in alphabetical order', functi
 });
 
 /**
- * Test: Table Column Naming (snake_case & No redundancy).
- * Ensures columns follow snake_case and avoid repeating the singular table name.
- * * Example: In 'users' table, use 'email' instead of 'user_email'.
+ * Test: Column Naming Case (snake_case).
+ * Ensures all column definitions use snake_case for consistency.
  */
-it('ensures table columns are snake_case and do not include the model name', function (): void {
-    // Columns that are allowed to bypass these rules (e.g., third-party package requirements)
+it('ensures table columns are snake_case', function (): void {
+    $violations = [];
+
+    foreach (migrationFiles() as $file) {
+        $content = $file->getContents();
+        $blocks = preg_split('/Schema::(?:create|table)/', $content);
+        array_shift($blocks);
+
+        foreach ($blocks as $block) {
+            if (preg_match('/\(s*[\'"](.+?)[\'"]/', $block, $tableMatches)) {
+                $tableName = $tableMatches[1];
+
+                // Regex for common Blueprint column methods
+                preg_match_all('/->(?:string|integer|bigInteger|text|boolean|date|datetime|timestamp|decimal|float|json|uuid|id|foreignId|foreignUuid)\s*\(\s*[\'"](.+?)[\'"]/', $block, $matches);
+
+                foreach ($matches[1] as $column) {
+                    // Check for CamelCase or kebab-case
+                    if (Str::snake($column) !== $column || Str::contains($column, '-')) {
+                        $violations[] = sprintf(
+                            "[%s] Table '%s': Column '%s' should be snake_case (e.g., '%s').",
+                            $file->getRelativePathname(),
+                            $tableName,
+                            $column,
+                            Str::snake($column)
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    expect($violations)->toBeEmpty("Column naming case violations:\n- " . implode("\n- ", $violations));
+});
+
+/**
+ * Test: Table Column Redundancy (DRY).
+ * Ensures columns do not repeat the table name as a prefix or suffix.
+ * Example: In 'users' table, 'name' is preferred over 'user_name' or 'name_user'.
+ */
+it('ensures table columns do not include the model name', function (): void {
     $excludedColumns = [
-        // 'table_name.column_name',
-        'sessions.user_id', // Laravel default
+        'sessions.user_agent',
+        'sessions.user_id',
+        'cache.key_cache',
     ];
 
     $violations = [];
 
     foreach (migrationFiles() as $file) {
         $content = $file->getContents();
+        $blocks = preg_split('/Schema::(?:create|table)/', $content);
+        array_shift($blocks);
 
-        // Identify the table name from the migration
-        preg_match('/Schema::(?:create|table)\s*\(\s*[\'"](.+?)[\'"]/', $content, $tableMatches);
-        $tableName = $tableMatches[1] ?? '';
-        $singularTable = Str::singular($tableName);
+        foreach ($blocks as $block) {
+            if (preg_match('/\(s*[\'"](.+?)[\'"]/', $block, $tableMatches)) {
+                $tableName = $tableMatches[1];
+                $singularTable = Str::singular($tableName);
 
-        // Regex to capture column names across common Laravel blueprint methods
-        preg_match_all('/->(?:string|integer|bigInteger|text|boolean|date|datetime|timestamp|decimal|float|json|uuid)\s*\(\s*[\'"](.+?)[\'"]/', $content, $matches);
+                preg_match_all('/->(?:string|integer|bigInteger|text|boolean|date|datetime|timestamp|decimal|float|json|uuid|id|foreignId|foreignUuid)\s*\(\s*[\'"](.+?)[\'"]/', $block, $matches);
 
-        foreach ($matches[1] as $column) {
-            $identifier = "{$tableName}.{$column}";
+                foreach ($matches[1] as $column) {
+                    $identifier = "{$tableName}.{$column}";
+                    if (in_array($identifier, $excludedColumns, true)) continue;
 
-            if (in_array($identifier, $excludedColumns, true)) {
-                continue;
-            }
+                    // Skip foreign keys as they require the model name by convention
+                    if ($singularTable !== '' && ! Str::endsWith($column, ['_id', '_uuid'])) {
+                        $hasPrefix = Str::startsWith($column, $singularTable . '_');
+                        $hasSuffix = Str::endsWith($column, '_' . $singularTable);
 
-            // 1. Validate snake_case
-            if (Str::snake($column) !== $column || Str::contains($column, '-')) {
-                $suggested = Str::snake($column);
-                $violations[] = sprintf(
-                    "[%s]\n   - Error: Column '%s' is not snake_case.\n   - Fix: Rename to '%s'.",
-                    $file->getRelativePathname(),
-                    $column,
-                    $suggested
-                );
-            }
+                        if ($hasPrefix || $hasSuffix) {
+                            $suggested = $hasPrefix
+                                ? Str::after($column, $singularTable . '_')
+                                : Str::beforeLast($column, '_' . $singularTable);
 
-            // 2. Validate Redundancy
-            // We ignore foreign keys (ending in _id) because they MUST contain the model name.
-            if ($singularTable !== '' && ! Str::endsWith($column, '_id')) {
-                if (Str::startsWith($column, $singularTable . '_')) {
-                    $suggested = Str::after($column, $singularTable . '_');
-                    $violations[] = sprintf(
-                        "[%s]\n   - Error: Column '%s' in table '%s' is redundant.\n   - Fix: Rename to '%s' (remove the '%s_' prefix).",
-                        $file->getRelativePathname(),
-                        $column,
-                        $tableName,
-                        $suggested,
-                        $singularTable
-                    );
+                            $violations[] = sprintf(
+                                "[%s] Table '%s': Column '%s' is redundant. Suggestion: '%s'.",
+                                $file->getRelativePathname(),
+                                $tableName,
+                                $column,
+                                $suggested
+                            );
+                        }
+                    }
                 }
             }
         }
     }
 
-    expect($violations)->toBeEmpty(
-        "Database Schema Architecture Violations:\n\n"
-        . implode("\n\n", $violations)
-        . "\n\nNote: Keep your schema DRY. A column in the 'products' table doesn't need to be 'product_title'; 'title' is sufficient."
-    );
+    expect($violations)->toBeEmpty("Column redundancy violations:\n- " . implode("\n- ", $violations));
 });
