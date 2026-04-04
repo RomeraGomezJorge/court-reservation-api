@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Override;
 
@@ -27,6 +28,7 @@ use Override;
  * @property-read Club $club
  * @property-read SportType $sportType
  * @property-read Collection<int, Feature> $features
+ * @property-read Collection<int, CourtPriceRule> $priceRules
  */
 final class Court extends Model
 {
@@ -87,5 +89,15 @@ final class Court extends Model
     public function features(): BelongsToMany
     {
         return $this->belongsToMany(Feature::class);
+    }
+
+    /**
+     * Get the price rules for this court.
+     *
+     * @return HasMany<CourtPriceRule, $this>
+     */
+    public function priceRules(): HasMany
+    {
+        return $this->hasMany(CourtPriceRule::class);
     }
 }
