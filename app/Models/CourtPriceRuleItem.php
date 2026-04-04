@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\PlayTime;
 use Carbon\CarbonInterface;
 use Database\Factories\CourtPriceRuleItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ use Override;
 /**
  * @property-read string $id
  * @property-read string $court_price_rule_id
- * @property-read int $play_time_minutes
+ * @property-read PlayTime $play_time_minutes
  * @property-read string $price
  * @property-read string $price_starts_at
  * @property-read CarbonInterface $created_at
@@ -45,7 +46,7 @@ final class CourtPriceRuleItem extends Model
         return [
             'id' => 'string',
             'court_price_rule_id' => 'string',
-            'play_time_minutes' => 'integer',
+            'play_time_minutes' => PlayTime::class,
             'price' => 'decimal:2',
             'price_starts_at' => 'string',
             'created_at' => 'datetime',
