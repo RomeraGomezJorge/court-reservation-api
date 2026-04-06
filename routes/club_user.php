@@ -8,6 +8,7 @@ use App\Http\Controllers\Club\ClubController;
 use App\Http\Controllers\Club\ClubStatusToggleController;
 use App\Http\Controllers\Club\CourtAvailabilityToggleController;
 use App\Http\Controllers\Club\CourtController;
+use App\Http\Controllers\Club\CourtPriceRuleController;
 use App\Http\Controllers\Club\LoginController;
 use App\Http\Controllers\Club\PasswordResetController;
 use App\Http\Controllers\Club\ProfileController;
@@ -47,6 +48,12 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
     =============================================*/
     Route::apiResource('clubs.courts', CourtController::class)->except(['index'])->scoped();
     Route::patch('clubs/{club}/courts/{court}/toggle-availability', CourtAvailabilityToggleController::class);
+
+    /*=============================================
+        PRICE RULE
+    =============================================*/
+    Route::post('clubs/{club}/courts/{court}/price-rules', [CourtPriceRuleController::class, 'store']);
+    Route::get('clubs/{club}/courts/{court}/price-rules', [CourtPriceRuleController::class, 'show']);
 
     /*=============================================
         FEATURE

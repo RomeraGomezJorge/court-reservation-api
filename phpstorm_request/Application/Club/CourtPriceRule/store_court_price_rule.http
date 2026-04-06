@@ -1,0 +1,42 @@
+POST {{base_url}}/api/club/clubs/1/courts/1/price-rules
+Authorization: Bearer {{token_club_user}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "court_id": 1,
+    "rules": [
+        {
+            "day": null,
+            "items": [
+                {
+                    "play_time_minutes": 60,
+                    "prices": [
+                        {"starts_at": "09:00", "price": 1000},
+                        {"starts_at": "12:00", "price": 1200},
+                        {"starts_at": "18:00", "price": 1500}
+                    ]
+                },
+                {
+                    "play_time_minutes": 90,
+                    "prices": [
+                        {"starts_at": "09:00", "price": 1400},
+                        {"starts_at": "18:00", "price": 1800}
+                    ]
+                }
+            ]
+        },
+        {
+            "day": "monday",
+            "items": [
+                {
+                    "play_time_minutes": 60,
+                    "prices": [
+                        {"starts_at": "00:00", "price": 900}
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
