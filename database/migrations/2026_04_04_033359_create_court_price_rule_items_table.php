@@ -18,7 +18,7 @@ return new class extends Migration
             $table->time('price_starts_at');
             $table->timestamps();
 
-            $table->unique(['court_price_rule_id', 'play_time_minutes', 'price_starts_at']);
+            $table->unique(['court_price_rule_id', 'play_time_minutes', 'price_starts_at'], 'cpri_rule_time_start_uq');
             $table->index('court_price_rule_id');
         });
     }
