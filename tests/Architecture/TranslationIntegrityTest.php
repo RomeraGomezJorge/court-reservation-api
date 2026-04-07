@@ -271,7 +271,7 @@ it('ensures only __() is used for translations in app folder', function (): void
     );
 });
 
-it('ensures all translation keys from app code exist in php translation files', function (): void {
+it('ensures all translation keys from app folder exist in php translation files', function (): void {
     $violations = [];
 
     foreach (applicationFiles() as $file) {
