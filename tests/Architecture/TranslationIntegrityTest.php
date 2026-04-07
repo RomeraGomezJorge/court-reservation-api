@@ -43,21 +43,6 @@ function extractTranslationKeysFromContent(string $content): array
     return array_filter(array_unique($matches[1] ?? []));
 }
 
-function translateKeyPath(string $key, array $translations): bool
-{
-    $segments = explode('.', $key);
-    $current = $translations;
-
-    foreach ($segments as $segment) {
-        if (! is_array($current) || ! isset($current[$segment])) {
-            return false;
-        }
-        $current = $current[$segment];
-    }
-
-    return true;
-}
-
 function loadLanguageFile(string $locale, string $fileName): array
 {
     $filePath = lang_path("{$locale}/{$fileName}.php");
@@ -67,6 +52,32 @@ function loadLanguageFile(string $locale, string $fileName): array
     }
 
     return require $filePath;
+}
+
+function loadJsonLanguageFile(string $locale): array
+{
+    $filePath = lang_path("{$locale}.json");
+
+    if (! File::exists($filePath)) {
+        return [];
+    }
+
+    $translations = json_decode((string) File::get($filePath), true);
+
+    return is_array($translations) ? $translations : [];
+}
+
+function translationKeyExistsInLocale(string $key, string $locale): bool
+{
+    if (! Str::contains($key, '.')) {
+        return array_key_exists($key, loadJsonLanguageFile($locale));
+    }
+
+    $fileName = Str::before($key, '.');
+    $nestedKey = Str::after($key, '.');
+    $translations = loadLanguageFile($locale, $fileName);
+
+    return $nestedKey !== '' && Arr::has($translations, $nestedKey);
 }
 
 function extractFormRequestRuleKeys(string $fileContent): array
@@ -244,28 +255,18 @@ it('ensures all translation keys from App folder are defined in lang files', fun
 
         foreach ($keysInFile as $key) {
             foreach ($locales as $locale) {
-                $languageFiles = File::files(lang_path($locale));
-                $isKeyDefined = false;
-
-                foreach ($languageFiles as $langFile) {
-                    $fileName = $langFile->getBasename('.php');
-                    $translations = loadLanguageFile($locale, $fileName);
-
-                    if (translateKeyPath($key, $translations)) {
-                        $isKeyDefined = true;
-                        break;
-                    }
+                if (translationKeyExistsInLocale($key, $locale)) {
+                    continue;
                 }
 
-                if (! $isKeyDefined) {
-                    $violations[] = sprintf(
-                        '[%s] Key "%s" not found in [lang/%s/]',
-                        $file->getRelativePathname(),
-                        $key,
-                        $locale
-                    );
-                    break;
-                }
+                $violations[] = sprintf(
+                    '[%s] Key "%s" not found in [lang/%s/]',
+                    $file->getRelativePathname(),
+                    $key,
+                    $locale
+                );
+
+                break;
             }
         }
     }
