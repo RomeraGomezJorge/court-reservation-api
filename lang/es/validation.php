@@ -140,9 +140,9 @@ return [
     'required_with_all' => 'El campo :attribute es obligatorio cuando :values están presentes.',
     'required_without' => 'El campo :attribute es obligatorio cuando :values no está presente.',
     'required_without_all' => 'El campo :attribute es obligatorio cuando ninguno de :values está presente.',
-     'resource_not_found' => 'El recurso :resource  no se ha encontrado.',
-     'court_id_must_match_route_court' => 'El ID de la cancha debe coincidir con la cancha en la URL.',
-     'same' => 'Los campos :attribute y :other deben coincidir.',
+    'resource_not_found' => 'El recurso :resource  no se ha encontrado.',
+    'court_id_must_match_route_court' => 'El ID de la cancha debe coincidir con la cancha en la URL.',
+    'same' => 'Los campos :attribute y :other deben coincidir.',
     'size' => [
         'array' => 'El campo :attribute debe contener :size elementos.',
         'file' => 'El tamaño de :attribute debe ser :size kilobytes.',

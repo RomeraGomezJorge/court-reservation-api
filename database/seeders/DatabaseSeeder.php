@@ -15,7 +15,6 @@ final class DatabaseSeeder extends Seeder
             AdminSportTypeSeeder::class,
             AdminFeatureSeeder::class,
             ClubWithCourtSeeder::class,
-            ClubServiceSeeder::class,
             ClubWorkingDaySeeder::class,
             CourtPriceRuleSeeder::class,
             CourtPriceRuleItemSeeder::class,

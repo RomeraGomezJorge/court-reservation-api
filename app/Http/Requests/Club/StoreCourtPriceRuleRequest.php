@@ -7,6 +7,7 @@ namespace App\Http\Requests\Club;
 use App\Enums\PlayTime;
 use App\Enums\WorkingDays;
 use App\Models\Court;
+use Illuminate\Contracts\Validation\Rule as RuleContract;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -19,7 +20,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
         return true;
     }
 
-    /** @return array<string, array<int, ValidationRule|string>> */
+    /** @return array<string, array<int, ValidationRule|RuleContract|string>> */
     public function rules(): array
     {
         return [

@@ -24,7 +24,7 @@ final class CourtPriceRulesShowBuilderService
      *         time_slots: array<int, array{
      *             label: string,
      *             starts_at: string,
-     *             prices: array<string, int|float|null>
+     *             prices: array<int|string, int|float|null>
      *         }>
      *     }>
      * }
@@ -77,7 +77,7 @@ final class CourtPriceRulesShowBuilderService
     /**
      * @param  Collection<int, CourtPriceRule>  $priceRules
      * @param  array<int, int>  $playTime
-     * @return array<int, array{day: string|null, label: string, time_slots: array<int, array{label: string, starts_at: string, prices: array<string, int|float|null>}>}>
+     * @return array<int, array{day: string|null, label: string, time_slots: array<int, array{label: string, starts_at: string, prices: array<int|string, int|float|null>}>}>
      */
     private function buildDays(Collection $priceRules, array $playTime): array
     {
@@ -121,20 +121,18 @@ final class CourtPriceRulesShowBuilderService
 
     /**
      * @param  array<int, int>  $playTime
-     * @return array<int, array{label: string, starts_at: string, prices: array<string, int|float|null>}>
+     * @return array<int, array{label: string, starts_at: string, prices: array<int|string, int|float|null>}>
      */
     private function buildTimeSlots(CourtPriceRule $priceRule, array $playTime): array
     {
         return $priceRule->items
             ->groupBy(fn (CourtPriceRuleItem $item): string => $this->formatTime($item->price_starts_at))
             ->sortKeys()
-            ->map(function (Collection $items, string $startsAt) use ($playTime): array {
-                return [
-                    'label' => __('court-price-rules.slot_from', ['time' => $startsAt]),
-                    'starts_at' => $startsAt,
-                    'prices' => $this->buildPricesByPlayTime($items, $playTime),
-                ];
-            })
+            ->map(fn(Collection $items, string $startsAt): array => [
+                'label' => __('court-price-rules.slot_from', ['time' => $startsAt]),
+                'starts_at' => $startsAt,
+                'prices' => $this->buildPricesByPlayTime($items, $playTime),
+            ])
             ->values()
             ->all();
     }
@@ -142,7 +140,7 @@ final class CourtPriceRulesShowBuilderService
     /**
      * @param  Collection<int, CourtPriceRuleItem>  $items
      * @param  array<int, int>  $playTime
-     * @return array<string, int|float|null>
+     * @return array<int|string, int|float|null>
      */
     private function buildPricesByPlayTime(Collection $items, array $playTime): array
     {
@@ -150,6 +148,7 @@ final class CourtPriceRulesShowBuilderService
             ->keyBy(fn (CourtPriceRuleItem $item): int => $item->play_time_minutes->value)
             ->map(fn (CourtPriceRuleItem $item): int|float => $this->normalizePrice($item->price));
 
+        /** @var array<int|string, int|float|null> $prices */
         $prices = [];
 
         foreach ($playTime as $minutes) {
@@ -166,7 +165,7 @@ final class CourtPriceRulesShowBuilderService
         return $parsedTime?->format('H:i') ?? $time;
     }
 
-    private function normalizePrice(string $price): int|float
+    private function normalizePrice(int|float|string $price): int|float
     {
         $numericPrice = (float) $price;
 

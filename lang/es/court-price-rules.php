@@ -6,4 +6,3 @@ return [
     'generic_day' => 'Genérico',
     'slot_from' => 'Desde :time',
 ];
-

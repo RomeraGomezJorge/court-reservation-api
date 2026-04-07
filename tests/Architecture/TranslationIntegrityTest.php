@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Symfony\Component\Finder\SplFileInfo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -43,7 +44,7 @@ function localeTranslationFiles(string $locale): array
 
     return array_values(array_filter(
         File::allFiles($path),
-        static fn ($file): bool => $file->getExtension() === 'php'
+        static fn (SplFileInfo $file): bool => $file->getExtension() === 'php'
     ));
 }
 
@@ -259,7 +260,7 @@ it('ensures translation values are not empty strings after trim', function (): v
             $fileName = $file->getBasename('.php');
             $translations = loadLocaleTranslationFile($locale, $fileName);
 
-            if (! is_array($translations) || $translations === []) {
+            if ($translations === []) {
                 continue;
             }
 
@@ -401,8 +402,10 @@ it('ensures all FormRequest validation rules have translation attributes', funct
         foreach (translationLocales() as $locale) {
             $validationTranslations = loadLocaleTranslationFile($locale, 'validation');
             $definedAttributes = $validationTranslations['attributes'] ?? [];
-
-            if (! is_array($definedAttributes) || $definedAttributes === []) {
+            if (! is_array($definedAttributes)) {
+                continue;
+            }
+            if ($definedAttributes === []) {
                 continue;
             }
 
@@ -416,8 +419,10 @@ it('ensures all FormRequest validation rules have translation attributes', funct
                 if (is_numeric($normalizedKey)) {
                     continue;
                 }
-
-                if (isset($definedAttributes[$ruleKey]) || isset($definedAttributes[$normalizedKey])) {
+                if (isset($definedAttributes[$ruleKey])) {
+                    continue;
+                }
+                if (isset($definedAttributes[$normalizedKey])) {
                     continue;
                 }
 
