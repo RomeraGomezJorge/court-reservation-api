@@ -217,6 +217,75 @@ it('ensures each locale has the same translation keys as English for each file',
     );
 });
 
+it('ensures every translation php file returns a non-empty array', function (): void {
+    $violations = [];
+
+    foreach (translationLocales() as $locale) {
+        foreach (localeTranslationFiles($locale) as $file) {
+            $fileName = $file->getBasename('.php');
+            $translations = loadLocaleTranslationFile($locale, $fileName);
+
+            if (! is_array($translations)) {
+                $violations[] = sprintf(
+                    '[lang/%s/%s.php] Translation file must return an array',
+                    $locale,
+                    $fileName
+                );
+
+                continue;
+            }
+
+            if ($translations === []) {
+                $violations[] = sprintf(
+                    '[lang/%s/%s.php] Translation array must not be empty',
+                    $locale,
+                    $fileName
+                );
+            }
+        }
+    }
+
+    expect($violations)->toBeEmpty(
+        "The following translation files are invalid (must return a non-empty array):\n- "
+        .implode("\n- ", $violations)
+    );
+});
+
+it('ensures translation values are not empty strings after trim', function (): void {
+    $violations = [];
+
+    foreach (translationLocales() as $locale) {
+        foreach (localeTranslationFiles($locale) as $file) {
+            $fileName = $file->getBasename('.php');
+            $translations = loadLocaleTranslationFile($locale, $fileName);
+
+            if (! is_array($translations) || $translations === []) {
+                continue;
+            }
+
+            foreach (Arr::dot($translations) as $key => $value) {
+                if (! is_string($value)) {
+                    continue;
+                }
+
+                if (mb_trim($value) === '') {
+                    $violations[] = sprintf(
+                        '[lang/%s/%s.php] Empty translation value at key "%s"',
+                        $locale,
+                        $fileName,
+                        $key
+                    );
+                }
+            }
+        }
+    }
+
+    expect($violations)->toBeEmpty(
+        "The following translation keys have empty values:\n- "
+        .implode("\n- ", $violations)
+    );
+});
+
 it('ensures __() function is not used in tests', function (): void {
     $violations = [];
     $forbiddenHelpers = ['__(', 'trans(', 'Lang::get('];
@@ -337,7 +406,6 @@ it('ensures all FormRequest validation rules have translation attributes', funct
                 continue;
             }
 
-
             foreach ($ruleKeys as $ruleKey) {
                 if (in_array($ruleKey, $ignoredFormRequestRuleKeys, true)) {
                     continue;
@@ -370,4 +438,3 @@ it('ensures all FormRequest validation rules have translation attributes', funct
         ."\n\nAdd missing attributes to lang/*/validation.php under the 'attributes' array."
     );
 });
-
