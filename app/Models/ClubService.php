@@ -13,8 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
 /**
- * @property-read string $id
- * @property-read string $club_id
+ * @property-read int $id
+ * @property-read int $club_id
  * @property-read ClubServicesType $type
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at

@@ -18,7 +18,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Override;
 
 /**
- * @property-read string $id
+ * @property-read int $id
  * @property-read string $email
  * @property-read CarbonInterface|null $email_verified_at
  * @property-read string $password

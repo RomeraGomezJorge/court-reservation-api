@@ -15,8 +15,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Override;
 
 /**
- * @property-read string $id
- * @property-read string $club_user_id
+ * @property-read int $id
+ * @property-read int $club_user_id
  * @property-read string $address_city
  * @property-read string $address_country
  * @property-read string $address_postal_code

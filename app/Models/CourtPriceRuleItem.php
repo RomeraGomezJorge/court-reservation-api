@@ -13,10 +13,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
 /**
- * @property-read string $id
- * @property-read string $court_price_rule_id
+ * @property-read int $id
+ * @property-read int $court_price_rule_id
  * @property-read PlayTime $play_time_minutes
- * @property-read string $price
+ * @property-read float $price
  * @property-read string $price_starts_at
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at

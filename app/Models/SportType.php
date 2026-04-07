@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
 /**
- * @property-read string $id
+ * @property-read int $id
  * @property-read non-empty-string $name
  * @property-read bool $is_active
  * @property-read CarbonInterface $created_at
