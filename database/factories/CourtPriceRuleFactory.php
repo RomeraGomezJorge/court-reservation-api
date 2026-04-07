@@ -32,10 +32,12 @@ final class CourtPriceRuleFactory extends Factory
         ]);
     }
 
-    public function forDay(WorkingDays $day): self
+    public function forDay(WorkingDays|string $day): self
     {
+        $dayValue = is_string($day) ? $day : $day->value;
+
         return $this->state(fn (): array => [
-            'day' => $day->value,
+            'day' => $dayValue,
         ]);
     }
 
