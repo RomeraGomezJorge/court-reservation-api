@@ -6,22 +6,76 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
+function translationLocales(): array
+{
+    return ['en', 'es'];
+}
 
-
-function testFiles(): array
+function translationTestFiles(): array
 {
     return File::allFiles(base_path('tests'));
 }
 
-function appFiles(): array
+function applicationFiles(): array
 {
     return File::allFiles(app_path());
 }
 
-function formRequestFiles(): array
+function translationFormRequestFiles(): array
 {
     $path = app_path('Http/Requests');
+
     return File::exists($path) ? File::allFiles($path) : [];
+}
+
+function localeTranslationPath(string $locale): string
+{
+    return lang_path($locale);
+}
+
+function localeTranslationFiles(string $locale): array
+{
+    $path = localeTranslationPath($locale);
+
+    if (! File::exists($path)) {
+        return [];
+    }
+
+    return array_values(array_filter(
+        File::allFiles($path),
+        static fn ($file): bool => $file->getExtension() === 'php'
+    ));
+}
+
+function localeTranslationFileNames(string $locale): array
+{
+    $names = array_map(
+        static fn ($file): string => $file->getBasename('.php'),
+        localeTranslationFiles($locale)
+    );
+
+    sort($names);
+
+    return $names;
+}
+
+function loadLocaleTranslationFile(string $locale, string $fileName): array
+{
+    $filePath = lang_path("{$locale}/{$fileName}.php");
+
+    if (! File::exists($filePath)) {
+        return [];
+    }
+
+    return require $filePath;
+}
+
+function localeFileFlattenedKeys(string $locale, string $fileName): array
+{
+    $keys = array_keys(Arr::dot(loadLocaleTranslationFile($locale, $fileName)));
+    sort($keys);
+
+    return $keys;
 }
 
 function isStrictlyKebabCase(string $value): bool
@@ -33,51 +87,29 @@ function isStrictlyKebabCase(string $value): bool
     return Str::kebab($value) === $value;
 }
 
-
 function extractTranslationKeysFromContent(string $content): array
 {
     if (! preg_match_all('/__\(\s*[\'\"]([^\'\"]+)[\'\"](?:\s*,[^)]*)?\)/', $content, $matches)) {
         return [];
     }
 
-    return array_filter(array_unique($matches[1] ?? []));
+    return array_values(array_filter(array_unique($matches[1] ?? [])));
 }
 
-function loadLanguageFile(string $locale, string $fileName): array
-{
-    $filePath = lang_path("{$locale}/{$fileName}.php");
-
-    if (! File::exists($filePath)) {
-        return [];
-    }
-
-    return require $filePath;
-}
-
-function loadJsonLanguageFile(string $locale): array
-{
-    $filePath = lang_path("{$locale}.json");
-
-    if (! File::exists($filePath)) {
-        return [];
-    }
-
-    $translations = json_decode((string) File::get($filePath), true);
-
-    return is_array($translations) ? $translations : [];
-}
-
-function translationKeyExistsInLocale(string $key, string $locale): bool
+function translationPhpKeyExistsInLocale(string $key, string $locale): bool
 {
     if (! Str::contains($key, '.')) {
-        return array_key_exists($key, loadJsonLanguageFile($locale));
+        return false;
     }
 
     $fileName = Str::before($key, '.');
     $nestedKey = Str::after($key, '.');
-    $translations = loadLanguageFile($locale, $fileName);
 
-    return $nestedKey !== '' && Arr::has($translations, $nestedKey);
+    if ($nestedKey === '') {
+        return false;
+    }
+
+    return Arr::has(loadLocaleTranslationFile($locale, $fileName), $nestedKey);
 }
 
 function extractFormRequestRuleKeys(string $fileContent): array
@@ -89,7 +121,7 @@ function extractFormRequestRuleKeys(string $fileContent): array
     $rulesMethodContent = $methodMatch[1];
     preg_match_all('/[\'"](.*?)[\'"]\s*=>/', $rulesMethodContent, $matches);
 
-    return array_filter(array_unique($matches[1] ?? []));
+    return array_values(array_filter(array_unique($matches[1] ?? [])));
 }
 
 function normalizeRuleKeyForValidation(string $key): string
@@ -97,45 +129,21 @@ function normalizeRuleKeyForValidation(string $key): string
     return (string) Str::replace('.*.', '_', $key);
 }
 
-function isValidLaravelRuleKey(string $value): bool
-{
-    $segments = explode('.', $value);
-
-    foreach ($segments as $segment) {
-        if ($segment === '*') {
-            continue;
-        }
-
-        if (! isStrictlySnakeCase($segment)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-
-function detectForbiddenTranslationHelpers(string $content): bool
-{
-    $forbiddenHelpers = ['trans(', 'Lang::get(', 'trans_choice('];
-    return Str::contains($content, $forbiddenHelpers);
-}
-
-
-
-
-it('ensures all translation files in lang/ use kebab-case naming', function (): void {
+it('ensures all translation files in each locale use kebab-case naming', function (): void {
     $violations = [];
 
-    foreach (File::allFiles(lang_path()) as $file) {
-        $fileNameWithoutExtension = $file->getBasename('.php');
+    foreach (translationLocales() as $locale) {
+        foreach (localeTranslationFiles($locale) as $file) {
+            $fileNameWithoutExtension = $file->getBasename('.php');
 
-        if (! isStrictlyKebabCase($fileNameWithoutExtension)) {
-            $violations[] = sprintf(
-                '[%s] Expected: "%s.php"',
-                $file->getRelativePathname(),
-                Str::replace('_', '-', Str::lower($fileNameWithoutExtension))
-            );
+            if (! isStrictlyKebabCase($fileNameWithoutExtension)) {
+                $violations[] = sprintf(
+                    '[lang/%s/%s] Expected: "%s.php"',
+                    $locale,
+                    $file->getFilename(),
+                    Str::replace('_', '-', Str::lower($fileNameWithoutExtension))
+                );
+            }
         }
     }
 
@@ -145,56 +153,80 @@ it('ensures all translation files in lang/ use kebab-case naming', function (): 
     );
 });
 
-it('ensures all translation keys in Spanish files are also defined in English files', function (): void {
+it('ensures each locale has the same translation files as English', function (): void {
     $violations = [];
-    $esPath = lang_path('es');
+    $englishFiles = localeTranslationFileNames('en');
 
-    if (! File::exists($esPath)) {
-        return;
-    }
-
-    foreach (File::allFiles($esPath) as $file) {
-        $fileName = $file->getFilename();
-        $enFilePath = lang_path("en/{$fileName}");
-
-        if (! File::exists($enFilePath)) {
-            $violations[] = "Missing English file: [lang/en/{$fileName}]";
-
+    foreach (translationLocales() as $locale) {
+        if ($locale === 'en') {
             continue;
         }
 
-        $esKeys = array_keys(Arr::dot(require $file->getPathname()));
-        $enKeys = array_keys(Arr::dot(require $enFilePath));
+        $localeFiles = localeTranslationFileNames($locale);
+        $missingFiles = array_diff($englishFiles, $localeFiles);
+        $extraFiles = array_diff($localeFiles, $englishFiles);
 
-        foreach ($esKeys as $key) {
-            if (! in_array($key, $enKeys, true)) {
-                $violations[] = "[lang/en/{$fileName}] is missing key: \"{$key}\"";
+        foreach ($missingFiles as $fileName) {
+            $violations[] = sprintf('[lang/%s] Missing file: %s.php', $locale, $fileName);
+        }
+
+        foreach ($extraFiles as $fileName) {
+            $violations[] = sprintf('[lang/%s] Extra file not in [lang/en]: %s.php', $locale, $fileName);
+        }
+    }
+
+    expect($violations)->toBeEmpty(
+        "Translation file parity issues found:\n- "
+        .implode("\n- ", $violations)
+    );
+});
+
+it('ensures each locale has the same translation keys as English for each file', function (): void {
+    $violations = [];
+    $englishFiles = localeTranslationFileNames('en');
+
+    foreach (translationLocales() as $locale) {
+        if ($locale === 'en') {
+            continue;
+        }
+
+        foreach ($englishFiles as $fileName) {
+            $englishKeys = localeFileFlattenedKeys('en', $fileName);
+            $localeKeys = localeFileFlattenedKeys($locale, $fileName);
+
+            if ($localeKeys === []) {
+                continue;
+            }
+
+            $missingKeys = array_diff($englishKeys, $localeKeys);
+            $extraKeys = array_diff($localeKeys, $englishKeys);
+
+            foreach ($missingKeys as $key) {
+                $violations[] = sprintf('[lang/%s/%s.php] Missing key: "%s"', $locale, $fileName, $key);
+            }
+
+            foreach ($extraKeys as $key) {
+                $violations[] = sprintf('[lang/%s/%s.php] Extra key not in [lang/en/%s.php]: "%s"', $locale, $fileName, $fileName, $key);
             }
         }
     }
 
     expect($violations)->toBeEmpty(
-        "Translation parity issues found:\n- ".implode("\n- ", $violations)
+        "Translation key parity issues found:\n- "
+        .implode("\n- ", $violations)
     );
 });
 
 it('ensures __() function is not used in tests', function (): void {
     $violations = [];
+    $forbiddenHelpers = ['__(', 'trans(', 'Lang::get('];
 
-    $forbiddenHelpers = [
-        '__(',
-        'trans(',
-        'Lang::get(',
-    ];
-
-    foreach (testFiles() as $file) {
+    foreach (translationTestFiles() as $file) {
         if ($file->getFilename() === basename(__FILE__)) {
             continue;
         }
 
-        $content = $file->getContents();
-
-        if (Str::contains($content, $forbiddenHelpers)) {
+        if (Str::contains($file->getContents(), $forbiddenHelpers)) {
             $violations[] = $file->getRelativePathname();
         }
     }
@@ -206,16 +238,15 @@ it('ensures __() function is not used in tests', function (): void {
     );
 });
 
-it('ensures only __() is used for translations in app code', function (): void {
+it('ensures only __() is used for translations in app folder', function (): void {
     $violations = [];
-
     $alternativeHelpers = [
         'trans(' => 'trans()',
         'Lang::get(' => 'Lang::get()',
         'trans_choice(' => 'trans_choice()',
     ];
 
-    foreach (appFiles() as $file) {
+    foreach (applicationFiles() as $file) {
         $content = $file->getContents();
 
         if (! Str::contains($content, array_keys($alternativeHelpers))) {
@@ -240,22 +271,30 @@ it('ensures only __() is used for translations in app code', function (): void {
     );
 });
 
-it('ensures all translation keys from App folder are defined in lang files', function (): void {
+it('ensures all translation keys from app code exist in php translation files', function (): void {
     $violations = [];
-    $locales = ['en', 'es'];
 
-
-    foreach (appFiles() as $file) {
+    foreach (applicationFiles() as $file) {
         $content = $file->getContents();
         $keysInFile = extractTranslationKeysFromContent($content);
 
-        if (empty($keysInFile)) {
+        if ($keysInFile === []) {
             continue;
         }
 
         foreach ($keysInFile as $key) {
-            foreach ($locales as $locale) {
-                if (translationKeyExistsInLocale($key, $locale)) {
+            if (! Str::contains($key, '.')) {
+                $violations[] = sprintf(
+                    '[%s] Non-dotted translation key "%s" is not allowed (JSON translations are disabled)',
+                    $file->getRelativePathname(),
+                    $key
+                );
+
+                continue;
+            }
+
+            foreach (translationLocales() as $locale) {
+                if (translationPhpKeyExistsInLocale($key, $locale)) {
                     continue;
                 }
 
@@ -272,33 +311,32 @@ it('ensures all translation keys from App folder are defined in lang files', fun
     }
 
     expect($violations)->toBeEmpty(
-        "The following translation keys from app code are not defined in lang files:\n- "
+        "The following translation keys from app code are not defined in locale php files:\n- "
         .implode("\n- ", $violations)
-        ."\n\nEnsure all keys used in app code exist in all language files."
+        ."\n\nEnsure all keys used in app code exist in all locale files."
     );
 });
 
 it('ensures all FormRequest validation rules have translation attributes', function (): void {
     $violations = [];
-    $locales = ['en', 'es'];
     $ignoredFormRequestRuleKeys = ['token', 'id', 'hash'];
 
-    foreach (formRequestFiles() as $file) {
+    foreach (translationFormRequestFiles() as $file) {
         $content = $file->getContents();
         $ruleKeys = extractFormRequestRuleKeys($content);
 
-        if (empty($ruleKeys)) {
+        if ($ruleKeys === []) {
             continue;
         }
 
-        foreach ($locales as $locale) {
-            $validationTranslations = loadLanguageFile($locale, 'validation');
+        foreach (translationLocales() as $locale) {
+            $validationTranslations = loadLocaleTranslationFile($locale, 'validation');
+            $definedAttributes = $validationTranslations['attributes'] ?? [];
 
-            if (empty($validationTranslations['attributes'] ?? [])) {
+            if (! is_array($definedAttributes) || $definedAttributes === []) {
                 continue;
             }
 
-            $definedAttributes = $validationTranslations['attributes'];
 
             foreach ($ruleKeys as $ruleKey) {
                 if (in_array($ruleKey, $ignoredFormRequestRuleKeys, true)) {
