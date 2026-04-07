@@ -59,7 +59,7 @@ function localeTranslationFileNames(string $locale): array
     return $names;
 }
 
-function loadLocaleTranslationFile(string $locale, string $fileName): mixed
+function loadLocaleTranslationFile(string $locale, string $fileName): array
 {
     $filePath = lang_path("{$locale}/{$fileName}.php");
 
@@ -70,16 +70,9 @@ function loadLocaleTranslationFile(string $locale, string $fileName): mixed
     return require $filePath;
 }
 
-function loadLocaleTranslationArray(string $locale, string $fileName): array
-{
-    $translations = loadLocaleTranslationFile($locale, $fileName);
-
-    return is_array($translations) ? $translations : [];
-}
-
 function localeFileFlattenedKeys(string $locale, string $fileName): array
 {
-    $keys = array_keys(Arr::dot(loadLocaleTranslationArray($locale, $fileName)));
+    $keys = array_keys(Arr::dot(loadLocaleTranslationFile($locale, $fileName)));
     sort($keys);
 
     return $keys;
@@ -116,7 +109,7 @@ function translationPhpKeyExistsInLocale(string $key, string $locale): bool
         return false;
     }
 
-    return Arr::has(loadLocaleTranslationArray($locale, $fileName), $nestedKey);
+    return Arr::has(loadLocaleTranslationFile($locale, $fileName), $nestedKey);
 }
 
 function extractFormRequestRuleKeys(string $fileContent): array
@@ -406,7 +399,7 @@ it('ensures all FormRequest validation rules have translation attributes', funct
         }
 
         foreach (translationLocales() as $locale) {
-            $validationTranslations = loadLocaleTranslationArray($locale, 'validation');
+            $validationTranslations = loadLocaleTranslationFile($locale, 'validation');
             $definedAttributes = $validationTranslations['attributes'] ?? [];
 
             if (! is_array($definedAttributes) || $definedAttributes === []) {
