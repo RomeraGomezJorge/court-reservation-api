@@ -36,7 +36,7 @@ function isStrictlyKebabCase(string $value): bool
 
 function extractTranslationKeysFromContent(string $content): array
 {
-    if (! preg_match_all('/__\([\'"]([^\'"]+)[\'"]\)/', $content, $matches)) {
+    if (! preg_match_all('/__\(\s*[\'\"]([^\'\"]+)[\'\"](?:\s*,[^)]*)?\)/', $content, $matches)) {
         return [];
     }
 

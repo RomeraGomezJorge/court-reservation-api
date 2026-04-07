@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 return [
     'generic_day' => 'Genérico',
-    'slot_from' => 'Desde las :time',
+    'slot_from' => 'Desde :time',
 ];
 
