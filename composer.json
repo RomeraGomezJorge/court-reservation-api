@@ -10,7 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.5.0",
-        "laravel/framework": "^12.55.1",
+        "laravel/framework": "^12.56.0",
         "laravel/sanctum": "^4.3.1",
         "nunomaduro/essentials": "^1.2.0"
     },
@@ -19,7 +19,7 @@
         "fakerphp/faker": "^1.24.1",
         "larastan/larastan": "^3.9.3",
         "laravel-lang/lang": "^15.29",
-        "laravel/boost": "^1.8.12",
+        "laravel/boost": "^1.8.13",
         "laravel/pail": "^1.2.6",
         "laravel/pint": "^1.29.0",
         "laravel/sail": ">=1.54",
