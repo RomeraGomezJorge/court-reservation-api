@@ -11,6 +11,7 @@ use App\Models\CourtPriceRule;
 use App\Models\CourtPriceRuleItem;
 use App\Models\SportType;
 
+use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
 function validPriceRulesPayload(Court $court): array
@@ -91,6 +92,144 @@ it('stores price rules for a court', function (): void {
         'price_starts_at' => '12:00:00',
         'price' => 1200,
     ]);
+});
+
+it('shows price rules with play time labels in prices', function (): void {
+    $club = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $sportType = SportType::factory()->create();
+
+    $court = Court::factory()->create([
+        'club_id' => $club->id,
+        'sport_type_id' => $sportType->id,
+    ]);
+
+    $genericRule = CourtPriceRule::factory()->forCourt($court)->generic()->create();
+
+    CourtPriceRuleItem::factory()->forRule($genericRule)->forPlayTimeMinutes(60)->startingAt('09:00:00')->create([
+        'price' => 3000,
+    ]);
+
+    CourtPriceRuleItem::factory()->forRule($genericRule)->forPlayTimeMinutes(90)->startingAt('09:00:00')->create([
+        'price' => 4500,
+    ]);
+
+    CourtPriceRuleItem::factory()->forRule($genericRule)->forPlayTimeMinutes(60)->startingAt('12:00:00')->create([
+        'price' => 4000,
+    ]);
+
+    CourtPriceRuleItem::factory()->forRule($genericRule)->forPlayTimeMinutes(90)->startingAt('12:00:00')->create([
+        'price' => 5200,
+    ]);
+
+    CourtPriceRuleItem::factory()->forRule($genericRule)->forPlayTimeMinutes(60)->startingAt('18:00:00')->create([
+        'price' => 5000,
+    ]);
+
+    CourtPriceRuleItem::factory()->forRule($genericRule)->forPlayTimeMinutes(90)->startingAt('18:00:00')->create([
+        'price' => 6500,
+    ]);
+
+    $mondayRule = CourtPriceRule::factory()->forCourt($court)->forDay('monday')->create();
+
+    CourtPriceRuleItem::factory()->forRule($mondayRule)->forPlayTimeMinutes(60)->startingAt('00:00:00')->create([
+        'price' => 2800,
+    ]);
+
+    CourtPriceRuleItem::factory()->forRule($mondayRule)->forPlayTimeMinutes(90)->startingAt('00:00:00')->create([
+        'price' => 4200,
+    ]);
+
+    get(action([CourtPriceRuleController::class, 'show'], ['club' => $club, 'court' => $court]))
+        ->assertOk()
+        ->assertExactJson([
+            'court_id' => $court->id,
+            'play_time' => [60, 90],
+            'price_starts_at' => ['00:00', '09:00', '12:00', '18:00'],
+            'days' => [
+                [
+                    'day' => null,
+                    'label' => 'Genérico',
+                    'time_slots' => [
+                        [
+                            'label' => 'Desde 09:00',
+                            'starts_at' => '09:00',
+                            'prices' => [
+                                '60 min' => 3000,
+                                '90 min' => 4500,
+                            ],
+                        ],
+                        [
+                            'label' => 'Desde 12:00',
+                            'starts_at' => '12:00',
+                            'prices' => [
+                                '60 min' => 4000,
+                                '90 min' => 5200,
+                            ],
+                        ],
+                        [
+                            'label' => 'Desde 18:00',
+                            'starts_at' => '18:00',
+                            'prices' => [
+                                '60 min' => 5000,
+                                '90 min' => 6500,
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'day' => 'monday',
+                    'label' => 'lunes',
+                    'time_slots' => [
+                        [
+                            'label' => 'Desde 00:00',
+                            'starts_at' => '00:00',
+                            'prices' => [
+                                '60 min' => 2800,
+                                '90 min' => 4200,
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'day' => 'tuesday',
+                    'label' => 'martes',
+                    'time_slots' => [],
+                ],
+                [
+                    'day' => 'wednesday',
+                    'label' => 'miercoles',
+                    'time_slots' => [],
+                ],
+                [
+                    'day' => 'thursday',
+                    'label' => 'jueves',
+                    'time_slots' => [],
+                ],
+                [
+                    'day' => 'friday',
+                    'label' => 'viernes',
+                    'time_slots' => [],
+                ],
+                [
+                    'day' => 'saturday',
+                    'label' => 'sabado',
+                    'time_slots' => [],
+                ],
+                [
+                    'day' => 'sunday',
+                    'label' => 'domingo',
+                    'time_slots' => [],
+                ],
+                [
+                    'day' => 'holiday',
+                    'label' => 'feriado',
+                    'time_slots' => [],
+                ],
+            ],
+        ]);
 });
 
 it('replaces old data on each store call', function (): void {
