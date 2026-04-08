@@ -6,6 +6,7 @@ namespace App\Builders;
 
 use App\Enums\PlayTime;
 use App\Models\CourtPriceRuleItem;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -18,7 +19,7 @@ final class CourtPriceRuleItemBuilder extends Builder
      *
      * @return array<int, int>
      */
-    public function getPlayTimesForCourt(int|string $courtId): array
+    public function getPlayTimesForCourt(int $courtId): array
     {
         $courtPlayTimeEnums = $this
             ->whereRelation(relation: 'priceRule', column: 'court_id', value: $courtId)
@@ -30,5 +31,37 @@ final class CourtPriceRuleItemBuilder extends Builder
             ->map(fn (PlayTime $value): int => $value->value)
             ->values()
             ->all();
+    }
+
+    /**
+     * Retrieves unique and sorted price start times for a court.
+     *
+     * @return array<int, string>
+     */
+    public function getPriceStartsAtForCourt(int $courtId): array
+    {
+        $priceStartTimes = $this
+            ->whereRelation(relation: 'priceRule', column: 'court_id', value: $courtId)
+            ->distinct('price_starts_at')
+            ->orderBy('price_starts_at')
+            ->pluck('price_starts_at');
+
+        return $priceStartTimes
+            ->map(fn (string $time): string => $this->formatTime($time))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Formats time from H:i:s to H:i format.
+     *
+     * @param string $time Time in H:i:s format
+     * @return string Formatted time in H:i format
+     */
+    private function formatTime(string $time): string
+    {
+        $parsedTime = Carbon::createFromFormat('H:i:s', $time);
+
+        return $parsedTime?->format('H:i') ?? $time;
     }
 }

@@ -8,7 +8,7 @@ use App\Enums\WorkingDays;
 use App\Models\Court;
 use App\Models\CourtPriceRule;
 use App\Models\CourtPriceRuleItem;
-use Date;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
 final class CourtPriceRulesShowBuilderService
@@ -35,31 +35,16 @@ final class CourtPriceRulesShowBuilderService
         $priceRules = $court->priceRules()->with('items')->get();
 
         $playTime = CourtPriceRuleItem::query()->getPlayTimesForCourt($court->id);
-
-        info('playtime', [$playTime]);
+        $priceStartsAt = CourtPriceRuleItem::query()->getPriceStartsAtForCourt($court->id);
 
         return [
             'court_id' => $court->id,
             'play_time' => $playTime,
-            'price_starts_at' => $this->collectPriceStartsAtValues($priceRules),
+            'price_starts_at' => $priceStartsAt,
             'days' => $this->buildDays($priceRules, $playTime),
         ];
     }
 
-    /**
-     * @param  Collection<int, CourtPriceRule>  $priceRules
-     * @return array<int, string>
-     */
-    private function collectPriceStartsAtValues(Collection $priceRules): array
-    {
-        return $priceRules
-            ->flatMap(fn (CourtPriceRule $priceRule): Collection => $priceRule->items)
-            ->map(fn (CourtPriceRuleItem $item): string => $this->formatTime($item->price_starts_at))
-            ->unique()
-            ->sort()
-            ->values()
-            ->all();
-    }
 
     /**
      * @param  Collection<int, CourtPriceRule>  $priceRules
@@ -147,7 +132,7 @@ final class CourtPriceRulesShowBuilderService
 
     private function formatTime(string $time): string
     {
-        $parsedTime = Date::createFromFormat('H:i:s', $time);
+        $parsedTime = Carbon::createFromFormat('H:i:s', $time);
 
         return $parsedTime?->format('H:i') ?? $time;
     }
