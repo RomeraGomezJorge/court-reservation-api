@@ -12,29 +12,33 @@ use App\Models\CourtPriceRuleItem;
 it('retrieves unique play times for a court', function (): void {
     $court = Court::factory()->create();
 
-    $genericRule = CourtPriceRule::factory()
+    [$genericRule, $mondayRule] = CourtPriceRule::factory()
         ->for($court)
-        ->create(['day' => null]);
-
-    $mondayRule = CourtPriceRule::factory()
-        ->for($court)
-        ->create(['day' => WorkingDays::Monday]);
+        ->count(2)
+        ->sequence(
+            ['day' => null],
+            ['day' => WorkingDays::Monday],
+        )
+        ->create()
+        ->all();
 
     CourtPriceRuleItem::factory()
         ->for($genericRule, 'priceRule')
-        ->create(['play_time_minutes' => PlayTime::SixtyMinutes]);
-
-    CourtPriceRuleItem::factory()
-        ->for($genericRule, 'priceRule')
-        ->create(['play_time_minutes' => PlayTime::NinetyMinutes]);
-
-    CourtPriceRuleItem::factory()
-        ->for($mondayRule, 'priceRule')
-        ->create(['play_time_minutes' => PlayTime::SixtyMinutes]);
+        ->count(2)
+        ->sequence(
+            ['play_time_minutes' => PlayTime::SixtyMinutes],
+            ['play_time_minutes' => PlayTime::NinetyMinutes],
+        )
+        ->create();
 
     CourtPriceRuleItem::factory()
         ->for($mondayRule, 'priceRule')
-        ->create(['play_time_minutes' => PlayTime::NinetyMinutes->value]);
+        ->count(2)
+        ->sequence(
+            ['play_time_minutes' => PlayTime::SixtyMinutes],
+            ['play_time_minutes' => PlayTime::NinetyMinutes],
+        )
+        ->create();
 
     $playTimes = CourtPriceRuleItem::query()
         ->getPlayTimesForCourt($court->id);
@@ -66,15 +70,13 @@ it('returns play times ordered correctly', function (): void {
 
     CourtPriceRuleItem::factory()
         ->for($rule, 'priceRule')
-        ->create(['play_time_minutes' => PlayTime::NinetyMinutes]);
-
-    CourtPriceRuleItem::factory()
-        ->for($rule, 'priceRule')
-        ->create(['play_time_minutes' => PlayTime::SixtyMinutes]);
-
-    CourtPriceRuleItem::factory()
-        ->for($rule, 'priceRule')
-        ->create(['play_time_minutes' => PlayTime::OneHundredTwentyMinutes]);
+        ->count(3)
+        ->sequence(
+            ['play_time_minutes' => PlayTime::NinetyMinutes],
+            ['play_time_minutes' => PlayTime::SixtyMinutes],
+            ['play_time_minutes' => PlayTime::OneHundredTwentyMinutes],
+        )
+        ->create();
 
     $playTimes = CourtPriceRuleItem::query()
         ->getPlayTimesForCourt($court->id);
@@ -82,3 +84,140 @@ it('returns play times ordered correctly', function (): void {
     expect($playTimes)->toBe([60, 90, 120]);
 });
 
+it('retrieves unique price start times for a court', function (): void {
+    $court = Court::factory()->create();
+
+    [$genericRule, $mondayRule] = CourtPriceRule::factory()
+        ->for($court)
+        ->count(2)
+        ->sequence(
+            ['day' => null],
+            ['day' => WorkingDays::Monday],
+        )
+        ->create()
+        ->all();
+
+    CourtPriceRuleItem::factory()
+        ->for($genericRule, 'priceRule')
+        ->count(2)
+        ->sequence(
+            ['price_starts_at' => '08:00:00'],
+            ['price_starts_at' => '14:00:00'],
+        )
+        ->create();
+
+    CourtPriceRuleItem::factory()
+        ->for($mondayRule, 'priceRule')
+        ->count(2)
+        ->sequence(
+            ['price_starts_at' => '08:00:00'],
+            ['price_starts_at' => '10:00:00'],
+        )
+        ->create();
+
+    $priceStartTimes = CourtPriceRuleItem::query()
+        ->getPriceStartsAtForCourt($court->id);
+
+    expect($priceStartTimes)
+        ->toBeArray()
+        ->toBe(['08:00', '10:00', '14:00']);
+});
+
+it('returns empty array when court has no price start times', function (): void {
+    $court = Court::factory()->create();
+
+    CourtPriceRule::factory()
+        ->for($court)
+        ->create(['day' => null]);
+
+    $priceStartTimes = CourtPriceRuleItem::query()
+        ->getPriceStartsAtForCourt($court->id);
+
+    expect($priceStartTimes)->toBe([]);
+});
+
+it('returns price start times ordered correctly', function (): void {
+    $court = Court::factory()->create();
+
+    $rule = CourtPriceRule::factory()
+        ->for($court)
+        ->create(['day' => null]);
+
+    CourtPriceRuleItem::factory()
+        ->for($rule, 'priceRule')
+        ->count(3)
+        ->sequence(
+            ['price_starts_at' => '18:00:00'],
+            ['price_starts_at' => '08:00:00'],
+            ['price_starts_at' => '14:00:00'],
+        )
+        ->create();
+
+    $priceStartTimes = CourtPriceRuleItem::query()
+        ->getPriceStartsAtForCourt($court->id);
+
+    expect($priceStartTimes)->toBe(['08:00', '14:00', '18:00']);
+});
+
+it('formats time correctly from H:i:s to H:i', function (): void {
+    $court = Court::factory()->create();
+
+    $rule = CourtPriceRule::factory()
+        ->for($court)
+        ->create(['day' => null]);
+
+    CourtPriceRuleItem::factory()
+        ->for($rule, 'priceRule')
+        ->count(2)
+        ->sequence(
+            ['price_starts_at' => '09:30:45'],
+            ['price_starts_at' => '16:15:30'],
+        )
+        ->create();
+
+    $priceStartTimes = CourtPriceRuleItem::query()
+        ->getPriceStartsAtForCourt($court->id);
+
+    expect($priceStartTimes)->toBe(['09:30', '16:15']);
+});
+
+it('deduplicates price start times correctly', function (): void {
+    $court = Court::factory()->create();
+
+    [$genericRule, $mondayRule] = CourtPriceRule::factory()
+        ->for($court)
+        ->count(2)
+        ->sequence(
+            ['day' => null],
+            ['day' => WorkingDays::Monday],
+        )
+        ->create()
+        ->all();
+
+    CourtPriceRuleItem::factory()
+        ->for($genericRule, 'priceRule')
+        ->create([
+            'play_time_minutes' => PlayTime::SixtyMinutes,
+            'price_starts_at' => '08:00:00',
+        ]);
+
+    CourtPriceRuleItem::factory()
+        ->for($mondayRule, 'priceRule')
+        ->count(2)
+        ->sequence(
+            [
+                'play_time_minutes' => PlayTime::SixtyMinutes,
+                'price_starts_at' => '08:00:00',
+            ],
+            [
+                'play_time_minutes' => PlayTime::NinetyMinutes,
+                'price_starts_at' => '08:00:00',
+            ],
+        )
+        ->create();
+
+    $priceStartTimes = CourtPriceRuleItem::query()
+        ->getPriceStartsAtForCourt($court->id);
+
+    expect($priceStartTimes)->toBe(['08:00']);
+});
