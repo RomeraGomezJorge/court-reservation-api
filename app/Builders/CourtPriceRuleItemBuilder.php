@@ -22,7 +22,7 @@ final class CourtPriceRuleItemBuilder extends Builder
     public function getPlayTimesForCourt(int $courtId): array
     {
         $courtPlayTimeEnums = $this
-            ->whereRelation(relation: 'priceRule', column: 'court_id', value: $courtId)
+            ->whereRelation('priceRule', 'court_id',  $courtId)
             ->distinct('play_time_minutes')
             ->orderBy('play_time_minutes')
             ->pluck('play_time_minutes');
@@ -41,7 +41,7 @@ final class CourtPriceRuleItemBuilder extends Builder
     public function getPriceStartsAtForCourt(int $courtId): array
     {
         $priceStartTimes = $this
-            ->whereRelation(relation: 'priceRule', column: 'court_id', value: $courtId)
+            ->whereRelation( 'priceRule', 'court_id',  $courtId)
             ->distinct('price_starts_at')
             ->orderBy('price_starts_at')
             ->pluck('price_starts_at');
