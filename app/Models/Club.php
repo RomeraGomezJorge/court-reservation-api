@@ -79,8 +79,8 @@ final class Club extends Model
     public function casts(): array
     {
         return [
-            'id' => 'string',
-            'club_user_id' => 'string',
+            'id' => 'int',
+            'club_user_id' => 'int',
             'address_city' => 'string',
             'address_country' => 'string',
             'address_postal_code' => 'string',

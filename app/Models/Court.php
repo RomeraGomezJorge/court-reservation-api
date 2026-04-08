@@ -55,8 +55,8 @@ final class Court extends Model
     public function casts(): array
     {
         return [
-            'id' => 'string',
-            'club_id' => 'string',
+            'id' => 'int',
+            'club_id' => 'int',
             'sport_type_id' => 'integer',
             'name' => 'string',
             'description' => 'string',

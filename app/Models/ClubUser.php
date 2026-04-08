@@ -52,7 +52,7 @@ final class ClubUser extends Authenticatable implements MustVerifyEmail
     public function casts(): array
     {
         return [
-            'id' => 'string',
+            'id' => 'int',
             'email' => 'string',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',

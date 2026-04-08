@@ -10,6 +10,7 @@
     "sail": true,
     "skills": [
         "laravel-best-practices",
-        "pest-testing"
+        "pest-testing",
+        "laravel-query-builders"
     ]
 }

@@ -39,8 +39,8 @@ final class ClubService extends Model
     public function casts(): array
     {
         return [
-            'id' => 'string',
-            'club_id' => 'string',
+            'id' => 'int',
+            'club_id' => 'int',
             'type' => ClubServicesType::class,
             'created_at' => 'datetime',
             'updated_at' => 'datetime',

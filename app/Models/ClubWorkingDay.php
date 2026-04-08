@@ -43,8 +43,8 @@ final class ClubWorkingDay extends Model
     public function casts(): array
     {
         return [
-            'id' => 'string',
-            'club_id' => 'string',
+            'id' => 'int',
+            'club_id' => 'int',
             'day' => WorkingDays::class,
             'opening_hour' => 'string',
             'closing_hour' => 'string',

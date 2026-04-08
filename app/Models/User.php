@@ -48,7 +48,7 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function casts(): array
     {
         return [
-            'id' => 'string',
+            'id' => 'int',
             'name' => 'string',
             'email' => 'string',
             'email_verified_at' => 'datetime',
