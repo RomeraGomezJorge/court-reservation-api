@@ -14,21 +14,19 @@ use Illuminate\Database\Eloquent\Builder;
 final class CourtPriceRuleItemBuilder extends Builder
 {
     /**
-     * Obtiene los tiempos de juego únicos y ordenados para una cancha.
+     * Retrieves the unique and ordered play times for a court.
      *
      * @return array<int, int>
      */
     public function getPlayTimesForCourt(int|string $courtId): array
     {
-        $playTimeEnums = $this
-            ->whereHas('priceRule', function (Builder $query) use ($courtId): void {
-                $query->where('court_id', $courtId);
-            })
+        $courtPlayTimeEnums = $this
+            ->whereRelation(relation: 'priceRule', column: 'court_id', value: $courtId)
             ->distinct('play_time_minutes')
             ->orderBy('play_time_minutes')
             ->pluck('play_time_minutes');
 
-        return $playTimeEnums
+        return $courtPlayTimeEnums
             ->map(fn (PlayTime $value): int => $value->value)
             ->values()
             ->all();
