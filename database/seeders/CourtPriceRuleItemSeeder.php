@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Enums\WorkingDays;
+use App\Enums\CourtPriceRuleDay;
 use App\Models\Court;
 use App\Models\CourtPriceRule;
 use App\Models\CourtPriceRuleItem;
@@ -15,8 +15,8 @@ final class CourtPriceRuleItemSeeder extends Seeder
     public function run(): void
     {
         $court = Court::query()->where('name', 'Cancha Padel Central')->firstOrFail();
-        $genericRule = $this->findRule($court->id, null);
-        $mondayRule = $this->findRule($court->id, WorkingDays::Monday->value);
+        $genericRule = $this->findRule($court->id, CourtPriceRuleDay::Base->value);
+        $mondayRule = $this->findRule($court->id, CourtPriceRuleDay::Monday->value);
 
         $this->syncRuleItems($genericRule->id, $this->genericItems());
         $this->syncRuleItems($mondayRule->id, $this->mondayItems());

@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('court_price_rules', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('court_id')->constrained('courts')->cascadeOnDelete();
-            $table->string('day')->nullable();
+            $table->string('day');
             $table->timestamps();
 
             $table->unique(['court_id', 'day']);

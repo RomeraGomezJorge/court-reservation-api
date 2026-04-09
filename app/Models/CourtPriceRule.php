@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Builders\CourtPriceRuleBuilder;
-use App\Enums\WorkingDays;
+use App\Enums\CourtPriceRuleDay;
 use Carbon\CarbonInterface;
 use Database\Factories\CourtPriceRuleFactory;
-use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,13 +18,12 @@ use Override;
 /**
  * @property-read int $id
  * @property-read int $court_id
- * @property-read WorkingDays|null $day
+ * @property-read CourtPriceRuleDay $day
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read Court $court
  * @property-read Collection<int, CourtPriceRuleItem> $items
  */
-#[UseEloquentBuilder(CourtPriceRuleBuilder::class)]
 final class CourtPriceRule extends Model
 {
     /** @use HasFactory<CourtPriceRuleFactory> */
@@ -48,7 +46,7 @@ final class CourtPriceRule extends Model
         return [
             'id' => 'int',
             'court_id' => 'int',
-            'day' => WorkingDays::class,
+            'day' => CourtPriceRuleDay::class,
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

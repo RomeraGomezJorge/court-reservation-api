@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\CourtPriceRuleDay;
 use App\Enums\PlayTime;
-use App\Enums\WorkingDays;
 use App\Models\Court;
 use App\Models\CourtPriceRule;
 use App\Models\CourtPriceRuleItem;
@@ -19,7 +19,7 @@ final class CourtPriceRulesShowBuilderService
      *     play_time: array<int, int>,
      *     price_starts_at: array<int, string>,
      *     days: array<int, array{
-     *         day: string|null,
+     *         day: string,
      *         label: string,
      *         time_slots: array<int, array{
      *             label: string,
@@ -48,51 +48,38 @@ final class CourtPriceRulesShowBuilderService
     /**
      * @param  Collection<int, CourtPriceRule>  $priceRules
      * @param  array<int, int>  $playTime
-     * @return array<int, array{day: string|null, label: string, time_slots: array<int, array{label: string, starts_at: string, prices: array<string, int|float|null>}>}>
+     * @return array<int, array{day: string, label: string, time_slots: array<int, array{label: string, starts_at: string, prices: array<string, int|float|null>}>}>
      */
     private function buildDays(Collection $priceRules, array $playTime): array
     {
-        $orderedDays = [
-            null,
-            WorkingDays::Monday,
-            WorkingDays::Tuesday,
-            WorkingDays::Wednesday,
-            WorkingDays::Thursday,
-            WorkingDays::Friday,
-            WorkingDays::Saturday,
-            WorkingDays::Sunday,
-            WorkingDays::Holiday,
-        ];
-
-        return collect($orderedDays)
-            ->map(function (?WorkingDays $day) use ($priceRules, $playTime): array {
-                $priceRule = $this->findPriceRuleForDay($priceRules, $day);
+        return collect(CourtPriceRuleDay::cases())
+            ->map(function (CourtPriceRuleDay $ruleDay) use ($priceRules, $playTime): array {
+                $priceRule = $this->findPriceRuleForDay($priceRules, $ruleDay);
 
                 return [
-                    'day' => $day?->value,
-                    'label' => $day?->label() ?? __('court-price-rules.generic_day'),
+                    'day' => $ruleDay->value,
+                    'label' => $ruleDay->label(),
                     'time_slots' => $priceRule instanceof CourtPriceRule
                         ? $this->getTimeSlots($priceRule, $playTime)
                         : [],
                 ];
             })
-            ->values()
             ->all();
     }
 
     /**
      * @param  Collection<int, CourtPriceRule>  $priceRules
      */
-    private function findPriceRuleForDay(Collection $priceRules, ?WorkingDays $day): ?CourtPriceRule
+    private function findPriceRuleForDay(Collection $priceRules, CourtPriceRuleDay $targetDay): ?CourtPriceRule
     {
         return $priceRules->first(
-            fn (CourtPriceRule $priceRule): bool => $priceRule->day?->value === $day?->value,
+            fn(CourtPriceRule $priceRule): bool => $priceRule->day === $targetDay,
         );
     }
 
     /**
      * @param  CourtPriceRule  $priceRule
-     * @param  array  $playTimes
+     * @param  array<int, int>  $playTimes
      * @return array<int, array{label: string, starts_at: string, prices: array<string, int|float|null>}>
      */
     private function getTimeSlots(CourtPriceRule $priceRule, array $playTimes): array

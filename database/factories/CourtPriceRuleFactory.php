@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\CourtPriceRuleDay;
 use App\Enums\WorkingDays;
 use App\Models\Court;
 use App\Models\CourtPriceRule;
@@ -21,7 +22,7 @@ final class CourtPriceRuleFactory extends Factory
     {
         return [
             'court_id' => Court::factory(),
-            'day' => null,
+            'day' => CourtPriceRuleDay::Base->value,
         ];
     }
 
@@ -32,19 +33,23 @@ final class CourtPriceRuleFactory extends Factory
         ]);
     }
 
-    public function forDay(WorkingDays|string $day): self
+    public function forDay(CourtPriceRuleDay|WorkingDays|string $day): self
     {
-        $dayValue = is_string($day) ? $day : $day->value;
+        $dayValue = match (true) {
+            $day instanceof CourtPriceRuleDay => $day->value,
+            $day instanceof WorkingDays => $day->value,
+            default => $day,
+        };
 
         return $this->state(fn (): array => [
             'day' => $dayValue,
         ]);
     }
 
-    public function generic(): self
+    public function base(): self
     {
         return $this->state(fn (): array => [
-            'day' => null,
+            'day' => CourtPriceRuleDay::Base->value,
         ]);
     }
 }

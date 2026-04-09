@@ -11,6 +11,7 @@ use App\Models\Court;
 use App\Services\CourtPriceRulesCreatorService;
 use App\Services\CourtPriceRulesShowBuilderService;
 use App\Services\OwnershipVerifierService;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -24,12 +25,29 @@ final class CourtPriceRuleController
         Club $club,
         Court $court,
         OwnershipVerifierService $ownershipVerifier,
-        CourtPriceRulesCreatorService $courtPriceRulesCreator,
     ): Response {
         $this->ensureCourtBelongsToClub($club, $court);
         $ownershipVerifier->handle($court->club);
 
-        $courtPriceRulesCreator->handle($court, $request->rulesPayload());
+        DB::transaction(function () use ($court, $request): void {
+            $court->priceRules()->delete();
+
+            foreach ($request->rulesPayload() as $ruleData) {
+                $priceRule = $court->priceRules()->create([
+                    'day' => $ruleData['day'],
+                ]);
+
+                foreach ($ruleData['items'] as $itemData) {
+                    foreach ($itemData['prices'] as $priceData) {
+                        $priceRule->items()->create([
+                            'play_time_minutes' => $itemData['play_time_minutes'],
+                            'price_starts_at' => $priceData['starts_at'],
+                            'price' => $priceData['price'],
+                        ]);
+                    }
+                }
+            }
+        });
 
         return new Response(status: 201);
     }
@@ -44,7 +62,7 @@ final class CourtPriceRuleController
         $ownershipVerifier->handle($court->club);
 
         return new ShowCourtPriceRuleResource(
-            $courtPriceRulesShowBuilder->handle($court)
+            $courtPriceRulesShowBuilder->handle($court),
         );
     }
 

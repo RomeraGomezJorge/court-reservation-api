@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Enums\WorkingDays;
+use App\Enums\CourtPriceRuleDay;
 use App\Models\Court;
 use App\Models\CourtPriceRule;
 use Illuminate\Database\Seeder;
@@ -18,14 +18,14 @@ final class CourtPriceRuleSeeder extends Seeder
         CourtPriceRule::query()->updateOrCreate(
             [
                 'court_id' => $court->id,
-                'day' => null,
+                'day' => CourtPriceRuleDay::Base->value,
             ],
         );
 
         CourtPriceRule::query()->updateOrCreate(
             [
                 'court_id' => $court->id,
-                'day' => WorkingDays::Monday->value,
+                'day' => CourtPriceRuleDay::Monday->value,
             ],
         );
     }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Club;
 
+use App\Enums\CourtPriceRuleDay;
 use App\Enums\PlayTime;
-use App\Enums\WorkingDays;
 use App\Models\Court;
 use Illuminate\Contracts\Validation\Rule as RuleContract;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -26,7 +26,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
         return [
             'court_id' => ['required', 'integer', 'exists:courts,id'],
             'rules' => ['required', 'array', 'min:1'],
-            'rules.*.day' => ['nullable', Rule::enum(WorkingDays::class)],
+            'rules.*.day' => ['required', Rule::enum(CourtPriceRuleDay::class)],
             'rules.*.items' => ['required', 'array', 'min:1'],
             'rules.*.items.*.play_time_minutes' => ['required', Rule::enum(PlayTime::class)],
             'rules.*.items.*.prices' => ['required', 'array', 'min:1'],
@@ -52,7 +52,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
 
     /**
      * @return array<int, array{
-     *     day: string|null,
+     *     day: string,
      *     items: array<int, array{
      *         play_time_minutes: int,
      *         prices: array<int, array{starts_at: string, price: int|float|string}>
@@ -61,7 +61,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
      */
     public function rulesPayload(): array
     {
-        /** @var array<int, array{day: string|null, items: array<int, array{play_time_minutes: int, prices: array<int, array{starts_at: string, price: int|float|string}>}>}> $rules */
+        /** @var array<int, array{day: string, items: array<int, array{play_time_minutes: int, prices: array<int, array{starts_at: string, price: int|float|string}>}>}> $rules */
         $rules = $this->input('rules', []);
 
         return $rules;
