@@ -91,7 +91,8 @@ final class CourtPriceRulesShowBuilderService
     }
 
     /**
-     * @param  array<int, int>  $playTime
+     * @param  CourtPriceRule  $priceRule
+     * @param  array  $playTimes
      * @return array<int, array{label: string, starts_at: string, prices: array<string, int|float|null>}>
      */
     private function getTimeSlots(CourtPriceRule $priceRule, array $playTimes): array
@@ -118,9 +119,8 @@ final class CourtPriceRulesShowBuilderService
         return $timeSlots;
     }
 
-
     /**
-     * @param  Collection<int, CourtPriceRuleItem>  $priceRuleItems
+     * @param  array<int, CourtPriceRuleItem>  $priceRuleItems
      * @param  array<int, int>  $playTimes
      * @return array<string, int|float|null>
      */
