@@ -43,7 +43,9 @@ final class CourtPriceRuleController
         $this->ensureCourtBelongsToClub($club, $court);
         $ownershipVerifier->handle($court->club);
 
-        return new ShowCourtPriceRuleResource($courtPriceRulesShowBuilder->handle($court));
+        return new ShowCourtPriceRuleResource(
+            $courtPriceRulesShowBuilder->handle($court)
+        );
     }
 
     private function ensureCourtBelongsToClub(Club $club, Court $court): void
