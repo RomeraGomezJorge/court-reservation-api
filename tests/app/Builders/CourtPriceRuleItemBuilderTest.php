@@ -2,22 +2,21 @@
 
 declare(strict_types=1);
 
+use App\Enums\CourtPriceRuleDay;
 use App\Enums\PlayTime;
-use App\Enums\WorkingDays;
 use App\Models\Court;
 use App\Models\CourtPriceRule;
 use App\Models\CourtPriceRuleItem;
 
-
-it('retrieves unique play times for a court', function (): void {
+it('retrieves play times for a court', function (): void {
     $court = Court::factory()->create();
 
     [$genericRule, $mondayRule] = CourtPriceRule::factory()
         ->for($court)
         ->count(2)
         ->sequence(
-            ['day' => null],
-            ['day' => WorkingDays::Monday],
+            ['day' => CourtPriceRuleDay::Base],
+            ['day' => CourtPriceRuleDay::Monday],
         )
         ->create()
         ->all();
@@ -53,7 +52,7 @@ it('returns empty array when court has no price rule items', function (): void {
 
     CourtPriceRule::factory()
         ->for($court)
-        ->create(['day' => null]);
+        ->create(['day' => CourtPriceRuleDay::Base]);
 
     $playTimes = CourtPriceRuleItem::query()
         ->getPlayTimesForCourt($court->id);
@@ -66,7 +65,7 @@ it('returns play times ordered correctly', function (): void {
 
     $rule = CourtPriceRule::factory()
         ->for($court)
-        ->create(['day' => null]);
+        ->create(['day' => CourtPriceRuleDay::Base]);
 
     CourtPriceRuleItem::factory()
         ->for($rule, 'priceRule')
@@ -84,15 +83,15 @@ it('returns play times ordered correctly', function (): void {
     expect($playTimes)->toBe([60, 90, 120]);
 });
 
-it('retrieves unique price start times for a court', function (): void {
+it('retrieves price start times for a court', function (): void {
     $court = Court::factory()->create();
 
     [$genericRule, $mondayRule] = CourtPriceRule::factory()
         ->for($court)
         ->count(2)
         ->sequence(
-            ['day' => null],
-            ['day' => WorkingDays::Monday],
+            ['day' => CourtPriceRuleDay::Base],
+            ['day' => CourtPriceRuleDay::Monday],
         )
         ->create()
         ->all();
@@ -128,7 +127,7 @@ it('returns empty array when court has no price start times', function (): void 
 
     CourtPriceRule::factory()
         ->for($court)
-        ->create(['day' => null]);
+        ->create(['day' => CourtPriceRuleDay::Base]);
 
     $priceStartTimes = CourtPriceRuleItem::query()
         ->getPriceStartsAtForCourt($court->id);
@@ -141,7 +140,7 @@ it('returns price start times ordered correctly', function (): void {
 
     $rule = CourtPriceRule::factory()
         ->for($court)
-        ->create(['day' => null]);
+        ->create(['day' => CourtPriceRuleDay::Base]);
 
     CourtPriceRuleItem::factory()
         ->for($rule, 'priceRule')
@@ -164,7 +163,7 @@ it('formats time correctly from H:i:s to H:i', function (): void {
 
     $rule = CourtPriceRule::factory()
         ->for($court)
-        ->create(['day' => null]);
+        ->create(['day' => CourtPriceRuleDay::Base]);
 
     CourtPriceRuleItem::factory()
         ->for($rule, 'priceRule')
@@ -188,8 +187,8 @@ it('deduplicates price start times correctly', function (): void {
         ->for($court)
         ->count(2)
         ->sequence(
-            ['day' => null],
-            ['day' => WorkingDays::Monday],
+            ['day' => CourtPriceRuleDay::Base],
+            ['day' => CourtPriceRuleDay::Monday],
         )
         ->create()
         ->all();

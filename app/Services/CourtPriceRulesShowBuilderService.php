@@ -73,12 +73,11 @@ final class CourtPriceRulesShowBuilderService
     private function findPriceRuleForDay(Collection $priceRules, CourtPriceRuleDay $targetDay): ?CourtPriceRule
     {
         return $priceRules->first(
-            fn(CourtPriceRule $priceRule): bool => $priceRule->day === $targetDay,
+            fn (CourtPriceRule $priceRule): bool => $priceRule->day === $targetDay,
         );
     }
 
     /**
-     * @param  CourtPriceRule  $priceRule
      * @param  array<int, int>  $playTimes
      * @return array<int, array{label: string, starts_at: string, prices: array<string, int|float|null>}>
      */

@@ -8,7 +8,6 @@ use App\Http\Requests\Club\StoreCourtPriceRuleRequest;
 use App\Http\Resources\Club\ShowCourtPriceRuleResource;
 use App\Models\Club;
 use App\Models\Court;
-use App\Services\CourtPriceRulesCreatorService;
 use App\Services\CourtPriceRulesShowBuilderService;
 use App\Services\OwnershipVerifierService;
 use Illuminate\Support\Facades\DB;

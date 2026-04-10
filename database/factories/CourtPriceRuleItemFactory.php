@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\PlayTime;
 use App\Models\CourtPriceRule;
 use App\Models\CourtPriceRuleItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,7 +21,7 @@ final class CourtPriceRuleItemFactory extends Factory
     {
         return [
             'court_price_rule_id' => CourtPriceRule::factory(),
-            'play_time_minutes' => 60,
+            'play_time_minutes' => fake()->randomElement(PlayTime::class),
             'price' => fake()->randomFloat(2, 25, 150),
             'price_starts_at' => fake()->time('H:i:s'),
         ];

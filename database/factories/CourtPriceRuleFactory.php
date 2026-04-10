@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Enums\CourtPriceRuleDay;
-use App\Enums\WorkingDays;
 use App\Models\Court;
 use App\Models\CourtPriceRule;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -33,11 +32,10 @@ final class CourtPriceRuleFactory extends Factory
         ]);
     }
 
-    public function forDay(CourtPriceRuleDay|WorkingDays|string $day): self
+    public function forDay(CourtPriceRuleDay|string $day): self
     {
         $dayValue = match (true) {
             $day instanceof CourtPriceRuleDay => $day->value,
-            $day instanceof WorkingDays => $day->value,
             default => $day,
         };
 

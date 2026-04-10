@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Builders\CourtPriceRuleBuilder;
 use App\Enums\CourtPriceRuleDay;
 use Carbon\CarbonInterface;
 use Database\Factories\CourtPriceRuleFactory;
