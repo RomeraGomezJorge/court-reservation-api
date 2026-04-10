@@ -357,11 +357,13 @@ it('shows a club', function (): void {
                 [
                     'id' => $otherOwnedClub->id,
                     'type' => $otherOwnedClub->type->value,
+                    'label' => $otherOwnedClub->type->label(),
                     'icon' => $otherOwnedClub->type->getIcon(),
                 ],
                 [
                     'id' => $clubService->id,
                     'type' => $clubService->type->value,
+                    'label' => $clubService->type->label(),
                     'icon' => $clubService->type->getIcon(),
                 ],
             ],

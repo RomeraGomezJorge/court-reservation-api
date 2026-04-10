@@ -88,6 +88,17 @@ it('fails to store a court with duplicate name inside the same club', function (
     ]);
 });
 
+it('fails to store a court when the club is not owned by authenticated user', function (): void {
+    $otherClub = Club::factory()->create();
+
+    post(action([CourtController::class, 'store'], ['club' => $otherClub]), validCourtPayload())
+        ->assertNotFound()
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ['El recurso Club  no se ha encontrado.'],
+        ]);
+});
+
 it('shows a court', function (): void {
     $club = Club::factory()->create([
         'club_user_id' => $this->clubUser->id,
@@ -132,6 +143,47 @@ it('shows a court', function (): void {
                 ['id' => $featureOne->id, 'name' => 'Iluminacion'],
                 ['id' => $featureTwo->id, 'name' => 'Cesped sintetico'],
             ],
+        ]);
+});
+
+it('fails to show a court when the court does not belong to the club in route', function (): void {
+    $ownedClub = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $otherOwnedClub = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $sportType = SportType::factory()->create();
+
+    $court = Court::factory()->create([
+        'club_id' => $otherOwnedClub->id,
+        'sport_type_id' => $sportType->id,
+    ]);
+
+    get(action([CourtController::class, 'show'], ['club' => $ownedClub, 'court' => $court]))
+        ->assertNotFound()
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ["No query results for model [App\\Models\\Court] {$court->id}"],
+        ]);
+});
+
+it('fails to show a court when the club is not owned by authenticated user', function (): void {
+    $otherClub = Club::factory()->create();
+    $sportType = SportType::factory()->create();
+
+    $court = Court::factory()->create([
+        'club_id' => $otherClub->id,
+        'sport_type_id' => $sportType->id,
+    ]);
+
+    get(action([CourtController::class, 'show'], ['club' => $otherClub, 'court' => $court]))
+        ->assertNotFound()
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ['El recurso Club  no se ha encontrado.'],
         ]);
 });
 
@@ -183,6 +235,67 @@ it('updates a court and syncs features', function (): void {
     ]);
 });
 
+it('fails to update a court when the court does not belong to the club in route', function (): void {
+    $ownedClub = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $otherOwnedClub = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $sportType = SportType::factory()->create();
+
+    $court = Court::factory()->create([
+        'club_id' => $otherOwnedClub->id,
+        'sport_type_id' => $sportType->id,
+        'name' => 'Cancha Inalterable',
+    ]);
+
+    put(action([CourtController::class, 'update'], ['club' => $ownedClub, 'court' => $court]), [
+        'name' => 'Cancha Actualizada',
+        'description' => 'Descripcion actualizada',
+        'sport_type_id' => $sportType->id,
+        'features' => [],
+    ])->assertNotFound()
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ["No query results for model [App\\Models\\Court] {$court->id}"],
+        ]);
+
+    $this->assertDatabaseHas('courts', [
+        'id' => $court->id,
+        'name' => 'Cancha Inalterable',
+    ]);
+});
+
+it('fails to update a court when the club is not owned by authenticated user', function (): void {
+    $otherClub = Club::factory()->create();
+    $sportType = SportType::factory()->create();
+
+    $court = Court::factory()->create([
+        'club_id' => $otherClub->id,
+        'sport_type_id' => $sportType->id,
+        'name' => 'Cancha Inalterable',
+    ]);
+
+    put(action([CourtController::class, 'update'], ['club' => $otherClub, 'court' => $court]), [
+        'name' => 'Cancha Actualizada',
+        'description' => 'Descripcion actualizada',
+        'sport_type_id' => $sportType->id,
+        'features' => [],
+    ])->assertNotFound()
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ['El recurso Club  no se ha encontrado.'],
+        ]);
+
+    $this->assertDatabaseHas('courts', [
+        'id' => $court->id,
+        'name' => 'Cancha Inalterable',
+    ]);
+});
+
 it('updates a court without features payload keeping existing ones', function (): void {
     $club = Club::factory()->create([
         'club_user_id' => $this->clubUser->id,
@@ -231,3 +344,51 @@ it('deletes a court with soft delete and renames it to keep unique constraints a
     $this->assertSoftDeleted($court);
     expect($court->name)->toBe("Cancha Eliminada (deleted #{$court->id})");
 });
+
+it('fails to delete a court when the court does not belong to the club in route', function (): void {
+    $ownedClub = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $otherOwnedClub = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $sportType = SportType::factory()->create();
+
+    $court = Court::factory()->create([
+        'club_id' => $otherOwnedClub->id,
+        'sport_type_id' => $sportType->id,
+        'name' => 'Cancha Sin Eliminar',
+    ]);
+
+    delete(action([CourtController::class, 'destroy'], ['club' => $ownedClub, 'court' => $court]))
+        ->assertNotFound()
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ["No query results for model [App\\Models\\Court] {$court->id}"],
+        ]);
+
+    $this->assertNotSoftDeleted($court);
+});
+
+it('fails to delete a court when the club is not owned by authenticated user', function (): void {
+    $otherClub = Club::factory()->create();
+    $sportType = SportType::factory()->create();
+
+    $court = Court::factory()->create([
+        'club_id' => $otherClub->id,
+        'sport_type_id' => $sportType->id,
+        'name' => 'Cancha Sin Eliminar',
+    ]);
+
+    delete(action([CourtController::class, 'destroy'], ['club' => $otherClub, 'court' => $court]))
+        ->assertNotFound()
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ['El recurso Club  no se ha encontrado.'],
+        ]);
+
+    $this->assertNotSoftDeleted($court);
+});
+
