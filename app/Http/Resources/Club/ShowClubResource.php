@@ -56,6 +56,7 @@ final class ShowClubResource extends JsonResource
             'services' => $this->services->map(fn (ClubService $service): array => [
                 'id' => $service->id,
                 'type' => $service->type->value,
+                'label' => $service->type->label(),
                 'icon' => $service->type->getIcon(),
             ])->values(),
         ];
