@@ -21,7 +21,6 @@ final class CourtController
      */
     public function store(
         StoreCourtRequest $request,
-
         Club $club,
         OwnershipVerifierService $ownershipVerifier,
     ): Response {

@@ -46,7 +46,7 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
     /*=============================================
         COURT
     =============================================*/
-    Route::apiResource('clubs.courts', CourtController::class)->except(['index'])->scoped();
+    Route::apiResource('clubs.courts', CourtController::class)->except(['index']);
     Route::patch('clubs/{club}/courts/{court}/toggle-availability', CourtAvailabilityToggleController::class);
 
     /*=============================================
