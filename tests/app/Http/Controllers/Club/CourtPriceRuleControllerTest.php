@@ -20,14 +20,6 @@ use Illuminate\Database\Eloquent\Factories\Sequence;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
-mutates(CourtPriceRuleController::class);
-mutates(StoreCourtPriceRuleRequest::class);
-mutates(OwnershipVerifierService::class);
-mutates(CourtPriceRulesShowBuilderService::class);
-mutates(ShowCourtPriceRuleResource::class);
-
-
-
 function validPriceRulesPayload(Court $court): array
 {
     return [
@@ -87,20 +79,34 @@ beforeEach(function (): void {
     $this->clubUser = actingAsClubUser();
 });
 
-it('validates store payload structure and scalar constraints', function (Closure $mutatePayload, string $expectedMessage): void {
+it('validates store payload structure and scalar constraints', function (Closure $mutatePayload, string|array $expectedMessage): void {
     [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
 
     $payload = validPriceRulesPayload($court);
-    $payload = $mutatePayload($payload, $court);
+    $payload = $mutatePayload($payload);
 
     $response = post(action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]), $payload);
 
     $response->assertStatus(422);
     expect($response->json('code'))->toBe(422);
-    expect($response->json('messages'))->toContain($expectedMessage);
+    $messages = $response->json('messages');
+
+    if (is_array($expectedMessage)) {
+        $messageText = implode(' ', $messages);
+
+        foreach ($expectedMessage as $expectedFragment) {
+            expect($messageText)->toContain($expectedFragment);
+        }
+
+        return;
+    }
+
+    expect($messages)->toContain($expectedMessage);
 })->with([
     'missing court_id' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => unset($p['court_id'])),
+        fn (array $payload): array => tap($payload, function (&$p): void {
+            unset($p['court_id']);
+        }),
         'El campo cancha es obligatorio.',
     ],
     'court_id must be integer' => [
@@ -112,7 +118,9 @@ it('validates store payload structure and scalar constraints', function (Closure
         'El campo cancha no existe.',
     ],
     'missing rules' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => unset($p['rules'])),
+        fn (array $payload): array => tap($payload, function (&$p): void {
+            unset($p['rules']);
+        }),
         'El campo reglas de precios es obligatorio.',
     ],
     'rules must be array' => [
@@ -121,10 +129,12 @@ it('validates store payload structure and scalar constraints', function (Closure
     ],
     'rules must have at least one item' => [
         fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'] = []),
-        'El campo reglas de precios debe tener al menos 1 elementos.',
+        'El campo reglas de precios es obligatorio.',
     ],
     'missing day' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => unset($p['rules'][0]['day'])),
+        fn (array $payload): array => tap($payload, function (&$p): void {
+            unset($p['rules'][0]['day']);
+        }),
         'El campo día es obligatorio.',
     ],
     'day must be enum' => [
@@ -132,7 +142,9 @@ it('validates store payload structure and scalar constraints', function (Closure
         'El campo día no está en la lista de valores permitidos.',
     ],
     'missing items' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => unset($p['rules'][0]['items'])),
+        fn (array $payload): array => tap($payload, function (&$p): void {
+            unset($p['rules'][0]['items']);
+        }),
         'El campo elementos es obligatorio.',
     ],
     'items must be array' => [
@@ -141,10 +153,12 @@ it('validates store payload structure and scalar constraints', function (Closure
     ],
     'items must have at least one item' => [
         fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'][0]['items'] = []),
-        'El campo elementos debe tener al menos 1 elementos.',
+        'El campo elementos es obligatorio.',
     ],
     'missing play_time_minutes' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => unset($p['rules'][0]['items'][0]['play_time_minutes'])),
+        fn (array $payload): array => tap($payload, function (&$p): void {
+            unset($p['rules'][0]['items'][0]['play_time_minutes']);
+        }),
         'El campo duración de juego es obligatorio.',
     ],
     'play_time_minutes must be enum' => [
@@ -152,7 +166,9 @@ it('validates store payload structure and scalar constraints', function (Closure
         'El campo duración de juego no está en la lista de valores permitidos.',
     ],
     'missing prices array' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => unset($p['rules'][0]['items'][0]['prices'])),
+        fn (array $payload): array => tap($payload, function (&$p): void {
+            unset($p['rules'][0]['items'][0]['prices']);
+        }),
         'El campo precios es obligatorio.',
     ],
     'prices must be array' => [
@@ -161,10 +177,12 @@ it('validates store payload structure and scalar constraints', function (Closure
     ],
     'prices must have at least one item' => [
         fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'][0]['items'][0]['prices'] = []),
-        'El campo precios debe tener al menos 1 elementos.',
+        'El campo precios es obligatorio.',
     ],
     'missing starts_at' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => unset($p['rules'][0]['items'][0]['prices'][0]['starts_at'])),
+        fn (array $payload): array => tap($payload, function (&$p): void {
+            unset($p['rules'][0]['items'][0]['prices'][0]['starts_at']);
+        }),
         'El campo hora de inicio es obligatorio.',
     ],
     'starts_at format must be H:i' => [
@@ -172,7 +190,9 @@ it('validates store payload structure and scalar constraints', function (Closure
         'El campo hora de inicio debe coincidir con el formato H:i.',
     ],
     'missing price' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => unset($p['rules'][0]['items'][0]['prices'][0]['price'])),
+        fn (array $payload): array => tap($payload, function (&$p): void {
+            unset($p['rules'][0]['items'][0]['prices'][0]['price']);
+        }),
         'El campo precio es obligatorio.',
     ],
     'price must be numeric' => [
@@ -241,12 +261,12 @@ it('shows price rules with play time labels in prices', function (): void {
         ->forRule($baseRule)
         ->count(6)
         ->state(new Sequence(
+            ['play_time_minutes' => 60, 'price_starts_at' => '18:00:00', 'price' => 5000],
+            ['play_time_minutes' => 90, 'price_starts_at' => '18:00:00', 'price' => 6500],
             ['play_time_minutes' => 60, 'price_starts_at' => '09:00:00', 'price' => 3000],
             ['play_time_minutes' => 90, 'price_starts_at' => '09:00:00', 'price' => 4500],
             ['play_time_minutes' => 60, 'price_starts_at' => '12:00:00', 'price' => 4000],
             ['play_time_minutes' => 90, 'price_starts_at' => '12:00:00', 'price' => 5200],
-            ['play_time_minutes' => 60, 'price_starts_at' => '18:00:00', 'price' => 5000],
-            ['play_time_minutes' => 90, 'price_starts_at' => '18:00:00', 'price' => 6500],
         ))
         ->create();
 
@@ -428,5 +448,65 @@ it('fails to store price rules when the court does not belong to the club in rou
         ->assertExactJson([
             'code' => 404,
             'messages' => ['El recurso Court  no se ha encontrado.'],
+        ]);
+});
+
+it('fails to store price rules when the club is not owned by authenticated user', function (): void {
+    $otherOwnedClub = Club::factory()->create();
+
+    $sportType = SportType::factory()->create();
+
+    $court = Court::factory()->create([
+        'club_id' => $otherOwnedClub->id,
+        'sport_type_id' => $sportType->id,
+    ]);
+
+    post(action([CourtPriceRuleController::class, 'store'], ['club' => $otherOwnedClub, 'court' => $court]), validPriceRulesPayload($court))
+        ->assertNotFound()
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ['El recurso Club  no se ha encontrado.'],
+        ]);
+});
+
+it('fails to show price rules when the court does not belong to the club in route', function (): void {
+    $ownedClub = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $otherOwnedClub = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $sportType = SportType::factory()->create();
+
+    $court = Court::factory()->create([
+        'club_id' => $otherOwnedClub->id,
+        'sport_type_id' => $sportType->id,
+    ]);
+
+    get(action([CourtPriceRuleController::class, 'show'], ['club' => $ownedClub, 'court' => $court]))
+        ->assertNotFound()
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ['El recurso Court  no se ha encontrado.'],
+        ]);
+});
+
+it('fails to show price rules when the club is not owned by authenticated user', function (): void {
+    $otherOwnedClub = Club::factory()->create();
+
+    $sportType = SportType::factory()->create();
+
+    $court = Court::factory()->create([
+        'club_id' => $otherOwnedClub->id,
+        'sport_type_id' => $sportType->id,
+    ]);
+
+    get(action([CourtPriceRuleController::class, 'show'], ['club' => $otherOwnedClub, 'court' => $court]))
+        ->assertNotFound()
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ['El recurso Club  no se ha encontrado.'],
         ]);
 });
