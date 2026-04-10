@@ -5,15 +5,11 @@ declare(strict_types=1);
 namespace Tests\Http\Controllers\Club;
 
 use App\Http\Controllers\Club\CourtPriceRuleController;
-use App\Http\Requests\Club\StoreCourtPriceRuleRequest;
-use App\Http\Resources\Club\ShowCourtPriceRuleResource;
 use App\Models\Club;
 use App\Models\Court;
 use App\Models\CourtPriceRule;
 use App\Models\CourtPriceRuleItem;
 use App\Models\SportType;
-use App\Services\CourtPriceRulesShowBuilderService;
-use App\Services\OwnershipVerifierService;
 use Closure;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 
@@ -88,6 +84,7 @@ it('validates store payload structure and scalar constraints', function (Closure
     $response = post(action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]), $payload);
 
     $response->assertStatus(422);
+
     expect($response->json('code'))->toBe(422);
     $messages = $response->json('messages');
 
@@ -104,103 +101,103 @@ it('validates store payload structure and scalar constraints', function (Closure
     expect($messages)->toContain($expectedMessage);
 })->with([
     'missing court_id' => [
-        fn (array $payload): array => tap($payload, function (&$p): void {
+        fn (array $payload): array => tap($payload, function (array &$p): void {
             unset($p['court_id']);
         }),
         'El campo cancha es obligatorio.',
     ],
     'court_id must be integer' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['court_id'] = 'abc'),
+        fn (array $payload): array => tap($payload, fn (&$p): string => $p['court_id'] = 'abc'),
         'El campo cancha debe ser un número entero.',
     ],
     'court_id must exist' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['court_id'] = 99999999),
+        fn (array $payload): array => tap($payload, fn (&$p): int => $p['court_id'] = 99999999),
         'El campo cancha no existe.',
     ],
     'missing rules' => [
-        fn (array $payload): array => tap($payload, function (&$p): void {
+        fn (array $payload): array => tap($payload, function (array &$p): void {
             unset($p['rules']);
         }),
         'El campo reglas de precios es obligatorio.',
     ],
     'rules must be array' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'] = 'invalid'),
+        fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'] = 'invalid'),
         'El campo reglas de precios debe ser un conjunto.',
     ],
     'rules must have at least one item' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'] = []),
+        fn (array $payload): array => tap($payload, fn (&$p): array => $p['rules'] = []),
         'El campo reglas de precios es obligatorio.',
     ],
     'missing day' => [
-        fn (array $payload): array => tap($payload, function (&$p): void {
+        fn (array $payload): array => tap($payload, function (array &$p): void {
             unset($p['rules'][0]['day']);
         }),
         'El campo día es obligatorio.',
     ],
     'day must be enum' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'][0]['day'] = 'invalid-day'),
+        fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['day'] = 'invalid-day'),
         'El campo día no está en la lista de valores permitidos.',
     ],
     'missing items' => [
-        fn (array $payload): array => tap($payload, function (&$p): void {
+        fn (array $payload): array => tap($payload, function (array &$p): void {
             unset($p['rules'][0]['items']);
         }),
         'El campo elementos es obligatorio.',
     ],
     'items must be array' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'][0]['items'] = 'invalid'),
+        fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'] = 'invalid'),
         'El campo elementos debe ser un conjunto.',
     ],
     'items must have at least one item' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'][0]['items'] = []),
+        fn (array $payload): array => tap($payload, fn (&$p): array => $p['rules'][0]['items'] = []),
         'El campo elementos es obligatorio.',
     ],
     'missing play_time_minutes' => [
-        fn (array $payload): array => tap($payload, function (&$p): void {
+        fn (array $payload): array => tap($payload, function (array &$p): void {
             unset($p['rules'][0]['items'][0]['play_time_minutes']);
         }),
         'El campo duración de juego es obligatorio.',
     ],
     'play_time_minutes must be enum' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'][0]['items'][0]['play_time_minutes'] = 61),
+        fn (array $payload): array => tap($payload, fn (&$p): int => $p['rules'][0]['items'][0]['play_time_minutes'] = 61),
         'El campo duración de juego no está en la lista de valores permitidos.',
     ],
     'missing prices array' => [
-        fn (array $payload): array => tap($payload, function (&$p): void {
+        fn (array $payload): array => tap($payload, function (array &$p): void {
             unset($p['rules'][0]['items'][0]['prices']);
         }),
         'El campo precios es obligatorio.',
     ],
     'prices must be array' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'][0]['items'][0]['prices'] = 'invalid'),
+        fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'] = 'invalid'),
         'El campo precios debe ser un conjunto.',
     ],
     'prices must have at least one item' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'][0]['items'][0]['prices'] = []),
+        fn (array $payload): array => tap($payload, fn (&$p): array => $p['rules'][0]['items'][0]['prices'] = []),
         'El campo precios es obligatorio.',
     ],
     'missing starts_at' => [
-        fn (array $payload): array => tap($payload, function (&$p): void {
+        fn (array $payload): array => tap($payload, function (array &$p): void {
             unset($p['rules'][0]['items'][0]['prices'][0]['starts_at']);
         }),
         'El campo hora de inicio es obligatorio.',
     ],
     'starts_at format must be H:i' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'][0]['items'][0]['prices'][0]['starts_at'] = '9:00'),
+        fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'][0]['starts_at'] = '9:00'),
         'El campo hora de inicio debe coincidir con el formato H:i.',
     ],
     'missing price' => [
-        fn (array $payload): array => tap($payload, function (&$p): void {
+        fn (array $payload): array => tap($payload, function (array &$p): void {
             unset($p['rules'][0]['items'][0]['prices'][0]['price']);
         }),
         'El campo precio es obligatorio.',
     ],
     'price must be numeric' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'][0]['items'][0]['prices'][0]['price'] = 'invalid'),
+        fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'][0]['price'] = 'invalid'),
         'El campo precio debe ser numérico.',
     ],
     'price must be at least zero' => [
-        fn (array $payload): array => tap($payload, fn (&$p) => $p['rules'][0]['items'][0]['prices'][0]['price'] = -1),
+        fn (array $payload): array => tap($payload, fn (&$p): int => $p['rules'][0]['items'][0]['prices'][0]['price'] = -1),
         'El tamaño de precio debe ser de al menos 0.',
     ],
 ]);

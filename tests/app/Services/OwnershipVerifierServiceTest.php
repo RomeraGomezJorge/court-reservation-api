@@ -18,7 +18,7 @@ it('throws runtime exception when authenticated user is not a club user', functi
 
     $club = Club::factory()->create();
 
-    $service = app(OwnershipVerifierService::class);
+    $service = resolve(OwnershipVerifierService::class);
 
     $this->expectException(RuntimeException::class);
     $this->expectExceptionMessage('The authenticated user is not an instance of ClubUser');
@@ -31,35 +31,33 @@ it('aborts with not found when authenticated club user does not own model', func
 
     $club = Club::factory()->create();
 
-    $service = app(OwnershipVerifierService::class);
+    $service = resolve(OwnershipVerifierService::class);
 
     try {
         $service->handle($club);
         $this->fail('Expected NotFoundHttpException was not thrown.');
-    } catch (NotFoundHttpException $exception) {
-        expect($exception->getStatusCode())->toBe(404);
-        expect($exception->getMessage())->toBe('El recurso Club  no se ha encontrado.');
+    } catch (NotFoundHttpException $notFoundHttpException) {
+        expect($notFoundHttpException->getStatusCode())->toBe(404);
+        expect($notFoundHttpException->getMessage())->toBe('El recurso Club  no se ha encontrado.');
     }
 });
 
 it('returns translated model-specific message when key exists', function (): void {
-    $service = app(OwnershipVerifierService::class);
+    $service = resolve(OwnershipVerifierService::class);
 
     Lang::addLines([
         'club.not_found' => 'No se encontro el club por traduccion especifica.',
     ], 'es');
 
     $message = new ReflectionMethod(OwnershipVerifierService::class, 'getNotFoundMessage');
-    $message->setAccessible(true);
 
     expect($message->invoke($service, 'club'))->toBe('No se encontro el club por traduccion especifica.');
 });
 
 it('returns fallback message using formatted model name when key does not exist', function (): void {
-    $service = app(OwnershipVerifierService::class);
+    $service = resolve(OwnershipVerifierService::class);
 
     $message = new ReflectionMethod(OwnershipVerifierService::class, 'getNotFoundMessage');
-    $message->setAccessible(true);
 
     expect($message->invoke($service, 'court_price_rule'))
         ->toBe('El recurso Court price rule  no se ha encontrado.');

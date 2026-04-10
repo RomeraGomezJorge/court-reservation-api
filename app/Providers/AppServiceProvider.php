@@ -15,9 +15,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use Log;
 use RuntimeException;
 
 final class AppServiceProvider extends ServiceProvider
@@ -130,7 +130,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function logAllQueriesNplusone(): void
     {
-        if (Config::bool('query-logging.log_n_plus_one')) {
+        if (Config::boolean('query-logging.log_n_plus_one')) {
             Model::handleLazyLoadingViolationUsing(function ($model, $relation): void {
                 Log::warning(sprintf(
                     'N+1 Query detected in model %s on relation %s.',
