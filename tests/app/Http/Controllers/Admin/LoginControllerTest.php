@@ -81,3 +81,23 @@ it('fails login with unverify email', function (): void {
         'code' => 422,
     ]);
 });
+
+it('fails login when payload format is invalid and skips credentials check', function (): void {
+    $data = [
+        'email' => 'correo-invalido',
+        'password' => 'short',
+    ];
+
+    $response = post(action([LoginController::class, 'login']), $data);
+
+    $response->assertUnprocessable();
+    $response->assertJsonFragment([
+        'messages' => [
+            'El campo contraseña debe contener al menos 12 caracteres.',
+            'El campo correo electrónico no es un correo válido.',
+        ],
+    ]);
+    $response->assertJsonMissing([
+        'messages' => ['Estas credenciales no coinciden con nuestros registros.'],
+    ]);
+});
