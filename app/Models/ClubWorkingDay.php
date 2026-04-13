@@ -9,7 +9,6 @@ use Carbon\CarbonInterface;
 use Database\Factories\ClubWorkingDayFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
 /**
@@ -51,15 +50,5 @@ final class ClubWorkingDay extends Model
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Get the club that owns this working day.
-     *
-     * @return BelongsTo<Club, $this>
-     */
-    public function club(): BelongsTo
-    {
-        return $this->belongsTo(Club::class);
     }
 }

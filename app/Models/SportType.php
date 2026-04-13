@@ -6,10 +6,8 @@ namespace App\Models;
 
 use Carbon\CarbonInterface;
 use Database\Factories\SportTypeFactory;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
 /**
@@ -18,7 +16,6 @@ use Override;
  * @property-read bool $is_active
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
- * @property-read Collection<int, Court> $courts
  */
 final class SportType extends Model
 {
@@ -46,13 +43,5 @@ final class SportType extends Model
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
-    }
-
-    /**
-     * @return HasMany<Court, $this>
-     */
-    public function courts(): HasMany
-    {
-        return $this->hasMany(Court::class);
     }
 }

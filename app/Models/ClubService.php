@@ -9,7 +9,6 @@ use Carbon\CarbonInterface;
 use Database\Factories\ClubServiceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
 /**
@@ -45,15 +44,5 @@ final class ClubService extends Model
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Get the club that owns this club service.
-     *
-     * @return BelongsTo<Club, $this>
-     */
-    public function club(): BelongsTo
-    {
-        return $this->belongsTo(Club::class);
     }
 }
