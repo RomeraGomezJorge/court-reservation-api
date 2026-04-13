@@ -375,7 +375,7 @@ it('fails to delete a court when the court does not belong to the club in route'
 
 it('fails to delete a court when the club is not owned by authenticated user', function (): void {
     $club = Club::factory()->create(
-        ['club_user_id' => $this->clubUser->id,]
+        ['club_user_id' => $this->clubUser->id]
     );
 
     $otherClubUser = ClubUser::factory()->create();
@@ -401,4 +401,3 @@ it('fails to delete a court when the club is not owned by authenticated user', f
 
     $this->assertNotSoftDeleted($court);
 });
-

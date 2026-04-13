@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 it('allows authenticated admin users', function (): void {
     actingAsUser();
 
-    $response = (new EnsureUserIsAdmin())->handle(
+    $response = new EnsureUserIsAdmin()->handle(
         Request::create('/api/admin/test'),
         static fn (Request $request): Response => response('allowed'),
     );
@@ -23,7 +23,7 @@ it('allows authenticated admin users', function (): void {
 it('rejects club users as admin users', function (): void {
     actingAsClubUser();
 
-    $response = (new EnsureUserIsAdmin())->handle(
+    $response = new EnsureUserIsAdmin()->handle(
         Request::create('/api/admin/test'),
         static fn (Request $request): Response => response('allowed'),
     );
@@ -31,4 +31,3 @@ it('rejects club users as admin users', function (): void {
     expect($response->getStatusCode())->toBe(401);
     expect($response->getContent())->toBe('{"message":"Unauthenticated."}');
 });
-

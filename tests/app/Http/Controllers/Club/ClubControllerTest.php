@@ -13,6 +13,7 @@ use App\Models\ClubUser;
 use App\Models\ClubWorkingDay;
 use App\Models\Court;
 use App\Models\SportType;
+use Illuminate\Support\Facades\Date;
 
 use function Pest\Laravel\delete;
 use function Pest\Laravel\get;
@@ -157,6 +158,10 @@ dataset('invalid club payload data', [
         'invalidData' => ['working_days' => [['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '04:00']]],
         'expectedMessages' => ['El horario para lunes es demasiado amplio.'],
     ],
+    'working_days missing opening hour' => [
+        'invalidData' => ['working_days' => [['day' => 'monday', 'closing_hour' => '01:00']]],
+        'expectedMessages' => ['El campo hora de apertura es obligatorio.'],
+    ],
     'working_days duplicate day' => [
         'invalidData' => [
             'working_days' => [
@@ -290,6 +295,24 @@ it('fails to store a club with invalid data', function (array $invalidData, arra
             'messages' => $expectedMessages,
         ]);
 })->with('invalid club payload data');
+
+it('fails to store a club when date parser returns non carbon instances', function (): void {
+    Date::shouldReceive('createFromFormat')
+        ->twice()
+        ->andReturn(false);
+
+    post(action([ClubController::class, 'store']), validClubPayload([
+        'organization_name' => 'Club Fecha No Carbon',
+        'working_days' => [
+            ['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
+        ],
+    ]))
+        ->assertUnprocessable()
+        ->assertExactJson([
+            'code' => 422,
+            'messages' => ['El formato de hora de lunes es inválido.'],
+        ]);
+});
 
 it('shows a club', function (): void {
 
@@ -540,6 +563,29 @@ it('fails to update a club with invalid data', function (array $invalidData, arr
             'messages' => $expectedMessages,
         ]);
 })->with('invalid club payload data');
+
+it('fails to update a club when date parser returns non carbon instances', function (): void {
+    $club = Club::factory()->create([
+        'club_user_id' => $this->clubUser->id,
+        'organization_name' => 'Club Base',
+    ]);
+
+    Date::shouldReceive('createFromFormat')
+        ->twice()
+        ->andReturn(false);
+
+    put(action([ClubController::class, 'update'], $club), validClubPayload([
+        'organization_name' => 'Club Fecha No Carbon Actualiza',
+        'working_days' => [
+            ['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
+        ],
+    ]))
+        ->assertUnprocessable()
+        ->assertExactJson([
+            'code' => 422,
+            'messages' => ['El formato de hora de lunes es inválido.'],
+        ]);
+});
 
 it('fails to update a club that is not owned by the authenticated club user', function (): void {
     $club = Club::factory()->create();
