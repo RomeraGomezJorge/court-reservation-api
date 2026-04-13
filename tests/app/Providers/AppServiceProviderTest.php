@@ -10,11 +10,10 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
-
 
 beforeEach(function (): void {
     Config::set('app.spa_url', 'https://spa.test');
@@ -63,12 +62,10 @@ it('builds verify email URL for club users using signed route', function (): voi
 
     URL::shouldReceive('temporarySignedRoute')
         ->once()
-        ->withArgs(function (string $name, CarbonImmutable $expiration, array $parameters) use ($clubUser): bool {
-            return $name === 'verification.club.verify'
-                && $expiration->greaterThanOrEqualTo(Date::now()->addMinutes(90)->subSecond())
-                && $parameters['id'] === $clubUser->getKey()
-                && $parameters['hash'] === sha1((string) $clubUser->getEmailForVerification());
-        })
+        ->withArgs(fn (string $name, CarbonImmutable $expiration, array $parameters): bool => $name === 'verification.club.verify'
+            && $expiration->greaterThanOrEqualTo(Date::now()->addMinutes(90)->subSecond())
+            && $parameters['id'] === $clubUser->getKey()
+            && $parameters['hash'] === sha1((string) $clubUser->getEmailForVerification()))
         ->andReturn('https://signed.test/club');
 
     $url = invokeNotificationCallback(VerifyEmail::class, $clubUser);
@@ -84,12 +81,10 @@ it('builds verify email URL for admin users using signed route with mock', funct
 
     URL::shouldReceive('temporarySignedRoute')
         ->once()
-        ->withArgs(function (string $name, CarbonImmutable $expiration, array $parameters) use ($user): bool {
-            return $name === 'verification.verify'
-                && $expiration->greaterThanOrEqualTo(Date::now()->addMinutes(60)->subSecond())
-                && $parameters['id'] === $user->getKey()
-                && $parameters['hash'] === sha1((string) $user->getEmailForVerification());
-        })
+        ->withArgs(fn (string $name, CarbonImmutable $expiration, array $parameters): bool => $name === 'verification.verify'
+            && $expiration->greaterThanOrEqualTo(Date::now()->addMinutes(60)->subSecond())
+            && $parameters['id'] === $user->getKey()
+            && $parameters['hash'] === sha1((string) $user->getEmailForVerification()))
         ->andReturn('https://signed.test/admin');
 
     $url = invokeNotificationCallback(VerifyEmail::class, $user);
@@ -140,7 +135,6 @@ it('registers query logging listeners from boot when enabled', function (): void
 
     $modelReflection = new ReflectionClass(Model::class);
     $property = $modelReflection->getProperty('lazyLoadingViolationCallback');
-    $property->setAccessible(true);
 
     expect($property->getValue())->toBeCallable();
 });
@@ -160,17 +154,14 @@ it('logs slow queries when logging is enabled', function (): void {
 
     Log::shouldReceive('warning')
         ->once()
-        ->withArgs(function (string $message, array $context): bool {
-            return $message === 'An individual database query exceeded 100 ms.'
-                && $context['sql'] === 'select * from "users"'
-                && $context['raw'] === 'select * from "users"'
-                && $context['time'] === 150
-                && is_string($context['formatted']);
-        });
+        ->withArgs(fn (string $message, array $context): bool => $message === 'An individual database query exceeded 100 ms.'
+            && $context['sql'] === 'select * from "users"'
+            && $context['raw'] === 'select * from "users"'
+            && $context['time'] === 150
+            && is_string($context['formatted']));
 
     $provider = new AppServiceProvider(app());
     $method = new ReflectionMethod($provider, 'LogAllQueriesSlow');
-    $method->setAccessible(true);
     $method->invoke($provider);
 
     expect($queryListener)->toBeCallable();
@@ -197,12 +188,10 @@ it('logs n+1 violations when enabled', function (): void {
 
     $provider = new AppServiceProvider(app());
     $method = new ReflectionMethod($provider, 'logAllQueriesNplusone');
-    $method->setAccessible(true);
     $method->invoke($provider);
 
     $modelReflection = new ReflectionClass(Model::class);
     $property = $modelReflection->getProperty('lazyLoadingViolationCallback');
-    $property->setAccessible(true);
 
     $lazyLoadingCallback = $property->getValue();
 
@@ -213,14 +202,13 @@ it('logs n+1 violations when enabled', function (): void {
 
 function bootAppServiceProvider(): void
 {
-    (new AppServiceProvider(app()))->boot();
+    new AppServiceProvider(app())->boot();
 }
 
 function invokeNotificationCallback(string $notificationClass, mixed ...$arguments): string
 {
     $reflectionClass = new ReflectionClass($notificationClass);
     $property = $reflectionClass->getProperty('createUrlCallback');
-    $property->setAccessible(true);
 
     $callback = $property->getValue();
 
@@ -228,4 +216,3 @@ function invokeNotificationCallback(string $notificationClass, mixed ...$argumen
 
     return $callback(...$arguments);
 }
-
