@@ -24,7 +24,7 @@ final class CourtPriceRulesShowBuilderService
      *         time_slots: array<int, array{
      *             label: string,
      *             starts_at: string,
-     *             prices: array<string, int|float|null>
+     *             prices: array<string, string|null>
      *         }>
      *     }>
      * }
@@ -48,7 +48,7 @@ final class CourtPriceRulesShowBuilderService
     /**
      * @param  Collection<int, CourtPriceRule>  $priceRules
      * @param  array<int, int>  $playTime
-     * @return array<int, array{day: string, label: string, time_slots: array<int, array{label: string, starts_at: string, prices: array<string, int|float|null>}>}>
+     * @return array<int, array{day: string, label: string, time_slots: array<int, array{label: string, starts_at: string, prices: array<string, string|null>}>}>
      */
     private function buildDays(Collection $priceRules, array $playTime): array
     {
@@ -79,7 +79,7 @@ final class CourtPriceRulesShowBuilderService
 
     /**
      * @param  array<int, int>  $playTimes
-     * @return array<int, array{label: string, starts_at: string, prices: array<string, int|float|null>}>
+     * @return array<int, array{label: string, starts_at: string, prices: array<string, string|null>}>
      */
     private function getTimeSlots(CourtPriceRule $priceRule, array $playTimes): array
     {
@@ -108,7 +108,7 @@ final class CourtPriceRulesShowBuilderService
     /**
      * @param  array<int, CourtPriceRuleItem>  $priceRuleItems
      * @param  array<int, int>  $playTimes
-     * @return array<string, int|float|null>
+     * @return array<string, string|null>
      */
     private function getPlayTimePrices(array $priceRuleItems, array $playTimes): array
     {
