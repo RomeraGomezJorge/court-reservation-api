@@ -55,7 +55,7 @@ it('fails to toggle court availability when the court is not owned by authentica
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Club  no se ha encontrado.'],
+            'messages' => ['El recurso Club no se ha encontrado.'],
         ]);
 });
 
@@ -80,7 +80,7 @@ it('fails to toggle court availability when the court does not belong to the clu
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Court  no se ha encontrado.'],
+            'messages' => ['El recurso Court no se ha encontrado.'],
         ]);
 
     $court->refresh();

@@ -96,7 +96,7 @@ it('fails to store a court when the club is not owned by authenticated user', fu
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Club  no se ha encontrado.'],
+            'messages' => ['El recurso Club no se ha encontrado.'],
         ]);
 });
 
@@ -167,7 +167,7 @@ it('fails to show a court when the court does not belong to the club in route', 
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Court  no se ha encontrado.'],
+            'messages' => ['El recurso Court no se ha encontrado.'],
         ]);
 });
 
@@ -184,7 +184,7 @@ it('fails to show a court when the club is not owned by authenticated user', fun
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Club  no se ha encontrado.'],
+            'messages' => ['El recurso Club no se ha encontrado.'],
         ]);
 });
 
@@ -261,7 +261,7 @@ it('fails to update a court when the court does not belong to the club in route'
     ])->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Court  no se ha encontrado.'],
+            'messages' => ['El recurso Court no se ha encontrado.'],
         ]);
 
     $this->assertDatabaseHas('courts', [
@@ -288,7 +288,7 @@ it('fails to update a court when the club is not owned by authenticated user', f
     ])->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Club  no se ha encontrado.'],
+            'messages' => ['El recurso Club no se ha encontrado.'],
         ]);
 
     $this->assertDatabaseHas('courts', [
@@ -367,7 +367,7 @@ it('fails to delete a court when the court does not belong to the club in route'
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Court  no se ha encontrado.'],
+            'messages' => ['El recurso Court no se ha encontrado.'],
         ]);
 
     $this->assertNotSoftDeleted($court);
@@ -396,7 +396,7 @@ it('fails to delete a court when the club is not owned by authenticated user', f
         ->assertExactJson([
             'code' => 404,
 
-            'messages' => ['El recurso Court  no se ha encontrado.'],
+            'messages' => ['El recurso Court no se ha encontrado.'],
         ]);
 
     $this->assertNotSoftDeleted($court);

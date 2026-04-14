@@ -38,7 +38,7 @@ it('aborts with not found when authenticated club user does not own model', func
         $this->fail('Expected NotFoundHttpException was not thrown.');
     } catch (NotFoundHttpException $notFoundHttpException) {
         expect($notFoundHttpException->getStatusCode())->toBe(404);
-        expect($notFoundHttpException->getMessage())->toBe('El recurso Club  no se ha encontrado.');
+        expect($notFoundHttpException->getMessage())->toBe('El recurso Club no se ha encontrado.');
     }
 });
 
@@ -60,5 +60,23 @@ it('returns fallback message using formatted model name when key does not exist'
     $message = new ReflectionMethod(OwnershipVerifierService::class, 'getNotFoundMessage');
 
     expect($message->invoke($service, 'court_price_rule'))
-        ->toBe('El recurso Court price rule  no se ha encontrado.');
+        ->toBe('El recurso Court price rule no se ha encontrado.');
 });
+
+it('replaces the resource placeholder in english fallback message', function (): void {
+    $service = resolve(OwnershipVerifierService::class);
+
+    $originalLocale = app()->getLocale();
+
+    try {
+        app()->setLocale('en');
+
+        $message = new ReflectionMethod(OwnershipVerifierService::class, 'getNotFoundMessage');
+
+        expect($message->invoke($service, 'court'))
+            ->toBe('The specified Court was not found.');
+    } finally {
+        app()->setLocale($originalLocale);
+    }
+});
+
