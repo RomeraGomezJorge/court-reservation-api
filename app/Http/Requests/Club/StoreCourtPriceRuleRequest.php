@@ -46,8 +46,44 @@ final class StoreCourtPriceRuleRequest extends FormRequest
                 if ((string) $this->input('court_id') !== (string) $court->id) {
                     $validator->errors()->add('court_id', __('validation.court_id_must_match_route_court'));
                 }
+
+                if ($validator->errors()->isNotEmpty()) {
+                    return;
+                }
+
+                $this->addDuplicatedPriceSlotErrors($validator);
             },
         ];
+    }
+
+    private function addDuplicatedPriceSlotErrors(Validator $validator): void
+    {
+        /** @var array<string, bool> $seenSlots */
+        $seenSlots = [];
+
+        foreach ($this->rulesPayload() as $ruleIndex => $ruleData) {
+            foreach ($ruleData['items'] as $itemIndex => $itemData) {
+                foreach ($itemData['prices'] as $priceIndex => $priceData) {
+                    $slotKey = $this->slotKey($ruleData['day'], $itemData['play_time_minutes'], $priceData['starts_at']);
+
+                    if (isset($seenSlots[$slotKey])) {
+                        $validator->errors()->add(
+                            "rules.$ruleIndex.items.$itemIndex.prices.$priceIndex.starts_at",
+                            __('validation.court_price_rule_duplicate_slot'),
+                        );
+
+                        continue;
+                    }
+
+                    $seenSlots[$slotKey] = true;
+                }
+            }
+        }
+    }
+
+    private function slotKey(string $day, int $playTimeMinutes, string $startsAt): string
+    {
+        return "$day|$playTimeMinutes|$startsAt";
     }
 
     /**

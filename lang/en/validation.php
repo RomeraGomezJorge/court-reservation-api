@@ -142,6 +142,7 @@ return [
     'required_without_all' => 'The :attribute field is required when none of :values are present.',
     'resource_not_found' => 'The specified :attribute was not found.',
     'court_id_must_match_route_court' => 'The court ID must match the court in the URL.',
+    'court_price_rule_duplicate_slot' => 'A price already exists for that day, play time, and start time.',
     'same' => 'The :attribute field must match :other.',
     'size' => [
         'array' => 'The :attribute field must contain :size items.',

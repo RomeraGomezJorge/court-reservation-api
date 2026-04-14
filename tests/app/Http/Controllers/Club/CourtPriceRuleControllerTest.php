@@ -71,6 +71,80 @@ function createClubAndCourtForPriceRuleTests(int $clubUserId): array
     return [$club, $court];
 }
 
+function payloadWithDuplicatePriceSlotInSamePrices(Court $court): array
+{
+    return [
+        'court_id' => $court->id,
+        'rules' => [
+            [
+                'day' => 'monday',
+                'items' => [
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '10:00', 'price' => 1000],
+                            ['starts_at' => '10:00', 'price' => 1200],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+}
+
+function payloadWithDuplicatePriceSlotAcrossItems(Court $court): array
+{
+    return [
+        'court_id' => $court->id,
+        'rules' => [
+            [
+                'day' => 'monday',
+                'items' => [
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '10:00', 'price' => 1000],
+                        ],
+                    ],
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '10:00', 'price' => 1500],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+}
+
+function payloadWithDuplicateComplexCrossingItems(Court $court): array
+{
+    return [
+        'court_id' => $court->id,
+        'rules' => [
+            [
+                'day' => 'monday',
+                'items' => [
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '09:00', 'price' => 1000],
+                            ['starts_at' => '10:00', 'price' => 1200],
+                        ],
+                    ],
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '10:00', 'price' => 1300],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+}
+
 beforeEach(function (): void {
     $this->clubUser = actingAsClubUser();
 });
@@ -186,6 +260,10 @@ it('validates store payload structure and scalar constraints', function (Closure
         fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'][0]['starts_at'] = '9:00'),
         'El campo hora de inicio debe coincidir con el formato H:i.',
     ],
+    'starts_at format must reject seconds and keep strict H:i' => [
+        fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'][0]['starts_at'] = '10:00:00'),
+        'El campo hora de inicio debe coincidir con el formato H:i.',
+    ],
     'missing price' => [
         fn (array $payload): array => tap($payload, function (array &$p): void {
             unset($p['rules'][0]['items'][0]['prices'][0]['price']);
@@ -201,6 +279,45 @@ it('validates store payload structure and scalar constraints', function (Closure
         'El tamaño de precio debe ser de al menos 0.',
     ],
 ]);
+
+it('fails store when duplicated logical slot exists in the same prices list', function (): void {
+    [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
+
+    $response = post(
+        action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]),
+        payloadWithDuplicatePriceSlotInSamePrices($court),
+    );
+
+    $response->assertUnprocessable();
+
+    expect($response->json('messages'))->toContain(__('validation.court_price_rule_duplicate_slot'));
+});
+
+it('fails store when duplicated logical slot exists across items in the same day', function (): void {
+    [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
+
+    $response = post(
+        action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]),
+        payloadWithDuplicatePriceSlotAcrossItems($court),
+    );
+
+    $response->assertUnprocessable();
+
+    expect($response->json('messages'))->toContain(__('validation.court_price_rule_duplicate_slot'));
+});
+
+it('fails store when duplicated logical slot appears in a complex payload', function (): void {
+    [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
+
+    $response = post(
+        action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]),
+        payloadWithDuplicateComplexCrossingItems($court),
+    );
+
+    $response->assertUnprocessable();
+
+    expect($response->json('messages'))->toContain(__('validation.court_price_rule_duplicate_slot'));
+});
 
 it('stores price rules for a court', function (): void {
     $club = Club::factory()->create([
