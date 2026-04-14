@@ -26,7 +26,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
         return [
             'court_id' => ['required', 'integer', 'exists:courts,id'],
             'rules' => ['required', 'array', 'min:1'],
-            'rules.*.day' => ['required', Rule::enum(CourtPriceRuleDay::class)],
+            'rules.*.day' => ['required', 'distinct', Rule::enum(CourtPriceRuleDay::class)],
             'rules.*.items' => ['required', 'array', 'min:1'],
             'rules.*.items.*.play_time_minutes' => ['required', Rule::enum(PlayTime::class)],
             'rules.*.items.*.prices' => ['required', 'array', 'min:1'],
