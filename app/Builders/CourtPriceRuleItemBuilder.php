@@ -7,7 +7,6 @@ namespace App\Builders;
 use App\Enums\PlayTime;
 use App\Models\CourtPriceRuleItem;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Date;
 
 /**
  * @extends Builder<CourtPriceRuleItem>
