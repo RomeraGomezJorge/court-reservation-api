@@ -91,7 +91,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
 
                     if (isset($uniqueItemByDayAndTime[$priceSlotIdentifier])) {
                         $validator->errors()->add(
-                            "rules.$ruleIndex.items.$itemIndex.prices.$priceIndex.starts_at",
+                            "rules.{$ruleIndex}.items.{$itemIndex}.prices.{$priceIndex}.starts_at",
                             __('validation.court_price_rule_duplicate_slot'),
                         );
 
@@ -117,7 +117,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
 
                     if (isset($uniquePricesPerItem[$price])) {
                         $validator->errors()->add(
-                            "rules.$ruleIndex.items.$itemIndex.prices.$priceIndex.price",
+                            "rules.{$ruleIndex}.items.{$itemIndex}.prices.{$priceIndex}.price",
                             __('validation.court_price_rule_duplicate_price'),
                         );
 
@@ -132,6 +132,6 @@ final class StoreCourtPriceRuleRequest extends FormRequest
 
     private function priceSlotKey(string $day, int $playTimeMinutes, string $startsAt): string
     {
-        return "$day|$playTimeMinutes|$startsAt";
+        return "{$day}|{$playTimeMinutes}|{$startsAt}";
     }
 }
