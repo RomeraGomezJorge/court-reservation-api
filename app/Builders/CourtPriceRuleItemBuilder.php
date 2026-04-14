@@ -47,21 +47,7 @@ final class CourtPriceRuleItemBuilder extends Builder
             ->pluck('price_starts_at');
 
         return $priceStartTimes
-            ->map(fn (string $time): string => $this->formatTime($time))
             ->values()
             ->all();
-    }
-
-    /**
-     * Formats time from H:i:s to H:i format.
-     *
-     * @param  string  $time  Time in H:i:s format
-     * @return string Formatted time in H:i format
-     */
-    private function formatTime(string $time): string
-    {
-        $parsedTime = Date::createFromFormat('H:i:s', $time);
-
-        return $parsedTime?->format('H:i') ?? $time;
     }
 }

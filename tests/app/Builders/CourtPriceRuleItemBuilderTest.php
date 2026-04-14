@@ -119,7 +119,7 @@ it('retrieves price start times for a court', function (): void {
 
     expect($priceStartTimes)
         ->toBeArray()
-        ->toBe(['08:00', '10:00', '14:00']);
+        ->toBe(['08:00:00', '10:00:00', '14:00:00']);
 });
 
 it('returns empty array when court has no price start times', function (): void {
@@ -155,29 +155,7 @@ it('returns price start times ordered correctly', function (): void {
     $priceStartTimes = CourtPriceRuleItem::query()
         ->getPriceStartsAtForCourt($court->id);
 
-    expect($priceStartTimes)->toBe(['08:00', '14:00', '18:00']);
-});
-
-it('formats time correctly from H:i:s to H:i', function (): void {
-    $court = Court::factory()->create();
-
-    $rule = CourtPriceRule::factory()
-        ->for($court)
-        ->create(['day' => CourtPriceRuleDay::Base]);
-
-    CourtPriceRuleItem::factory()
-        ->for($rule, 'priceRule')
-        ->count(2)
-        ->sequence(
-            ['price_starts_at' => '09:30:45'],
-            ['price_starts_at' => '16:15:30'],
-        )
-        ->create();
-
-    $priceStartTimes = CourtPriceRuleItem::query()
-        ->getPriceStartsAtForCourt($court->id);
-
-    expect($priceStartTimes)->toBe(['09:30', '16:15']);
+    expect($priceStartTimes)->toBe(['08:00:00', '14:00:00', '18:00:00']);
 });
 
 it('deduplicates price start times correctly', function (): void {
@@ -218,5 +196,5 @@ it('deduplicates price start times correctly', function (): void {
     $priceStartTimes = CourtPriceRuleItem::query()
         ->getPriceStartsAtForCourt($court->id);
 
-    expect($priceStartTimes)->toBe(['08:00']);
+    expect($priceStartTimes)->toBe(['08:00:00']);
 });

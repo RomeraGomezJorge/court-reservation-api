@@ -44,7 +44,7 @@ final class AppServiceProvider extends ServiceProvider
         // Enable or disable logging based on application settings
         // ------------------------------------------------------------------------------
         if (Config::boolean('query-logging.enable')) {
-            $this->LogAllQueriesSlow();
+            $this->logAllQueriesSlow();
             $this->logAllQueriesNplusone();
         }
 
@@ -110,7 +110,7 @@ final class AppServiceProvider extends ServiceProvider
     /**
      * Log all slow queries for debugging purposes.
      */
-    private function LogAllQueriesSlow(): void
+    private function logAllQueriesSlow(): void
     {
         DB::listen(function ($query): void {
             $threshold = Config::integer('query-logging.slow_threshold');

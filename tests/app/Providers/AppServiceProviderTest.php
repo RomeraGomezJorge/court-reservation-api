@@ -161,7 +161,7 @@ it('logs slow queries when logging is enabled', function (): void {
             && is_string($context['formatted']));
 
     $provider = new AppServiceProvider(app());
-    $method = new ReflectionMethod($provider, 'LogAllQueriesSlow');
+    $method = new ReflectionMethod($provider, 'logAllQueriesSlow');
     $method->invoke($provider);
 
     expect($queryListener)->toBeCallable();
