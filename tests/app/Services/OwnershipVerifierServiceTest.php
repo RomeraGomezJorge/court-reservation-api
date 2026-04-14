@@ -79,4 +79,3 @@ it('replaces the resource placeholder in english fallback message', function ():
         app()->setLocale($originalLocale);
     }
 });
-
