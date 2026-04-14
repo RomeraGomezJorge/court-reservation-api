@@ -51,39 +51,10 @@ final class StoreCourtPriceRuleRequest extends FormRequest
                     return;
                 }
 
-                $this->addDuplicatedPriceSlotErrors($validator);
+                $this->validateNoDuplicateIDayAndTimeWithItems($validator);
+                $this->validateNoDuplicatePricesWithinItems($validator);
             },
         ];
-    }
-
-    private function addDuplicatedPriceSlotErrors(Validator $validator): void
-    {
-        /** @var array<string, bool> $seenSlots */
-        $seenSlots = [];
-
-        foreach ($this->rulesPayload() as $ruleIndex => $ruleData) {
-            foreach ($ruleData['items'] as $itemIndex => $itemData) {
-                foreach ($itemData['prices'] as $priceIndex => $priceData) {
-                    $slotKey = $this->slotKey($ruleData['day'], $itemData['play_time_minutes'], $priceData['starts_at']);
-
-                    if (isset($seenSlots[$slotKey])) {
-                        $validator->errors()->add(
-                            "rules.$ruleIndex.items.$itemIndex.prices.$priceIndex.starts_at",
-                            __('validation.court_price_rule_duplicate_slot'),
-                        );
-
-                        continue;
-                    }
-
-                    $seenSlots[$slotKey] = true;
-                }
-            }
-        }
-    }
-
-    private function slotKey(string $day, int $playTimeMinutes, string $startsAt): string
-    {
-        return "$day|$playTimeMinutes|$startsAt";
     }
 
     /**
@@ -101,5 +72,66 @@ final class StoreCourtPriceRuleRequest extends FormRequest
         $rules = $this->input('rules', []);
 
         return $rules;
+    }
+
+    private function validateNoDuplicateIDayAndTimeWithItems(Validator $validator): void
+    {
+        /** @var array<string, true> $uniqueItemByDayAndTime */
+        $uniqueItemByDayAndTime = [];
+
+        foreach ($this->rulesPayload() as $ruleIndex => $rule) {
+            foreach ($rule['items'] as $itemIndex => $item) {
+                foreach ($item['prices'] as $priceIndex => $priceRow) {
+
+                    $priceSlotIdentifier = $this->priceSlotKey(
+                        $rule['day'],
+                        $item['play_time_minutes'],
+                        $priceRow['starts_at']
+                    );
+
+                    if (isset($uniqueItemByDayAndTime[$priceSlotIdentifier])) {
+                        $validator->errors()->add(
+                            "rules.$ruleIndex.items.$itemIndex.prices.$priceIndex.starts_at",
+                            __('validation.court_price_rule_duplicate_slot'),
+                        );
+
+                        continue;
+                    }
+
+                    $uniqueItemByDayAndTime[$priceSlotIdentifier] = true;
+                }
+            }
+        }
+    }
+
+    private function validateNoDuplicatePricesWithinItems(Validator $validator): void
+    {
+        foreach ($this->rulesPayload() as $ruleIndex => $rule) {
+            foreach ($rule['items'] as $itemIndex => $item) {
+
+                /** @var array<string, true> $uniquePricesPerItem */
+                $uniquePricesPerItem = [];
+
+                foreach ($item['prices'] as $priceIndex => $priceRow) {
+                    $price = (string) $priceRow['price'];
+
+                    if (isset($uniquePricesPerItem[$price])) {
+                        $validator->errors()->add(
+                            "rules.$ruleIndex.items.$itemIndex.prices.$priceIndex.price",
+                            __('validation.court_price_rule_duplicate_price'),
+                        );
+
+                        continue;
+                    }
+
+                    $uniquePricesPerItem[$price] = true;
+                }
+            }
+        }
+    }
+
+    private function priceSlotKey(string $day, int $playTimeMinutes, string $startsAt): string
+    {
+        return "$day|$playTimeMinutes|$startsAt";
     }
 }

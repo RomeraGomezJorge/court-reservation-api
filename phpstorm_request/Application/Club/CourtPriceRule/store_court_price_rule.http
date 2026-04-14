@@ -13,7 +13,7 @@ Accept: application/json
                     "play_time_minutes": 90,
                     "prices": [
                         {"starts_at": "09:00", "price": 1400.50},
-                        {"starts_at": "10:00", "price": 1400.50}
+                        {"starts_at": "09:00", "price": 1500.50}
                     ]
                 }
             ]
@@ -22,9 +22,9 @@ Accept: application/json
             "day": "monday",
             "items": [
                 {
-                    "play_time_minutes": 60,
+                    "play_time_minutes": 90,
                     "prices": [
-                        {"starts_at": "00:00", "price": 900}
+                        {"starts_at": "09:00", "price": 1400.50}
                     ]
                 }
             ]
