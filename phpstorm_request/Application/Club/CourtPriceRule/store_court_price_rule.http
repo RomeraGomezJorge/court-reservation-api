@@ -9,15 +9,7 @@ Accept: application/json
         {
             "day": "tuesday",
             "items": [
-                {
-                    "play_time_minutes": 60,
-                    "prices": [
-                        {"starts_at": "09:00", "price": 1000.50},
-                        {"starts_at": "12:00", "price": 1200.60},
-                        {"starts_at": "18:00", "price": 1500.70}
-                    ]
-                },
-                {
+                      {
                     "play_time_minutes": 90,
                     "prices": [
                         {"starts_at": "09:00", "price": 1400.50},

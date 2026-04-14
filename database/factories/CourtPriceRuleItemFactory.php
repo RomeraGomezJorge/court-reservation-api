@@ -21,7 +21,7 @@ final class CourtPriceRuleItemFactory extends Factory
     {
         return [
             'court_price_rule_id' => CourtPriceRule::factory(),
-            'play_time_minutes' => fake()->randomElement(PlayTime::class),
+            'play_time_minutes' => fake()->randomElement(PlayTime::cases()),
             'price' => fake()->randomFloat(2, 25, 150),
             'price_starts_at' => fake()->time('H:i:s'),
         ];
