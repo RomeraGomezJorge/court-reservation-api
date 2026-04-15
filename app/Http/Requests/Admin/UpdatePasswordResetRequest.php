@@ -29,11 +29,7 @@ final class UpdatePasswordResetRequest extends FormRequest
                 'required',
                 'string',
                 'confirmed',
-                Password::min(12)
-                    ->letters()
-                    ->mixedCase()
-                    ->numbers()
-                    ->symbols(),
+                Password::default(),
             ],
         ];
     }

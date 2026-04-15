@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 use RuntimeException;
 
 final class AppServiceProvider extends ServiceProvider
@@ -32,6 +33,7 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureStrictModel();
         $this->configureUrl();
         $this->configureDates();
+        $this->configurePasswordValidationDefaults();
 
         // ------------------------------------------------------------------------------
         // This will prevent any destructive commands from being executed
@@ -105,6 +107,19 @@ final class AppServiceProvider extends ServiceProvider
     private function configureDates(): void
     {
         Date::use(CarbonImmutable::class);
+    }
+
+    /**
+     * Configure password validation defaults.
+     */
+    private function configurePasswordValidationDefaults(): void
+    {
+        Password::defaults(fn (): Password => Password::min(12)
+            ->max(72)
+            ->letters()
+            ->mixedCase()
+            ->numbers()
+            ->symbols());
     }
 
     /**

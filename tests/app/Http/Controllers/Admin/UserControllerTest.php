@@ -78,30 +78,30 @@ it('fails to store a user with invalid data', function (array $invalidData, arra
     ],
     'empty password' => [
         'invalidData' => ['password' => '', 'password_confirmation' => ''],
-        'expectedMessages' => ['El campo contraseña es obligatorio.', 'El campo confirmación de contraseña es obligatorio.'],
+        'expectedMessages' => ['El campo contraseña es obligatorio.'],
     ],
     'password too short' => [
         'invalidData' => ['password' => 'Short1!', 'password_confirmation' => 'Short1!'],
-        'expectedMessages' => ['El campo contraseña debe contener al menos 12 caracteres.', 'El campo confirmación de contraseña debe contener al menos 12 caracteres.'],
+        'expectedMessages' => ['El campo contraseña debe contener al menos 12 caracteres.'],
     ],
     'password no numbers' => [
         'invalidData' => ['password' => 'Password.!@#', 'password_confirmation' => 'Password.!@#'],
-        'expectedMessages' => ['La contraseña debe contener al menos un número.', 'La confirmación de contraseña debe contener al menos un número.'],
+        'expectedMessages' => ['La contraseña debe contener al menos un número.'],
     ],
     'password no symbols' => [
         'invalidData' => ['password' => 'Password123456', 'password_confirmation' => 'Password123456'],
-        'expectedMessages' => ['La contraseña debe contener al menos un símbolo.', 'La confirmación de contraseña debe contener al menos un símbolo.'],
+        'expectedMessages' => ['La contraseña debe contener al menos un símbolo.'],
     ],
     'password no uppercase' => [
         'invalidData' => ['password' => 'password.123!', 'password_confirmation' => 'password.123!'],
-        'expectedMessages' => ['La contraseña debe contener al menos una letra mayúscula y una minúscula.', 'La confirmación de contraseña debe contener al menos una letra mayúscula y una minúscula.'],
+        'expectedMessages' => ['La contraseña debe contener al menos una letra mayúscula y una minúscula.'],
     ],
     'password confirmation does not match' => [
         'invalidData' => [
             'password' => 'Password.123!',
             'password_confirmation' => 'Different.123!',
         ],
-        'expectedMessages' => ['Los campos confirmación de contraseña y contraseña deben coincidir.'],
+        'expectedMessages' => ['La confirmación de contraseña no coincide.'],
     ],
     'password too long' => [
         'invalidData' => [
@@ -109,8 +109,7 @@ it('fails to store a user with invalid data', function (array $invalidData, arra
             'password_confirmation' => str_repeat('Aa1!', 70),
         ],
         'expectedMessages' => [
-            'El campo contraseña no debe ser mayor que 255 caracteres.',
-            'El campo confirmación de contraseña no debe ser mayor que 255 caracteres.',
+            'El campo contraseña no debe ser mayor que 72 caracteres.',
         ],
     ],
 ]);
@@ -244,6 +243,22 @@ it('changes a user password', function (): void {
 
     $targetUser->refresh();
     expect(Hash::check($newPassword, $targetUser->password))->toBeTrue();
+});
+
+it('fails to change a user password when it is too long', function (): void {
+    $targetUser = User::factory()->create();
+
+    $longPassword = str_repeat('Aa1!', 70);
+
+    put(action([UserController::class, 'changePassword'], $targetUser), [
+        'password' => $longPassword,
+        'password_confirmation' => $longPassword,
+    ])->assertExactJson([
+        'code' => 422,
+        'messages' => [
+            'El campo contraseña no debe ser mayor que 72 caracteres.',
+        ],
+    ]);
 });
 
 it('fails to delete the last user', function (): void {

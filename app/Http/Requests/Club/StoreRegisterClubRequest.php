@@ -23,13 +23,8 @@ final class StoreRegisterClubRequest extends FormRequest
             'password' => [
                 'required',
                 'string',
-                Password::min(12)
-                    ->max(255)
-                    ->letters()
-                    ->mixedCase()
-                    ->numbers()
-                    ->symbols(),
                 'confirmed',
+                Password::default(),
             ],
         ];
     }
