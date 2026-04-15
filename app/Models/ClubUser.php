@@ -10,7 +10,6 @@ use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -18,7 +17,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Override;
 
 /**
- * @property-read string $id
+ * @property-read int $id
  * @property-read string $email
  * @property-read CarbonInterface|null $email_verified_at
  * @property-read string $password
@@ -52,7 +51,7 @@ final class ClubUser extends Authenticatable implements MustVerifyEmail
     public function casts(): array
     {
         return [
-            'id' => 'string',
+            'id' => 'int',
             'email' => 'string',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
@@ -60,16 +59,6 @@ final class ClubUser extends Authenticatable implements MustVerifyEmail
             'updated_at' => 'datetime',
             'deleted_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Get all clubs managed by this club user.
-     *
-     * @return HasMany<Club, $this>
-     */
-    public function clubs(): HasMany
-    {
-        return $this->hasMany(Club::class);
     }
 
     /**

@@ -9,12 +9,11 @@ use Carbon\CarbonInterface;
 use Database\Factories\ClubWorkingDayFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
 /**
- * @property-read string $id
- * @property-read string $club_id
+ * @property-read int $id
+ * @property-read int $club_id
  * @property-read WorkingDays $day
  * @property-read string $opening_hour
  * @property-read string $closing_hour
@@ -43,23 +42,13 @@ final class ClubWorkingDay extends Model
     public function casts(): array
     {
         return [
-            'id' => 'string',
-            'club_id' => 'string',
+            'id' => 'int',
+            'club_id' => 'int',
             'day' => WorkingDays::class,
             'opening_hour' => 'string',
             'closing_hour' => 'string',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Get the club that owns this working day.
-     *
-     * @return BelongsTo<Club, $this>
-     */
-    public function club(): BelongsTo
-    {
-        return $this->belongsTo(Club::class);
     }
 }

@@ -11,12 +11,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Override;
 
 /**
- * @property-read string $id
- * @property-read string $club_id
+ * @property-read int $id
+ * @property-read int $club_id
  * @property-read int $sport_type_id
  * @property-read string $name
  * @property-read string|null $description
@@ -27,6 +28,7 @@ use Override;
  * @property-read Club $club
  * @property-read SportType $sportType
  * @property-read Collection<int, Feature> $features
+ * @property-read Collection<int, CourtPriceRule> $priceRules
  */
 final class Court extends Model
 {
@@ -53,8 +55,8 @@ final class Court extends Model
     public function casts(): array
     {
         return [
-            'id' => 'string',
-            'club_id' => 'string',
+            'id' => 'int',
+            'club_id' => 'int',
             'sport_type_id' => 'integer',
             'name' => 'string',
             'description' => 'string',
@@ -87,5 +89,15 @@ final class Court extends Model
     public function features(): BelongsToMany
     {
         return $this->belongsToMany(Feature::class);
+    }
+
+    /**
+     * Get the price rules for this court.
+     *
+     * @return HasMany<CourtPriceRule, $this>
+     */
+    public function priceRules(): HasMany
+    {
+        return $this->hasMany(CourtPriceRule::class);
     }
 }

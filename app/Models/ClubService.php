@@ -9,12 +9,11 @@ use Carbon\CarbonInterface;
 use Database\Factories\ClubServiceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
 /**
- * @property-read string $id
- * @property-read string $club_id
+ * @property-read int $id
+ * @property-read int $club_id
  * @property-read ClubServicesType $type
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
@@ -39,21 +38,11 @@ final class ClubService extends Model
     public function casts(): array
     {
         return [
-            'id' => 'string',
-            'club_id' => 'string',
+            'id' => 'int',
+            'club_id' => 'int',
             'type' => ClubServicesType::class,
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Get the club that owns this club service.
-     *
-     * @return BelongsTo<Club, $this>
-     */
-    public function club(): BelongsTo
-    {
-        return $this->belongsTo(Club::class);
     }
 }

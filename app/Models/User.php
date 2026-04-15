@@ -14,7 +14,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Override;
 
 /**
- * @property-read string $id
+ * @property-read int $id
  * @property-read string $name
  * @property-read string $email
  * @property-read CarbonInterface|null $email_verified_at
@@ -48,7 +48,7 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function casts(): array
     {
         return [
-            'id' => 'string',
+            'id' => 'int',
             'name' => 'string',
             'email' => 'string',
             'email_verified_at' => 'datetime',
