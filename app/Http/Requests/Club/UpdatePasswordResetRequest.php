@@ -30,6 +30,7 @@ final class UpdatePasswordResetRequest extends FormRequest
                 'string',
                 'confirmed',
                 Password::min(12)
+                    ->max(255)
                     ->letters()
                     ->mixedCase()
                     ->numbers()

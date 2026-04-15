@@ -24,18 +24,7 @@ final class StoreUserRequest extends FormRequest
             'password' => [
                 'required',
                 'string',
-                Password::min(12)
-                    ->max(255)
-                    ->letters()
-                    ->mixedCase()
-                    ->numbers()
-                    ->symbols(),
-            ],
-
-            'password_confirmation' => [
-                'required',
-                'same:password',
-                'string',
+                'confirmed',
                 Password::min(12)
                     ->max(255)
                     ->letters()
