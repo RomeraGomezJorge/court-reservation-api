@@ -109,7 +109,7 @@ it('fails to store a user with invalid data', function (array $invalidData, arra
             'password_confirmation' => str_repeat('Aa1!', 70),
         ],
         'expectedMessages' => [
-            'El campo contraseña no debe ser mayor que 255 caracteres.',
+            'El campo contraseña no debe ser mayor que 72 caracteres.',
         ],
     ],
 ]);
@@ -256,7 +256,7 @@ it('fails to change a user password when it is too long', function (): void {
     ])->assertExactJson([
         'code' => 422,
         'messages' => [
-            'El campo contraseña no debe ser mayor que 255 caracteres.',
+            'El campo contraseña no debe ser mayor que 72 caracteres.',
         ],
     ]);
 });

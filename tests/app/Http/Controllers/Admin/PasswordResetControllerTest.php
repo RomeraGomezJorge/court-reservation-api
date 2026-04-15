@@ -123,7 +123,7 @@ it('fails to reset password with invalid data', function (array $invalidData, ar
             'password_confirmation' => str_repeat('Aa1!', 70),
         ],
         'expectedMessages' => [
-            'El campo contraseña no debe ser mayor que 255 caracteres.',
+            'El campo contraseña no debe ser mayor que 72 caracteres.',
         ],
     ],
 ]);
