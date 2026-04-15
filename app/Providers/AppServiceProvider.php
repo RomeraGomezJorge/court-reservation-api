@@ -114,15 +114,12 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function configurePasswordValidationDefaults(): void
     {
-        Password::defaults(function (): Password {
-            return Password::min(12)
-                ->max(72)
-                ->letters()
-                ->mixedCase()
-                ->numbers()
-                ->symbols();
-
-        });
+        Password::defaults(fn(): Password => Password::min(12)
+            ->max(72)
+            ->letters()
+            ->mixedCase()
+            ->numbers()
+            ->symbols());
     }
 
     /**
