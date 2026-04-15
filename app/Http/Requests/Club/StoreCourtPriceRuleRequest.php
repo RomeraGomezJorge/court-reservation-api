@@ -51,7 +51,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
                     return;
                 }
 
-                $this->validateNoDuplicateIDayAndTimeWithItems($validator);
+                $this->validateNoDuplicateDayAndTimeWithItems($validator);
                 $this->validateNoDuplicatePricesWithinItems($validator);
             },
         ];
@@ -74,7 +74,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
         return $rules;
     }
 
-    private function validateNoDuplicateIDayAndTimeWithItems(Validator $validator): void
+    private function validateNoDuplicateDayAndTimeWithItems(Validator $validator): void
     {
         /** @var array<string, true> $uniqueItemByDayAndTime */
         $uniqueItemByDayAndTime = [];
