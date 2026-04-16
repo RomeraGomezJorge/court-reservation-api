@@ -7,7 +7,6 @@ use App\Http\Middleware\EnsureUserIsClubUser;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -35,25 +34,23 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-
         // Handle not found exceptions
-        $exceptions->renderable(function (NotFoundHttpException $e, Request $request) {
-            if ($request->json()) {
-                return response()->json([
-                    'messages' => [__('validation.resource_not_found')],
-                    'code' => $e->getStatusCode(),
-                ],
-                    status: $e->getStatusCode());
-            }
-
-            return null;
-        });
+        $exceptions->renderable(fn (NotFoundHttpException $e) => response()->json(
+            data: [
+                'messages' => [__('validation.resource_not_found')],
+                'code' => $e->getStatusCode(),
+            ],
+            status: $e->getStatusCode(),
+        ));
 
         // Handle HTTP exceptions
-        $exceptions->render(fn (HttpExceptionInterface $e) => response()->json([
-            'messages' => [$e->getMessage()],
-            'code' => $e->getStatusCode(),
-        ], $e->getStatusCode()));
+        $exceptions->render(fn (HttpExceptionInterface $e) => response()->json(
+            data: [
+                'messages' => [$e->getMessage()],
+                'code' => $e->getStatusCode(),
+            ],
+            status: $e->getStatusCode()),
+        );
 
         // Handle validation exceptions
         $exceptions->render(function (ValidationException $e) {
@@ -66,9 +63,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 }
             }
 
-            return response()->json([
-                'messages' => $mappedMessages,
-                'code' => 422,
-            ], 422);
+            return response()->json(
+                data: [
+                    'messages' => $mappedMessages,
+                    'code' => 422,
+                ],
+                status: 422);
         });
     })->create();
