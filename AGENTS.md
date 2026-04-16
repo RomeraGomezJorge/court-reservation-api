@@ -31,6 +31,9 @@ This project has domain-specific skills available. You MUST activate the relevan
 - `pest-testing` — Use this skill for Pest PHP testing in Laravel projects only. Trigger whenever any test is being written, edited, fixed, or refactored — including fixing tests that broke after a code change, adding assertions, converting PHPUnit to Pest, adding datasets, and TDD workflows. Always activate when the user asks how to write something in Pest, mentions test files or directories (tests/Feature, tests/Unit, tests/Browser), or needs browser testing, smoke testing multiple pages for JS errors, or architecture tests. Covers: test()/it()/expect() syntax, datasets, mocking, browser testing (visit/click/fill), smoke testing, arch(), Livewire component tests, RefreshDatabase, and all Pest 4 features. Do not use for factories, seeders, migrations, controllers, models, or non-test PHP code.
 - `laravel-api-resource-patterns` — Best practices for Laravel API Resources including resource transformation, collection handling, conditional attributes, and relationship loading.
 - `laravel-query-builders` — Custom query builders for type-safe, composable database queries. Use when creating or modifying query builders, query scopes, or complex database queries.
+- `phpstan-fixer` — Fix PHPStan static analysis errors by adding type annotations and PHPDocs.
+Use when encountering PHPStan errors, type mismatches, missing type hints,
+or static analysis failures. Never ignores errors without user approval.
 
 ## Conventions
 

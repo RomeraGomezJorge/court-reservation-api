@@ -12,6 +12,7 @@
         "laravel-best-practices",
         "pest-testing",
         "laravel-api-resource-patterns",
-        "laravel-query-builders"
+        "laravel-query-builders",
+        "phpstan-fixer"
     ]
 }
