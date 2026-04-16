@@ -9,8 +9,8 @@ use App\Http\Resources\Club\ShowCourtPriceRuleResource;
 use App\Models\Club;
 use App\Models\Court;
 use App\Services\CourtPriceRulesShowBuilderService;
-use App\Services\OwnershipVerifierService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -23,10 +23,8 @@ final class CourtPriceRuleController
         StoreCourtPriceRuleRequest $request,
         Club $club,
         Court $court,
-        OwnershipVerifierService $ownershipVerifier,
     ): Response {
-        $this->ensureCourtBelongsToClub($club, $court);
-        $ownershipVerifier->handle($court->club);
+        Gate::authorize('update', [$court, $club]);
 
         DB::transaction(function () use ($court, $request): void {
             $court->priceRules()->delete();
@@ -54,21 +52,12 @@ final class CourtPriceRuleController
     public function show(
         Club $club,
         Court $court,
-        OwnershipVerifierService $ownershipVerifier,
         CourtPriceRulesShowBuilderService $courtPriceRulesShowBuilder,
     ): ShowCourtPriceRuleResource {
-        $this->ensureCourtBelongsToClub($club, $court);
-        $ownershipVerifier->handle($court->club);
+        Gate::authorize('view', [$court, $club]);
 
         return new ShowCourtPriceRuleResource(
             $courtPriceRulesShowBuilder->handle($court),
         );
-    }
-
-    private function ensureCourtBelongsToClub(Club $club, Court $court): void
-    {
-        if ($court->club_id !== $club->id) {
-            abort(404, __('validation.resource_not_found'));
-        }
     }
 }
