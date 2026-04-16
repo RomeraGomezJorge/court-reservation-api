@@ -83,7 +83,7 @@ it('fails to update a sport type that does not exist', function (): void {
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\SportType] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
@@ -137,7 +137,7 @@ it('fails to delete a sport type that does not exist', function (): void {
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\SportType] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
@@ -161,7 +161,7 @@ it('fails to show a sport type that does not exist', function (): void {
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\SportType] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 

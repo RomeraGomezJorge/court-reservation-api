@@ -83,7 +83,7 @@ it('fails to update a feature that does not exist', function (): void {
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\Feature] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
@@ -137,7 +137,7 @@ it('fails to delete a feature that does not exist', function (): void {
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\Feature] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
@@ -161,7 +161,7 @@ it('fails to show a feature that does not exist', function (): void {
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\Feature] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 

@@ -36,6 +36,6 @@ it('fails to toggle a feature status that does not exist', function (): void {
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\Feature] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });

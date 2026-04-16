@@ -44,7 +44,7 @@ it('fails to toggle a club status that does not exist', function (): void {
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\Club] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
