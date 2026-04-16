@@ -140,7 +140,7 @@ return [
     'required_with_all' => 'The :attribute field is required when :values are present.',
     'required_without' => 'The :attribute field is required when :values is not present.',
     'required_without_all' => 'The :attribute field is required when none of :values are present.',
-    'resource_not_found' => 'The specified :resource was not found.',
+    'resource_not_found' => 'The requested resource was not found.',
     'court_id_must_match_route_court' => 'The court ID must match the court in the URL.',
     'court_price_rule_duplicate_slot' => 'The same start time cannot be used for different play times on the same day.',
     'court_price_rule_duplicate_price' => 'The same price cannot be used for different start times.',

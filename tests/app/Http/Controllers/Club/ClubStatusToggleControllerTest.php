@@ -55,6 +55,6 @@ it('fails to toggle a club status that is not owned by the authenticated club us
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Club no se ha encontrado.'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });

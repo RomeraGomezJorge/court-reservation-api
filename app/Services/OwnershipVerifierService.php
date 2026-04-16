@@ -8,9 +8,6 @@ use App\Models\ClubUser;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Str;
-use ReflectionClass;
 use RuntimeException;
 
 final class OwnershipVerifierService
@@ -34,36 +31,7 @@ final class OwnershipVerifierService
 
         // @codeCoverageIgnoreEnd
         if (! $clubUser->owns($model)) {
-            $modelName = $this->getModelName($model);
-            $errorMessage = $this->getNotFoundMessage($modelName);
-            abort(404, $errorMessage);
+            abort(404, __('validation.resource_not_found'));
         }
-    }
-
-    /**
-     * Gets the model name from the class, converted to snake_case.
-     */
-    private function getModelName(Model $model): string
-    {
-        $reflection = new ReflectionClass($model);
-
-        return Str::snake($reflection->getShortName());
-    }
-
-    /**
-     * Gets the appropriate not found message for the model.
-     * Uses specific translation key if available, falls back to generic message.
-     */
-    private function getNotFoundMessage(string $modelName): string
-    {
-        $translationKey = "{$modelName}.not_found";
-
-        if (Lang::has($translationKey)) {
-            return __($translationKey);
-        }
-
-        $formattedName = ucfirst(str_replace('_', ' ', $modelName));
-
-        return __('validation.resource_not_found', ['resource' => $formattedName]);
     }
 }

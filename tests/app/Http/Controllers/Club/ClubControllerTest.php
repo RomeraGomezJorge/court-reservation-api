@@ -409,7 +409,7 @@ it('fails to show a club that is not owned by the authenticated club user', func
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Club no se ha encontrado.'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
@@ -599,7 +599,7 @@ it('fails to update a club that is not owned by the authenticated club user', fu
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Club no se ha encontrado.'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
@@ -635,6 +635,6 @@ it('fails to delete a club that is not owned by the authenticated club user', fu
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Club no se ha encontrado.'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
