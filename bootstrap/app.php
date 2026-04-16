@@ -48,7 +48,6 @@ return Application::configure(basePath: dirname(__DIR__))
             throw $e;
         });
 
-
         // Handle HTTP exceptions
         $exceptions->render(fn (HttpExceptionInterface $e) => response()->json([
             'messages' => [$e->getMessage()],
