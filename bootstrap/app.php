@@ -7,6 +7,7 @@ use App\Http\Middleware\EnsureUserIsClubUser;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -18,7 +19,6 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         then: function (): void {
-
             Route::prefix('api/admin')
                 ->middleware('api')
                 ->group(base_path('routes/admin_user.php'));
@@ -36,18 +36,18 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 
-        $exceptions->renderable(function (NotFoundHttpException $e, $request) {
+        // Handle not found exceptions
+        $exceptions->renderable(function (NotFoundHttpException $e, Request $request) {
             if ($request->json()) {
                 return response()->json([
                     'messages' => [__('validation.resource_not_found')],
                     'code' => $e->getStatusCode(),
                 ],
-                    status: 404);
+                    status: $e->getStatusCode());
             }
 
-            throw $e;
+            return null;
         });
-
 
         // Handle HTTP exceptions
         $exceptions->render(fn (HttpExceptionInterface $e) => response()->json([
@@ -71,5 +71,4 @@ return Application::configure(basePath: dirname(__DIR__))
                 'code' => 422,
             ], 422);
         });
-
     })->create();
