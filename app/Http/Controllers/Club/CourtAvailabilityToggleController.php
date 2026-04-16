@@ -17,7 +17,7 @@ final class CourtAvailabilityToggleController
         OwnershipVerifierService $ownershipVerifier,
     ): Response {
         if ($court->club_id !== $club->id) {
-            abort(404, __('validation.resource_not_found', ['resource' => 'Court']));
+            abort(404, __('validation.resource_not_found'));
         }
 
         $ownershipVerifier->handle($court->club);

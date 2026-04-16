@@ -36,6 +36,6 @@ it('fails to toggle a sport type status that does not exist', function (): void 
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\SportType] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });

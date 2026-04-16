@@ -136,7 +136,7 @@ it('fails to update a user that does not exist', function (): void {
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\User] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
@@ -205,7 +205,7 @@ it('fails to show a user that does not exist', function (): void {
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\User] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
@@ -277,6 +277,6 @@ it('fails to delete a user that does not exist', function (): void {
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['No query results for model [App\\Models\\User] 999'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });

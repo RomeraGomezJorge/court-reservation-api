@@ -68,7 +68,7 @@ final class CourtPriceRuleController
     private function ensureCourtBelongsToClub(Club $club, Court $court): void
     {
         if ($court->club_id !== $club->id) {
-            abort(404, __('validation.resource_not_found', ['resource' => 'Court']));
+            abort(404, __('validation.resource_not_found'));
         }
     }
 }

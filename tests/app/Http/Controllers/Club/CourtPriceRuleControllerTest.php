@@ -591,7 +591,7 @@ it('fails to store price rules when the court does not belong to the club in rou
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Court no se ha encontrado.'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
@@ -609,7 +609,7 @@ it('fails to store price rules when the club is not owned by authenticated user'
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Club no se ha encontrado.'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
@@ -633,7 +633,7 @@ it('fails to show price rules when the court does not belong to the club in rout
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Court no se ha encontrado.'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
 
@@ -651,6 +651,6 @@ it('fails to show price rules when the club is not owned by authenticated user',
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
-            'messages' => ['El recurso Club no se ha encontrado.'],
+            'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
