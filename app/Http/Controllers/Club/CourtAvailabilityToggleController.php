@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Club;
 
 use App\Models\Club;
 use App\Models\Court;
-use App\Services\OwnershipVerifierService;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 final class CourtAvailabilityToggleController
@@ -14,13 +14,8 @@ final class CourtAvailabilityToggleController
     public function __invoke(
         Club $club,
         Court $court,
-        OwnershipVerifierService $ownershipVerifier,
     ): Response {
-        if ($court->club_id !== $club->id) {
-            abort(404, __('validation.resource_not_found'));
-        }
-
-        $ownershipVerifier->handle($court->club);
+        Gate::authorize('update', [$court, $club]);
 
         $court->update([
             'is_available' => ! $court->is_available,
