@@ -20,8 +20,7 @@ All tests must be written using Pest. Use `vendor/bin/sail artisan make:test --p
 
 ### Test Organization
 
-- Unit/Feature tests: `tests/Feature` and `tests/Unit` directories.
-- Browser tests: `tests/Browser/` directory.
+- Tests are structured to reflect the application's architecture, organizing them by responsibility (e.g., Controllers, Services, Providers) within tests/app, rather than relying solely on Unit and Feature separation.
 - Do NOT remove tests without approval - these are core application code.
 
 ### Basic Test Structure
@@ -37,26 +36,96 @@ it('is true', function () {
 
 ### Running Tests
 
-- Run minimal tests with filter before finalizing: `vendor/bin/sail artisan test --compact --filter=testName`.
-- Run all tests: `vendor/bin/sail artisan test --compact`.
-- Run file: `vendor/bin/sail artisan test --compact tests/Feature/ExampleTest.php`.
+- Run minimal tests with filter before finalizing: `vendor/bin/sail artisan test -c phpunit-local.xml --compact --filter=testName`.
+- Run all tests: `vendor/bin/sail artisan test -c phpunit-local.xml --compact`.
+- Run file: `vendor/bin/sail artisan test c phpunit-local.xml --compact tests/Feature/ExampleTest.php`.
 
 ## Assertions
 
-Use specific assertions (`assertSuccessful()`, `assertNotFound()`) instead of `assertStatus()`:
+Use specific assertions (`assertStatus(200)`, `assertStatus(404)`) instead of `assertSuccessful()` or `assertNotFound()`, etc., for clearer test intent and better failure messages.:
 
 <!-- Pest Response Assertion -->
 ```php
 it('returns all', function () {
-    $this->postJson('/api/docs', [])->assertSuccessful();
+    $this->postJson('/api/docs', [])->assertStatus(200);
 });
 ```
 
 | Use | Instead of |
 |-----|------------|
-| `assertSuccessful()` | `assertStatus(200)` |
-| `assertNotFound()` | `assertStatus(404)` |
-| `assertForbidden()` | `assertStatus(403)` |
+| `assertStatus(200)` | `assertSuccessful()` |
+| `assertStatus(404)` | `assertNotFound()` |
+| `assertStatus(403)` | `assertForbidden()` |
+
+## JSON Assertions (Strict Contract)
+
+When asserting API responses, prefer `assertExactJson()` to enforce a strict and explicit contract.
+
+### Use `assertExactJson()` when:
+
+- Testing `index` endpoints (collections)
+- Testing `show` endpoints (single resource)
+- Testing validation errors (`422`)
+- Testing not found errors (`404`)
+- Any scenario where the full response structure is known and should not change
+
+```php
+get('/users')
+    ->assertOk()
+    ->assertExactJson([
+        [
+            'id' => 1,
+            'name' => 'John Doe',
+        ],
+    ]);
+```
+
+### Avoid
+
+- Using `assertJson()` when the full response structure is expected
+- Partial assertions that may hide breaking changes in the API response
+
+### Rationale
+
+- Ensures API responses behave as a strict contract
+- Prevents unnoticed structural changes
+- Improves test reliability and clarity
+
+### Notes
+
+- Prefer `assertExactJson()` especially for error responses with known structure (`code`, `messages`)
+- If the response is expected to evolve (e.g., optional fields), consider using less strict assertions intentionally
+
+## Factory Sequences (Preferred for Readability)
+
+When generating multiple models with varying attributes, prefer using the `sequence()` method over multiple `state()` calls or manual loops.
+
+The `sequence()` method improves readability and makes test scenarios more explicit by defining attribute variations declaratively.
+
+```php
+    $users = User::factory()
+        ->count(2)
+        ->sequence(
+            ['name' => 'First User'],
+            ['name' => 'Second User'],
+        )
+        ->create();
+```    
+
+## Translations in Tests
+
+Avoid using translation helpers like `__()` inside tests.
+
+Always use the final, explicit translated string (e.g., Spanish) instead of relying on translation keys.
+
+<!-- Example -->
+```php
+// ❌ Avoid
+expect($response->json('message'))->toBe(__('messages.success'));
+
+// ✅ Prefer
+expect($response->json('message'))->toBe('Operación exitosa');
+```
 
 ## Mocking
 

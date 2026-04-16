@@ -11,6 +11,8 @@
     "skills": [
         "laravel-best-practices",
         "pest-testing",
-        "laravel-query-builders"
+        "laravel-api-resource-patterns",
+        "laravel-query-builders",
+        "phpstan-fixer"
     ]
 }
