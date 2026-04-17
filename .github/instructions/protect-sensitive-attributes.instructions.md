@@ -11,4 +11,4 @@ Scan models for missing `$hidden` configuration and API responses that expose in
 - `$appends` including computed attributes that expose internal logic or trigger additional queries
 - Do NOT flag internal admin tools or CLI output where exposure is not a concern
 
-**Suggestion:** Add `protected $hidden = ['password', 'remember_token']` to auth models. For broader control, use `$visible` to whitelist only the fields that should be serialized. For API endpoints, use API Resources (`php artisan make:resource`) to explicitly control the response shape. Use `makeHidden()` and `makeVisible()` for per-response adjustments.
+**Suggestion:** Add `protected $hidden = ['password', 'remember_token']` to auth models. For broader control, use `$visible` to whitelist only the fields that should be serialized. For API endpoints, use API Resources (`vendor/bin/sail artisan make:resource --no-interaction`) to explicitly control the response shape. Use `makeHidden()` and `makeVisible()` for per-response adjustments.
