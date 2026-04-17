@@ -133,34 +133,29 @@ final class StoreCourtPriceRuleRequest extends FormRequest
 
     private function validateNoDuplicatePricesPerDay(Validator $validator): void
     {
-        /**
-         * @var array<string, string> $firstItemByDayAndPrice
-         */
-        $firstItemByDayAndPrice = [];
+        $priceUsedBy = []; // day|price → "ruleIndex|itemIndex"
 
         foreach ($this->rulesPayload() as $ruleIndex => $rule) {
             foreach ($rule['items'] as $itemIndex => $item) {
-                $currentItemKey = $this->itemKey($ruleIndex, $itemIndex);
-
                 foreach ($item['prices'] as $priceIndex => $priceRow) {
-                    $price = $this->normalizedPrice($priceRow['price']);
-                    $dayPriceKey = $this->dayPriceKey($rule['day'], $price);
+                    $key = $this->dayPriceKey($rule['day'], $this->normalizedPrice($priceRow['price']));
+                    $currentItem = $this->itemKey($ruleIndex, $itemIndex);
 
-                    if (isset($firstItemByDayAndPrice[$dayPriceKey]) && $firstItemByDayAndPrice[$dayPriceKey] !== $currentItemKey) {
+                    $alreadyUsedByAnotherItem = isset($priceUsedBy[$key]) && $priceUsedBy[$key] !== $currentItem;
+
+                    if ($alreadyUsedByAnotherItem) {
                         $validator->errors()->add(
                             "rules.{$ruleIndex}.items.{$itemIndex}.prices.{$priceIndex}.price",
                             __('validation.court_price_rule_duplicate_price_per_day'),
                         );
-
                         continue;
                     }
 
-                    $firstItemByDayAndPrice[$dayPriceKey] = $currentItemKey;
+                    $priceUsedBy[$key] = $currentItem;
                 }
             }
         }
     }
-
     private function priceSlotKey(string $day, int $playTimeMinutes, string $startsAt): string
     {
         return "{$day}|{$playTimeMinutes}|{$startsAt}";
