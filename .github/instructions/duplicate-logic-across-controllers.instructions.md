@@ -14,7 +14,7 @@ Scan for identical or near-identical code blocks appearing in multiple controlle
 - Same response formatting across API controllers
 
 **Suggestion — depends on what is duplicated:**
-- Query logic: Extract to an Custom Query Builder
+- Query logic: Extract to a Custom Query Builder
 - Business logic: Extract to a Service
 - Response formatting: Extract to a Trait or base controller method
 - Only suggest extraction when duplicated 3+ times. Two occurrences are acceptable.
