@@ -144,6 +144,7 @@ return [
     'court_id_must_match_route_court' => 'El ID de la cancha debe coincidir con la cancha en la URL.',
     'court_price_rule_duplicate_slot' => 'Ya existe un precio configurado para ese día, duración y hora de inicio.',
     'court_price_rule_duplicate_price' => 'No se puede usar el mismo precio para diferentes horas de inicio.',
+    'court_price_rule_duplicate_price_per_day' => 'No se puede repetir el mismo precio en un mismo día.',
     'same' => 'Los campos :attribute y :other deben coincidir.',
     'size' => [
         'array' => 'El campo :attribute debe contener :size elementos.',

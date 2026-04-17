@@ -30,7 +30,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
             'rules.*.items' => ['required', 'array', 'min:1'],
             'rules.*.items.*.play_time_minutes' => ['required', Rule::enum(PlayTime::class)],
             'rules.*.items.*.prices' => ['required', 'array', 'min:1'],
-            'rules.*.items.*.prices.*.starts_at' => ['required', 'date_format:H:i'],
+            'rules.*.items.*.prices.*.starts_at' => ['required', 'date_format:H:i:s'],
             'rules.*.items.*.prices.*.price' => ['required', 'numeric', 'min:0'],
         ];
     }
@@ -53,6 +53,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
 
                 $this->validateNoDuplicateDayAndTimeWithItems($validator);
                 $this->validateNoDuplicatePricesWithinItems($validator);
+                $this->validateNoDuplicatePricesPerDay($validator);
             },
         ];
     }
@@ -130,8 +131,53 @@ final class StoreCourtPriceRuleRequest extends FormRequest
         }
     }
 
+    private function validateNoDuplicatePricesPerDay(Validator $validator): void
+    {
+        /**
+         * @var array<string, string> $firstItemByDayAndPrice
+         */
+        $firstItemByDayAndPrice = [];
+
+        foreach ($this->rulesPayload() as $ruleIndex => $rule) {
+            foreach ($rule['items'] as $itemIndex => $item) {
+                $currentItemKey = $this->itemKey($ruleIndex, $itemIndex);
+
+                foreach ($item['prices'] as $priceIndex => $priceRow) {
+                    $price = $this->normalizedPrice($priceRow['price']);
+                    $dayPriceKey = $this->dayPriceKey($rule['day'], $price);
+
+                    if (isset($firstItemByDayAndPrice[$dayPriceKey]) && $firstItemByDayAndPrice[$dayPriceKey] !== $currentItemKey) {
+                        $validator->errors()->add(
+                            "rules.{$ruleIndex}.items.{$itemIndex}.prices.{$priceIndex}.price",
+                            __('validation.court_price_rule_duplicate_price_per_day'),
+                        );
+
+                        continue;
+                    }
+
+                    $firstItemByDayAndPrice[$dayPriceKey] = $currentItemKey;
+                }
+            }
+        }
+    }
+
     private function priceSlotKey(string $day, int $playTimeMinutes, string $startsAt): string
     {
         return "{$day}|{$playTimeMinutes}|{$startsAt}";
+    }
+
+    private function dayPriceKey(string $day, string $price): string
+    {
+        return "{$day}|{$price}";
+    }
+
+    private function itemKey(int $ruleIndex, int $itemIndex): string
+    {
+        return "{$ruleIndex}|{$itemIndex}";
+    }
+
+    private function normalizedPrice(int|float|string $price): string
+    {
+        return number_format((float) $price, 2, '.', '');
     }
 }
