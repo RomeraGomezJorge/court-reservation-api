@@ -11,4 +11,4 @@ Scan queries, especially in API endpoints, for loading all columns when only a f
 - Missing foreign keys or primary keys in `select()` calls that would break relationships
 - Do NOT flag admin panels, simple CRUD, or internal tools where payload size is not critical
 
-**Suggestion:** Use `select()` on queries: `Post::select(['id', 'title', 'user_id'])`. Constrain eager-loaded relationships: `->with('user:id,name')`. Always include the primary key and any foreign keys needed for relationships. For API endpoints, prefer API Resources (`php artisan make:resource`) to control response shape consistently.
+**Suggestion:** Use `select()` on queries: `Post::select(['id', 'title', 'user_id'])`. Constrain eager-loaded relationships: `->with('user:id,name')`. Always include the primary key and any foreign keys needed for relationships. For API endpoints, prefer API Resources (`vendor/bin/sail artisan make:resource`) to control response shape consistently.
