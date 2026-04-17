@@ -10,4 +10,4 @@ Scan controllers for manual permission/ownership checks.
 - `if (!$user->isAdmin())` type checks in controller methods
 - Same authorization logic repeated across multiple controller methods
 
-**Suggestion:** Create a Policy using `php artisan make:policy PostPolicy --model=Post`. Use `Gate::authorize('update', $post)` in controllers, `@can('update', $post)` in Blade, or `->can('update,post')` in route definitions. Policies are auto-discovered in Laravel 11+ — no manual registration needed.
+**Suggestion:** Create a Policy using `vendor/bin/sail artisan make:policy PostPolicy --model=Post`. Use `Gate::authorize('update', $post)` in controllers, `@can('update', $post)` in Blade, or `->can('update,post')` in route definitions. Policies are auto-discovered in Laravel 11+ — no manual registration needed.
