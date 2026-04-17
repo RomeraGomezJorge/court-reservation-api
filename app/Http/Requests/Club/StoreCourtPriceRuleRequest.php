@@ -148,6 +148,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
                             "rules.{$ruleIndex}.items.{$itemIndex}.prices.{$priceIndex}.price",
                             __('validation.court_price_rule_duplicate_price_per_day'),
                         );
+
                         continue;
                     }
 
@@ -156,6 +157,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
             }
         }
     }
+
     private function priceSlotKey(string $day, int $playTimeMinutes, string $startsAt): string
     {
         return "{$day}|{$playTimeMinutes}|{$startsAt}";
