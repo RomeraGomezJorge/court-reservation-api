@@ -192,7 +192,7 @@ it('validates store payload structure and scalar constraints', function (Closure
         }),
         'El campo hora de inicio es obligatorio.',
     ],
-    'starts_at format must be H:i' => [
+    'starts_at format must be H:i:s' => [
         fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'][0]['starts_at'] = '9:00'),
         'El campo hora de inicio debe coincidir con el formato H:i:s.',
     ],
