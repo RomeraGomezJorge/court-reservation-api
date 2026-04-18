@@ -144,6 +144,7 @@ return [
     'court_id_must_match_route_court' => 'The court ID must match the court in the URL.',
     'court_price_rule_duplicate_slot' => 'The same start time cannot be used for different play times on the same day.',
     'court_price_rule_duplicate_price' => 'The same price cannot be used for different start times.',
+    'court_price_rule_duplicate_price_per_day' => 'The same price (:prices) cannot be repeated on :day.',
     'same' => 'The :attribute field must match :other.',
     'size' => [
         'array' => 'The :attribute field must contain :size items.',

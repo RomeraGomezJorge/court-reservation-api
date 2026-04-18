@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Http\Controllers\Club;
 
 use App\Http\Controllers\Club\CourtPriceRuleController;
+use App\Http\Requests\Club\StoreCourtPriceRuleRequest;
 use App\Models\Club;
 use App\Models\Court;
 use App\Models\CourtPriceRule;
@@ -27,14 +28,14 @@ function validPriceRulesPayload(Court $court): array
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '00:00', 'price' => 1000],
-                            ['starts_at' => '12:00', 'price' => 1200],
+                            ['starts_at' => '00:00:00', 'price' => 1000],
+                            ['starts_at' => '12:00:00', 'price' => 1200],
                         ],
                     ],
                     [
                         'play_time_minutes' => 90,
                         'prices' => [
-                            ['starts_at' => '00:00', 'price' => 1400],
+                            ['starts_at' => '00:00:00', 'price' => 1400],
                         ],
                     ],
                 ],
@@ -45,7 +46,7 @@ function validPriceRulesPayload(Court $court): array
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '00:00', 'price' => 900],
+                            ['starts_at' => '00:00:00', 'price' => 900],
                         ],
                     ],
                 ],
@@ -73,6 +74,15 @@ function createClubAndCourtForPriceRuleTests(int $clubUserId): array
 
 beforeEach(function (): void {
     $this->clubUser = actingAsClubUser();
+});
+
+it('defines strict validation rules contract for store request', function (): void {
+    $rules = (new StoreCourtPriceRuleRequest)->rules();
+
+    expect($rules['rules'])->toContain('required', 'array', 'min:1')
+        ->and($rules['rules.*.day'])->toContain('required', 'distinct')
+        ->and($rules['rules.*.items'])->toContain('required', 'array', 'min:1')
+        ->and($rules['rules.*.items.*.prices'])->toContain('required', 'array', 'min:1');
 });
 
 it('validates store payload structure and scalar constraints', function (Closure $mutatePayload, string|array $expectedMessage): void {
@@ -182,13 +192,13 @@ it('validates store payload structure and scalar constraints', function (Closure
         }),
         'El campo hora de inicio es obligatorio.',
     ],
-    'starts_at format must be H:i' => [
+    'starts_at format must be H:i:s' => [
         fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'][0]['starts_at'] = '9:00'),
-        'El campo hora de inicio debe coincidir con el formato H:i.',
+        'El campo hora de inicio debe coincidir con el formato H:i:s.',
     ],
-    'starts_at format must reject seconds and keep strict H:i' => [
-        fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'][0]['starts_at'] = '10:00:00'),
-        'El campo hora de inicio debe coincidir con el formato H:i.',
+    'starts_at format must reject values without seconds and keep strict H:i:s' => [
+        fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'][0]['starts_at'] = '10:00'),
+        'El campo hora de inicio debe coincidir con el formato H:i:s.',
     ],
     'missing price' => [
         fn (array $payload): array => tap($payload, function (array &$p): void {
@@ -218,8 +228,8 @@ it('fails store when duplicated starts_at in the same prices list', function ():
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00', 'price' => 1000],
-                            ['starts_at' => '10:00', 'price' => 1200],
+                            ['starts_at' => '10:00:00', 'price' => 1000],
+                            ['starts_at' => '10:00:00', 'price' => 1200],
                         ],
                     ],
                 ],
@@ -236,7 +246,6 @@ it('fails store when duplicated starts_at in the same prices list', function ():
         'code' => 422,
         'messages' => ['Ya existe un precio configurado para ese día, duración y hora de inicio.'],
     ]);
-
 });
 
 it('fails store when duplicated play_time_minutes in the same day', function (): void {
@@ -251,13 +260,13 @@ it('fails store when duplicated play_time_minutes in the same day', function ():
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00', 'price' => 1000],
+                            ['starts_at' => '10:00:00', 'price' => 1000],
                         ],
                     ],
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00', 'price' => 1500],
+                            ['starts_at' => '10:00:00', 'price' => 1500],
                         ],
                     ],
                 ],
@@ -274,7 +283,6 @@ it('fails store when duplicated play_time_minutes in the same day', function ():
         'code' => 422,
         'messages' => ['Ya existe un precio configurado para ese día, duración y hora de inicio.'],
     ]);
-
 });
 
 it('fails store when duplicated logical slot appears in a complex payload', function (): void {
@@ -289,14 +297,14 @@ it('fails store when duplicated logical slot appears in a complex payload', func
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '09:00', 'price' => 1000],
-                            ['starts_at' => '10:00', 'price' => 1200],
+                            ['starts_at' => '09:00:00', 'price' => 1000],
+                            ['starts_at' => '10:00:00', 'price' => 1200],
                         ],
                     ],
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00', 'price' => 1300],
+                            ['starts_at' => '10:00:00', 'price' => 1300],
                         ],
                     ],
                 ],
@@ -313,7 +321,45 @@ it('fails store when duplicated logical slot appears in a complex payload', func
         'code' => 422,
         'messages' => ['Ya existe un precio configurado para ese día, duración y hora de inicio.'],
     ]);
+});
 
+it('reports every duplicated slot found in the same day payload', function (): void {
+    [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
+
+    $payload = [
+        'court_id' => $court->id,
+        'rules' => [
+            [
+                'day' => 'monday',
+                'items' => [
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '09:00:00', 'price' => 1000],
+                            ['starts_at' => '10:00:00', 'price' => 1200],
+                        ],
+                    ],
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '09:00:00', 'price' => 1300],
+                            ['starts_at' => '10:00:00', 'price' => 1400],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    $response = post(action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]), $payload);
+
+    $response->assertStatus(422);
+
+    $messages = $response->json('messages');
+
+    expect($messages)->toHaveCount(2)
+        ->and($messages[0])->toBe('Ya existe un precio configurado para ese día, duración y hora de inicio.')
+        ->and($messages[1])->toBe('Ya existe un precio configurado para ese día, duración y hora de inicio.');
 });
 
 it('fails store when price value is duplicated in same item', function (): void {
@@ -328,8 +374,8 @@ it('fails store when price value is duplicated in same item', function (): void 
                     [
                         'play_time_minutes' => 90,
                         'prices' => [
-                            ['starts_at' => '09:00', 'price' => 1400.50],
-                            ['starts_at' => '10:00', 'price' => 1400.50],
+                            ['starts_at' => '09:00:00', 'price' => 1400.50],
+                            ['starts_at' => '10:00:00', 'price' => 1400.50],
                         ],
                     ],
                 ],
@@ -344,9 +390,190 @@ it('fails store when price value is duplicated in same item', function (): void 
 
     $response->assertExactJson([
         'code' => 422,
-        'messages' => ['No se puede usar el mismo precio para diferentes horas de inicio.'],
+        'messages' => ['No se puede repetir el mismo precio (1400.50) en el día Martes.'],
     ]);
+});
 
+it('allows different float and integer prices inside the same item', function (): void {
+    [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
+
+    $payload = [
+        'court_id' => $court->id,
+        'rules' => [
+            [
+                'day' => 'tuesday',
+                'items' => [
+                    [
+                        'play_time_minutes' => 90,
+                        'prices' => [
+                            ['starts_at' => '09:00:00', 'price' => 1000.1],
+                            ['starts_at' => '10:00:00', 'price' => 1000],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    post(action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]), $payload)
+        ->assertStatus(201);
+});
+
+it('reports every duplicated price found in the same item', function (): void {
+    [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
+
+    $payload = [
+        'court_id' => $court->id,
+        'rules' => [
+            [
+                'day' => 'tuesday',
+                'items' => [
+                    [
+                        'play_time_minutes' => 90,
+                        'prices' => [
+                            ['starts_at' => '09:00:00', 'price' => 1400],
+                            ['starts_at' => '10:00:00', 'price' => 1400],
+                            ['starts_at' => '11:00:00', 'price' => 1400],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    $response = post(action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]), $payload);
+
+    $response->assertExactJson([
+        'code' => 422,
+        'messages' => ['No se puede repetir el mismo precio (1400.00) en el día Martes.'],
+    ]);
+});
+
+it('fails store when price value is duplicated across different items in the same day', function (): void {
+    [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
+
+    $payload = [
+        'court_id' => $court->id,
+        'rules' => [
+            [
+                'day' => 'base',
+                'items' => [
+                    [
+                        'play_time_minutes' => 45,
+                        'prices' => [
+                            ['starts_at' => '09:00:00', 'price' => 1000],
+                        ],
+                    ],
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '10:00:00', 'price' => 1000],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    $response = post(
+        action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]),
+        $payload,
+    );
+
+    $response->assertExactJson([
+        'code' => 422,
+        'messages' => ['No se puede repetir el mismo precio (1000.00) en el día Por defecto.'],
+    ]);
+});
+
+it('normalizes price precision and reports every duplicated price per day', function (): void {
+    [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
+
+    $payload = [
+        'court_id' => $court->id,
+        'rules' => [
+            [
+                'day' => 'base',
+                'items' => [
+                    [
+                        'play_time_minutes' => 45,
+                        'prices' => [
+                            ['starts_at' => '08:00:00', 'price' => 10.15],
+                        ],
+                    ],
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '09:00:00', 'price' => 10.149],
+                            ['starts_at' => '10:00:00', 'price' => 10.151],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    $response = post(action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]), $payload);
+
+    $response->assertExactJson([
+        'code' => 422,
+        'messages' => ['No se puede repetir el mismo precio (10.15) en el día Por defecto.'],
+    ]);
+});
+
+it('reports one duplicate-price message per day with sorted price list', function (): void {
+    [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
+
+    $payload = [
+        'court_id' => $court->id,
+        'rules' => [
+            [
+                'day' => 'monday',
+                'items' => [
+                    [
+                        'play_time_minutes' => 45,
+                        'prices' => [
+                            ['starts_at' => '08:00:00', 'price' => 1500],
+                            ['starts_at' => '09:00:00', 'price' => 1200],
+                        ],
+                    ],
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '10:00:00', 'price' => 1200],
+                            ['starts_at' => '11:00:00', 'price' => 1500],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'day' => 'tuesday',
+                'items' => [
+                    [
+                        'play_time_minutes' => 45,
+                        'prices' => [
+                            ['starts_at' => '08:00:00', 'price' => 980.5],
+                        ],
+                    ],
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '09:00:00', 'price' => 980.50],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    post(action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]), $payload)
+        ->assertExactJson([
+            'code' => 422,
+            'messages' => [
+                'No se puede repetir el mismo precio (1200.00, 1500.00) en el día Lunes.',
+                'No se puede repetir el mismo precio (980.50) en el día Martes.',
+            ],
+        ]);
 });
 
 it('stores price rules for a court', function (): void {
