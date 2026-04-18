@@ -52,7 +52,6 @@ final class StoreCourtPriceRuleRequest extends FormRequest
                 }
 
                 $this->validateNoDuplicateDayAndTimeWithItems($validator);
-                $this->validateNoDuplicatePricesWithinItems($validator);
                 $this->validateNoDuplicatePricesPerDay($validator);
             },
         ];
@@ -105,32 +104,6 @@ final class StoreCourtPriceRuleRequest extends FormRequest
         }
     }
 
-    private function validateNoDuplicatePricesWithinItems(Validator $validator): void
-    {
-        foreach ($this->rulesPayload() as $ruleIndex => $rule) {
-            foreach ($rule['items'] as $itemIndex => $item) {
-
-                /** @var array<string, true> $uniquePricesPerItem */
-                $uniquePricesPerItem = [];
-
-                foreach ($item['prices'] as $priceIndex => $priceRow) {
-                    $price = (string) $priceRow['price'];
-
-                    if (isset($uniquePricesPerItem[$price])) {
-                        $validator->errors()->add(
-                            "rules.{$ruleIndex}.items.{$itemIndex}.prices.{$priceIndex}.price",
-                            __('validation.court_price_rule_duplicate_price'),
-                        );
-
-                        continue;
-                    }
-
-                    $uniquePricesPerItem[$price] = true;
-                }
-            }
-        }
-    }
-
     private function validateNoDuplicatePricesPerDay(Validator $validator): void
     {
         $priceUsedBy = []; // day|price → "ruleIndex|itemIndex"
@@ -138,10 +111,9 @@ final class StoreCourtPriceRuleRequest extends FormRequest
         foreach ($this->rulesPayload() as $ruleIndex => $rule) {
             foreach ($rule['items'] as $itemIndex => $item) {
                 foreach ($item['prices'] as $priceIndex => $priceRow) {
-                    $key = $this->dayPriceKey($rule['day'], $this->normalizedPrice($priceRow['price']));
-                    $currentItem = $this->itemKey($ruleIndex, $itemIndex);
+                    $dayPriceKey = $this->dayPriceKey($rule['day'], $this->normalizedPrice($priceRow['price']));
 
-                    $alreadyUsedByAnotherItem = isset($priceUsedBy[$key]) && $priceUsedBy[$key] !== $currentItem;
+                    $alreadyUsedByAnotherItem = isset($priceUsedBy[$dayPriceKey]);
 
                     if ($alreadyUsedByAnotherItem) {
                         $validator->errors()->add(
@@ -152,7 +124,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
                         continue;
                     }
 
-                    $priceUsedBy[$key] = $currentItem;
+                    $priceUsedBy[$dayPriceKey] = true;
                 }
             }
         }

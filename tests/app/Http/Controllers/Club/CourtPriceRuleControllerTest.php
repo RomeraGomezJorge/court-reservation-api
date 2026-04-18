@@ -443,13 +443,10 @@ it('reports every duplicated price found in the same item', function (): void {
 
     $response = post(action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]), $payload);
 
-    $response->assertStatus(422);
-
-    $messages = $response->json('messages');
-
-    expect($messages)->toHaveCount(2)
-        ->and($messages[0])->toBe('No se puede usar el mismo precio para diferentes horas de inicio.')
-        ->and($messages[1])->toBe('No se puede usar el mismo precio para diferentes horas de inicio.');
+    $response->assertExactJson([
+        'code' => 422,
+        'messages' => ['Ya existe un precio configurado para ese día, duración y hora de inicio.'],
+    ]);
 });
 
 it('fails store when price value is duplicated across different items in the same day', function (): void {
