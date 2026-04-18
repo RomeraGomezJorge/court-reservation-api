@@ -10,6 +10,7 @@ use App\Http\Resources\Club\ShowCourtResource;
 use App\Models\Club;
 use App\Models\Court;
 use App\Services\OwnershipVerifierService;
+use Gate;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -19,12 +20,9 @@ final class CourtController
     /**
      * @throws Throwable
      */
-    public function store(
-        StoreCourtRequest $request,
-        Club $club,
-        OwnershipVerifierService $ownershipVerifier,
-    ): Response {
-        $ownershipVerifier->handle($club);
+    public function store(StoreCourtRequest $request,Club $club): Response
+    {
+        Gate::authorize('create', [Court::class, $club]);
 
         DB::transaction(function () use ($request, $club): void {
             $court = $club->courts()->create([
@@ -40,13 +38,9 @@ final class CourtController
         return new Response(status: 201);
     }
 
-    public function show(
-        Club $club,
-        Court $court,
-        OwnershipVerifierService $ownershipVerifier,
-    ): ShowCourtResource {
-        $this->ensureCourtBelongsToClub($club, $court);
-        $ownershipVerifier->handle($court->club);
+    public function show(Club $club,Court $court): ShowCourtResource
+    {
+        Gate::authorize('view', [$court, $club]);
 
         $court->loadMissing([
             'sportType',
@@ -63,10 +57,9 @@ final class CourtController
         UpdateCourtRequest $request,
         Club $club,
         Court $court,
-        OwnershipVerifierService $ownershipVerifier,
     ): Response {
-        $this->ensureCourtBelongsToClub($club, $court);
-        $ownershipVerifier->handle($court->club);
+
+        Gate::authorize('update', [$court, $club]);
 
         DB::transaction(function () use ($request, $court): void {
             $court->update($request->courtData());
@@ -82,13 +75,9 @@ final class CourtController
     /**
      * @throws Throwable
      */
-    public function destroy(
-        Club $club,
-        Court $court,
-        OwnershipVerifierService $ownershipVerifier,
-    ): Response {
-        $this->ensureCourtBelongsToClub($club, $court);
-        $ownershipVerifier->handle($court->club);
+    public function destroy(Club $club,Court $court): Response {
+
+        Gate::authorize('delete', [$court, $club]);
 
         DB::transaction(function () use ($court): void {
             $court->update([
@@ -99,12 +88,5 @@ final class CourtController
         });
 
         return new Response(status: 204);
-    }
-
-    private function ensureCourtBelongsToClub(Club $club, Court $court): void
-    {
-        if ($court->club_id !== $club->id) {
-            abort(404, __('validation.resource_not_found'));
-        }
     }
 }
