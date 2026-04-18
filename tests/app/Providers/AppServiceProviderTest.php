@@ -9,7 +9,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -168,8 +168,8 @@ it('logs slow queries when logging is enabled', function (): void {
 
     expect($queryListener)->toBeCallable();
 
-    /** @var Builder&MockInterface $query */
-    $query = Mockery::mock(Builder::class);
+    /** @var QueryExecuted&\Mockery\MockInterface $query */
+    $query = \Mockery::mock(QueryExecuted::class);
     $query->time = 150;
     $query->sql = 'select * from "users"';
     $query->shouldReceive('toRawSQL')->once()->andReturn('select * from "users"');
