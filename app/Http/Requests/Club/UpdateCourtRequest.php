@@ -8,6 +8,7 @@ use App\Models\Club;
 use App\Models\Court;
 use Illuminate\Contracts\Validation\Rule as ValidationRuleContract;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
@@ -34,7 +35,7 @@ final class UpdateCourtRequest extends FormRequest
                 'string',
                 'max:100',
                 Rule::unique('courts', 'name')
-                    ->where(fn ($query) => $query->where('club_id', $club->id))
+                    ->where(fn (Builder $query): Builder => $query->where('club_id', $club->id))
                     ->ignore($court->id),
             ],
             'description' => ['nullable', 'string', 'max:255'],

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Club;
 
-use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Club\StoreCourtPriceRuleRequest;
 use App\Http\Resources\Club\ShowCourtPriceRuleResource;
 use App\Models\Club;
 use App\Models\Court;
 use App\Services\CourtPriceRulesShowBuilderService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
