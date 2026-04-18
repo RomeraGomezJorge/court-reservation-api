@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Club;
 
+use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Club\StoreCourtRequest;
 use App\Http\Requests\Club\UpdateCourtRequest;
 use App\Http\Resources\Club\ShowCourtResource;
 use App\Models\Club;
 use App\Models\Court;
-use App\Services\OwnershipVerifierService;
-use Gate;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -20,7 +19,7 @@ final class CourtController
     /**
      * @throws Throwable
      */
-    public function store(StoreCourtRequest $request,Club $club): Response
+    public function store(StoreCourtRequest $request, Club $club): Response
     {
         Gate::authorize('create', [Court::class, $club]);
 
@@ -38,7 +37,7 @@ final class CourtController
         return new Response(status: 201);
     }
 
-    public function show(Club $club,Court $court): ShowCourtResource
+    public function show(Club $club, Court $court): ShowCourtResource
     {
         Gate::authorize('view', [$court, $club]);
 
@@ -75,7 +74,8 @@ final class CourtController
     /**
      * @throws Throwable
      */
-    public function destroy(Club $club,Court $court): Response {
+    public function destroy(Club $club, Court $court): Response
+    {
 
         Gate::authorize('delete', [$court, $club]);
 

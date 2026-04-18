@@ -25,7 +25,6 @@ use Override;
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read CarbonInterface|null $deleted_at
- * @property-read Club $club
  * @property-read SportType $sportType
  * @property-read Collection<int, Feature> $features
  * @property-read Collection<int, CourtPriceRule> $priceRules
@@ -65,14 +64,6 @@ final class Court extends Model
             'updated_at' => 'datetime',
             'deleted_at' => 'datetime',
         ];
-    }
-
-    /**
-     * @return BelongsTo<Club, $this>
-     */
-    public function club(): BelongsTo
-    {
-        return $this->belongsTo(Club::class);
     }
 
     /**

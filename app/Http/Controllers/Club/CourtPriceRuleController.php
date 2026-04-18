@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Club;
 
+use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Club\StoreCourtPriceRuleRequest;
 use App\Http\Resources\Club\ShowCourtPriceRuleResource;
 use App\Models\Club;
 use App\Models\Court;
 use App\Services\CourtPriceRulesShowBuilderService;
-use App\Services\OwnershipVerifierService;
-use Gate;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -61,12 +60,5 @@ final class CourtPriceRuleController
         return new ShowCourtPriceRuleResource(
             $courtPriceRulesShowBuilder->handle($court),
         );
-    }
-
-    private function ensureCourtBelongsToClub(Club $club, Court $court): void
-    {
-        if ($court->club_id !== $club->id) {
-            abort(404, __('validation.resource_not_found'));
-        }
     }
 }

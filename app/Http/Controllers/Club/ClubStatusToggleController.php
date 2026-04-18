@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Club;
 
+use Illuminate\Support\Facades\Gate;
 use App\Models\Club;
-use Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ClubStatusToggleController
