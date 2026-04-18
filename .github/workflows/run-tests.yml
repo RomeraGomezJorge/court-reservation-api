@@ -81,5 +81,8 @@ jobs:
       - name: Run migrations
         run: php artisan migrate:fresh --force
 
+      - name: Run type coverage
+        run: ./vendor/bin/pest --type-coverage --parallel --min=100
+
       - name: Run tests
         run: ./vendor/bin/pest --parallel
