@@ -9,7 +9,6 @@ use App\Http\Resources\Club\ShowCourtPriceRuleResource;
 use App\Models\Club;
 use App\Models\Court;
 use App\Services\CourtPriceRulesShowBuilderService;
-use App\Services\OwnershipVerifierService;
 use Gate;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
