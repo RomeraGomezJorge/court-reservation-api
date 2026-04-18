@@ -168,8 +168,8 @@ it('logs slow queries when logging is enabled', function (): void {
 
     expect($queryListener)->toBeCallable();
 
-    /** @var QueryExecuted&\Mockery\MockInterface $query */
-    $query = \Mockery::mock(QueryExecuted::class);
+    /** @var QueryExecuted&MockInterface $query */
+    $query = Mockery::mock(QueryExecuted::class);
     $query->time = 150;
     $query->sql = 'select * from "users"';
     $query->shouldReceive('toRawSQL')->once()->andReturn('select * from "users"');
