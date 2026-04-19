@@ -115,7 +115,7 @@ it('fails to store a user with invalid data', function (array $invalidData, arra
 ]);
 
 it('updates a user', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->createQuietly();
 
     put(action([UserController::class, 'update'], $user->id), [
         'email' => 'updated@example.com',
@@ -141,7 +141,7 @@ it('fails to update a user that does not exist', function (): void {
 });
 
 it('fails to update a user with invalid data', function (array $invalidData, array $expectedMessages): void {
-    $user = User::factory()->create();
+    $user = User::factory()->createQuietly();
 
     if (($invalidData['email'] ?? null) === 'duplicate@example.com') {
         User::factory()->create(['email' => 'duplicate@example.com']);
@@ -179,7 +179,7 @@ it('fails to update a user with invalid data', function (array $invalidData, arr
 ]);
 
 it('deletes a user', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->createQuietly();
 
     delete(action([UserController::class, 'destroy'], $user))
         ->assertOk();
@@ -188,7 +188,7 @@ it('deletes a user', function (): void {
 });
 
 it('shows a user', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->createQuietly();
 
     get(action([UserController::class, 'show'], $user->id))
         ->assertOk()
@@ -210,7 +210,7 @@ it('fails to show a user that does not exist', function (): void {
 });
 
 it('returns a collection of users', function (): void {
-    $otherUser = User::factory()->create();
+    $otherUser = User::factory()->createQuietly();
 
     get(action([UserController::class, 'index']))
         ->assertOk()
@@ -232,7 +232,7 @@ it('returns a collection of users', function (): void {
 });
 
 it('changes a user password', function (): void {
-    $targetUser = User::factory()->create();
+    $targetUser = User::factory()->createQuietly();
 
     $newPassword = 'NewValidP@ss1!';
 
@@ -246,7 +246,7 @@ it('changes a user password', function (): void {
 });
 
 it('fails to change a user password when it is too long', function (): void {
-    $targetUser = User::factory()->create();
+    $targetUser = User::factory()->createQuietly();
 
     $longPassword = str_repeat('Aa1!', 70);
 

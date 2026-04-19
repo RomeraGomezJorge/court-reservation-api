@@ -20,7 +20,7 @@ it('toggles court availability', function (): void {
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $club->id,
@@ -42,8 +42,8 @@ it('toggles court availability', function (): void {
 });
 
 it('fails to toggle court availability when the court is not owned by authenticated user', function (): void {
-    $otherClub = Club::factory()->create();
-    $sportType = SportType::factory()->create();
+    $otherClub = Club::factory()->createQuietly();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $otherClub->id,
@@ -68,7 +68,7 @@ it('fails to toggle court availability when the court does not belong to the clu
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $otherOwnedClub->id,

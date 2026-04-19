@@ -99,7 +99,7 @@ it('fails to register a club user with invalid data', function (array $invalidDa
 ]);
 
 it('verifies email and redirects to success page', function (): void {
-    $clubUser = ClubUser::factory()->unverified()->create();
+    $clubUser = ClubUser::factory()->unverified()->createQuietly();
 
     get(action([RegisterClubUserController::class, 'verifyEmail'], [
         'id' => $clubUser->id,
@@ -119,7 +119,7 @@ it('fails email verification when club user does not exist', function (): void {
 });
 
 it('fails email verification when hash is invalid', function (): void {
-    $clubUser = ClubUser::factory()->unverified()->create();
+    $clubUser = ClubUser::factory()->unverified()->createQuietly();
 
     get(action([RegisterClubUserController::class, 'verifyEmail'], [
         'id' => $clubUser->id,
@@ -131,7 +131,7 @@ it('fails email verification when hash is invalid', function (): void {
 });
 
 it('fails email verification when email is already verified', function (): void {
-    $clubUser = ClubUser::factory()->create();
+    $clubUser = ClubUser::factory()->createQuietly();
 
     get(action([RegisterClubUserController::class, 'verifyEmail'], [
         'id' => $clubUser->id,

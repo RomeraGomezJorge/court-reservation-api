@@ -200,11 +200,11 @@ it('returns a collection of clubs for the authenticated club user', function ():
         ]);
 
     Club::factory()->create([
-        'club_user_id' => ClubUser::factory()->create()->id,
+        'club_user_id' => ClubUser::factory()->createQuietly()->id,
         'organization_name' => 'Club Ajeno',
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $firstCourt = Court::factory()->create([
         'club_id' => $ownedClub->id,
@@ -403,7 +403,7 @@ it('fails to show a club that does not exist', function (): void {
 });
 
 it('fails to show a club that is not owned by the authenticated club user', function (): void {
-    $club = Club::factory()->create();
+    $club = Club::factory()->createQuietly();
 
     get(action([ClubController::class, 'show'], $club))
         ->assertStatus(404)
@@ -588,7 +588,7 @@ it('fails to update a club when date parser returns non carbon instances', funct
 });
 
 it('fails to update a club that is not owned by the authenticated club user', function (): void {
-    $club = Club::factory()->create();
+    $club = Club::factory()->createQuietly();
 
     put(action([ClubController::class, 'update'], $club), validClubPayload([
         'address_city' => 'Cordoba',
@@ -629,7 +629,7 @@ it('fails to delete a club that does not exist', function (): void {
 });
 
 it('fails to delete a club that is not owned by the authenticated club user', function (): void {
-    $club = Club::factory()->create();
+    $club = Club::factory()->createQuietly();
 
     delete(action([ClubController::class, 'destroy'], $club))
         ->assertStatus(404)

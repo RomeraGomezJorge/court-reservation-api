@@ -171,7 +171,7 @@ it('returns a collection of sport types', function (): void {
         ->sequence(
             ['name' => 'Paddle', 'is_active' => true],
             ['name' => 'Tennis', 'is_active' => false],
-        )->create();
+        )->createQuietly();
 
     get(action([SportTypeController::class, 'index']))
         ->assertOk()

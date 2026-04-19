@@ -62,7 +62,7 @@ function createClubAndCourtForPriceRuleTests(int $clubUserId): array
         'club_user_id' => $clubUserId,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $club->id,
@@ -581,7 +581,7 @@ it('stores price rules for a court', function (): void {
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $club->id,
@@ -619,14 +619,14 @@ it('shows price rules with play time labels in prices', function (): void {
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $club->id,
         'sport_type_id' => $sportType->id,
     ]);
 
-    $baseRule = CourtPriceRule::factory()->forCourt($court)->base()->create();
+    $baseRule = CourtPriceRule::factory()->forCourt($court)->base()->createQuietly();
 
     CourtPriceRuleItem::factory()
         ->forRule($baseRule)
@@ -639,9 +639,9 @@ it('shows price rules with play time labels in prices', function (): void {
             ['play_time_minutes' => 60, 'price_starts_at' => '12:00:00', 'price' => 4000],
             ['play_time_minutes' => 90, 'price_starts_at' => '12:00:00', 'price' => 5200],
         ))
-        ->create();
+        ->createQuietly();
 
-    $mondayRule = CourtPriceRule::factory()->forCourt($court)->forDay('monday')->create();
+    $mondayRule = CourtPriceRule::factory()->forCourt($court)->forDay('monday')->createQuietly();
 
     CourtPriceRuleItem::factory()
         ->forRule($mondayRule)
@@ -650,7 +650,7 @@ it('shows price rules with play time labels in prices', function (): void {
             ['play_time_minutes' => 60, 'price_starts_at' => '00:00:00', 'price' => 2800],
             ['play_time_minutes' => 90, 'price_starts_at' => '00:00:00', 'price' => 4200],
         ))
-        ->create();
+        ->createQuietly();
 
     get(action([CourtPriceRuleController::class, 'show'], ['club' => $club, 'court' => $court]))
         ->assertOk()
@@ -747,14 +747,14 @@ it('replaces old data on each store call', function (): void {
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $club->id,
         'sport_type_id' => $sportType->id,
     ]);
 
-    $oldRule = CourtPriceRule::factory()->forCourt($court)->base()->create();
+    $oldRule = CourtPriceRule::factory()->forCourt($court)->base()->createQuietly();
     CourtPriceRuleItem::factory()->forRule($oldRule)->forPlayTimeMinutes(60)->startingAt('08:00:00')->create([
         'price' => 500,
     ]);
@@ -776,7 +776,7 @@ it('fails when court_id does not match route court', function (): void {
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $club->id,
@@ -807,7 +807,7 @@ it('fails to store price rules when the court does not belong to the club in rou
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $otherOwnedClub->id,
@@ -823,9 +823,9 @@ it('fails to store price rules when the court does not belong to the club in rou
 });
 
 it('fails to store price rules when the club is not owned by authenticated user', function (): void {
-    $otherOwnedClub = Club::factory()->create();
+    $otherOwnedClub = Club::factory()->createQuietly();
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $otherOwnedClub->id,
@@ -849,7 +849,7 @@ it('fails to show price rules when the court does not belong to the club in rout
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $otherOwnedClub->id,
@@ -865,9 +865,9 @@ it('fails to show price rules when the court does not belong to the club in rout
 });
 
 it('fails to show price rules when the club is not owned by authenticated user', function (): void {
-    $otherOwnedClub = Club::factory()->create();
+    $otherOwnedClub = Club::factory()->createQuietly();
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
     $court = Court::factory()->create([
         'club_id' => $otherOwnedClub->id,

@@ -49,7 +49,7 @@ it('fails to toggle a club status that does not exist', function (): void {
 });
 
 it('fails to toggle a club status that is not owned by the authenticated club user', function (): void {
-    $club = Club::factory()->create();
+    $club = Club::factory()->createQuietly();
 
     patch(action([ClubStatusToggleController::class], $club))
         ->assertStatus(404)

@@ -9,7 +9,7 @@ use App\Models\CourtPriceRule;
 use App\Models\CourtPriceRuleItem;
 
 it('retrieves play times for a court', function (): void {
-    $court = Court::factory()->create();
+    $court = Court::factory()->createQuietly();
 
     [$genericRule, $mondayRule] = CourtPriceRule::factory()
         ->for($court)
@@ -18,8 +18,7 @@ it('retrieves play times for a court', function (): void {
             ['day' => CourtPriceRuleDay::Base],
             ['day' => CourtPriceRuleDay::Monday],
         )
-        ->create()
-        ->all();
+        ->createQuietly();
 
     CourtPriceRuleItem::factory()
         ->for($genericRule, 'priceRule')
@@ -28,7 +27,7 @@ it('retrieves play times for a court', function (): void {
             ['play_time_minutes' => PlayTime::SixtyMinutes],
             ['play_time_minutes' => PlayTime::NinetyMinutes],
         )
-        ->create();
+        ->createQuietly();
 
     CourtPriceRuleItem::factory()
         ->for($mondayRule, 'priceRule')
@@ -37,18 +36,18 @@ it('retrieves play times for a court', function (): void {
             ['play_time_minutes' => PlayTime::SixtyMinutes],
             ['play_time_minutes' => PlayTime::NinetyMinutes],
         )
-        ->create();
+        ->createQuietly();
 
     $playTimes = CourtPriceRuleItem::query()
         ->getPlayTimesForCourt($court->id);
 
     expect($playTimes)
         ->toBeArray()
-        ->toBe([60, 90]);
+        ->toBe([PlayTime::SixtyMinutes->value, PlayTime::NinetyMinutes->value]);
 });
 
 it('returns empty array when court has no price rule items', function (): void {
-    $court = Court::factory()->create();
+    $court = Court::factory()->createQuietly();
 
     CourtPriceRule::factory()
         ->for($court)
@@ -61,7 +60,7 @@ it('returns empty array when court has no price rule items', function (): void {
 });
 
 it('returns play times ordered correctly', function (): void {
-    $court = Court::factory()->create();
+    $court = Court::factory()->createQuietly();
 
     $rule = CourtPriceRule::factory()
         ->for($court)
@@ -75,7 +74,7 @@ it('returns play times ordered correctly', function (): void {
             ['play_time_minutes' => PlayTime::SixtyMinutes],
             ['play_time_minutes' => PlayTime::OneHundredTwentyMinutes],
         )
-        ->create();
+        ->createQuietly();
 
     $playTimes = CourtPriceRuleItem::query()
         ->getPlayTimesForCourt($court->id);
@@ -84,7 +83,7 @@ it('returns play times ordered correctly', function (): void {
 });
 
 it('retrieves price start times for a court', function (): void {
-    $court = Court::factory()->create();
+    $court = Court::factory()->createQuietly();
 
     [$genericRule, $mondayRule] = CourtPriceRule::factory()
         ->for($court)
@@ -93,7 +92,7 @@ it('retrieves price start times for a court', function (): void {
             ['day' => CourtPriceRuleDay::Base],
             ['day' => CourtPriceRuleDay::Monday],
         )
-        ->create()
+        ->createQuietly()
         ->all();
 
     CourtPriceRuleItem::factory()
@@ -103,7 +102,7 @@ it('retrieves price start times for a court', function (): void {
             ['price_starts_at' => '08:00:00'],
             ['price_starts_at' => '14:00:00'],
         )
-        ->create();
+        ->createQuietly();
 
     CourtPriceRuleItem::factory()
         ->for($mondayRule, 'priceRule')
@@ -112,7 +111,7 @@ it('retrieves price start times for a court', function (): void {
             ['price_starts_at' => '08:00:00'],
             ['price_starts_at' => '10:00:00'],
         )
-        ->create();
+        ->createQuietly();
 
     $priceStartTimes = CourtPriceRuleItem::query()
         ->getPriceStartsAtForCourt($court->id);
@@ -123,7 +122,7 @@ it('retrieves price start times for a court', function (): void {
 });
 
 it('returns empty array when court has no price start times', function (): void {
-    $court = Court::factory()->create();
+    $court = Court::factory()->createQuietly();
 
     CourtPriceRule::factory()
         ->for($court)
@@ -136,7 +135,7 @@ it('returns empty array when court has no price start times', function (): void 
 });
 
 it('returns price start times ordered correctly', function (): void {
-    $court = Court::factory()->create();
+    $court = Court::factory()->createQuietly();
 
     $rule = CourtPriceRule::factory()
         ->for($court)
@@ -150,7 +149,7 @@ it('returns price start times ordered correctly', function (): void {
             ['price_starts_at' => '08:00:00'],
             ['price_starts_at' => '14:00:00'],
         )
-        ->create();
+        ->createQuietly();
 
     $priceStartTimes = CourtPriceRuleItem::query()
         ->getPriceStartsAtForCourt($court->id);
@@ -159,7 +158,7 @@ it('returns price start times ordered correctly', function (): void {
 });
 
 it('deduplicates price start times correctly', function (): void {
-    $court = Court::factory()->create();
+    $court = Court::factory()->createQuietly();
 
     [$genericRule, $mondayRule] = CourtPriceRule::factory()
         ->for($court)
@@ -168,7 +167,7 @@ it('deduplicates price start times correctly', function (): void {
             ['day' => CourtPriceRuleDay::Base],
             ['day' => CourtPriceRuleDay::Monday],
         )
-        ->create()
+        ->createQuietly()
         ->all();
 
     CourtPriceRuleItem::factory()
@@ -191,7 +190,7 @@ it('deduplicates price start times correctly', function (): void {
                 'price_starts_at' => '08:00:00',
             ],
         )
-        ->create();
+        ->createQuietly();
 
     $priceStartTimes = CourtPriceRuleItem::query()
         ->getPriceStartsAtForCourt($court->id);
