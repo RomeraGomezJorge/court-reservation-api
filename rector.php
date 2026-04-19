@@ -11,6 +11,7 @@ use RectorLaravel\Set\LaravelSetList;
 use RectorLaravel\Set\LaravelSetProvider;
 
 return RectorConfig::configure()
+    ->withParallel(timeoutSeconds: 120, maxNumberOfProcess: 16, jobSize: 10)
     ->withSetProviders(LaravelSetProvider::class)
     ->withSets([
         LaravelSetList::LARAVEL_ARRAYACCESS_TO_METHOD_CALL,

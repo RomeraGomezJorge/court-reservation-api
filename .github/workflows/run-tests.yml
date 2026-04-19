@@ -11,30 +11,14 @@ jobs:
       matrix:
         php: [8.5]
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_USER: user
-          MYSQL_PASSWORD: secret
-          MYSQL_ROOT_PASSWORD: secret
-          MYSQL_DATABASE: testing
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     env:
       APP_ENV: testing
       DB_CONNECTION: mysql
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
       DB_DATABASE: testing
-      DB_USERNAME: user
-      DB_PASSWORD: secret
+      DB_USERNAME: root
+      DB_PASSWORD: root
       CACHE_DRIVER: array
       QUEUE_CONNECTION: sync
       SESSION_DRIVER: array
@@ -48,6 +32,14 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: none
+
+      - name: Start MySQL
+        run: sudo service mysql start
+
+      - name: Configure MySQL
+        run: |
+          mysql -uroot -proot -e "CREATE DATABASE testing;"
+          mysql -uroot -proot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root'; FLUSH PRIVILEGES;"
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
@@ -65,21 +57,11 @@ jobs:
           cp .env.testing .env || cp .env.example .env
           php artisan key:generate --force
 
-      - name: Wait for MySQL
-        run: |
-          until mysqladmin ping -h"$DB_HOST" --silent; do
-            sleep 1
-          done
-
-      - name: Grant MySQL permissions
-        run: |
-          mysql -h 127.0.0.1 -uroot -psecret -e "
-            GRANT ALL PRIVILEGES ON *.* TO 'user'@'%' WITH GRANT OPTION;
-            FLUSH PRIVILEGES;
-          "
-
       - name: Run migrations
         run: php artisan migrate:fresh --force
 
+      - name: Run type coverage
+        run: ./vendor/bin/pest --type-coverage --parallel --min=100 --processes=4
+
       - name: Run tests
-        run: ./vendor/bin/pest --parallel
+        run: ./vendor/bin/pest --parallel --processes=4

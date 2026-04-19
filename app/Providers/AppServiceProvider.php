@@ -11,6 +11,7 @@ use Carbon\CarbonInterval;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Date;
@@ -19,7 +20,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-use RuntimeException;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -52,21 +52,19 @@ final class AppServiceProvider extends ServiceProvider
 
         JsonResource::withoutWrapping();
 
-        ResetPassword::createUrlUsing(function ($notifiable, string $token): string {
+        ResetPassword::createUrlUsing(callback: function (ClubUser|User $notifiable, string $token): string {
             $routeName = match (true) {
                 $notifiable instanceof ClubUser => 'club',
                 $notifiable instanceof User => 'admin',
-                default => throw new RuntimeException('Usuario no soportado para restablecimiento de contraseña'),
             };
 
             return config()->string('app.spa_url')."/#/{$routeName}/auth/reset-password/".$token;
         });
 
-        VerifyEmail::createUrlUsing(function ($notifiable) {
+        VerifyEmail::createUrlUsing(function (ClubUser|User $notifiable) {
             $routeName = match (true) {
                 $notifiable instanceof ClubUser => 'verification.club.verify',
                 $notifiable instanceof User => 'verification.verify',
-                default => throw new RuntimeException('Usuario no soportado para verificación de email'),
             };
 
             return URL::temporarySignedRoute(
@@ -127,7 +125,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function logAllQueriesSlow(): void
     {
-        DB::listen(function ($query): void {
+        DB::listen(function (QueryExecuted $query): void {
             $threshold = Config::integer('query-logging.slow_threshold');
             if ($query->time > $threshold) {
                 Log::warning('An individual database query exceeded '.$threshold.' ms.', [
@@ -146,7 +144,7 @@ final class AppServiceProvider extends ServiceProvider
     private function logAllQueriesNplusone(): void
     {
         if (Config::boolean('query-logging.log_n_plus_one')) {
-            Model::handleLazyLoadingViolationUsing(function ($model, $relation): void {
+            Model::handleLazyLoadingViolationUsing(function (Model $model, string $relation): void {
                 Log::warning(sprintf(
                     'N+1 Query detected in model %s on relation %s.',
                     $model::class,

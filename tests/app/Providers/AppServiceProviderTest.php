@@ -9,11 +9,13 @@ use Carbon\CarbonImmutable;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use Mockery\MockInterface;
 
 beforeEach(function (): void {
     Config::set('app.spa_url', 'https://spa.test');
@@ -45,11 +47,11 @@ it('builds reset password URL for admin users', function (): void {
     expect($url)->toBe('https://spa.test/#/admin/auth/reset-password/token-admin');
 });
 
-it('throws runtime exception for unsupported reset password notifiable', function (): void {
+it('throws type error for unsupported reset password notifiable', function (): void {
     bootAppServiceProvider();
 
-    $this->expectException(RuntimeException::class);
-    $this->expectExceptionMessage('Usuario no soportado para restablecimiento de contraseña');
+    $this->expectException(TypeError::class);
+    $this->expectExceptionMessage('must be of type App\\Models\\ClubUser|App\\Models\\User');
 
     invokeNotificationCallback(ResetPassword::class, new stdClass(), 'token-invalid');
 });
@@ -92,11 +94,11 @@ it('builds verify email URL for admin users using signed route with mock', funct
     expect($url)->toBe('https://signed.test/admin');
 });
 
-it('throws runtime exception for unsupported verify email notifiable', function (): void {
+it('throws type error for unsupported verify email notifiable', function (): void {
     bootAppServiceProvider();
 
-    $this->expectException(RuntimeException::class);
-    $this->expectExceptionMessage('Usuario no soportado para verificación de email');
+    $this->expectException(TypeError::class);
+    $this->expectExceptionMessage('must be of type App\\Models\\ClubUser|App\\Models\\User');
 
     invokeNotificationCallback(VerifyEmail::class, new stdClass());
 });
@@ -166,17 +168,13 @@ it('logs slow queries when logging is enabled', function (): void {
 
     expect($queryListener)->toBeCallable();
 
-    $queryListener(new class
-    {
-        public int $time = 150;
+    /** @var QueryExecuted&MockInterface $query */
+    $query = Mockery::mock(QueryExecuted::class);
+    $query->time = 150;
+    $query->sql = 'select * from "users"';
+    $query->shouldReceive('toRawSQL')->once()->andReturn('select * from "users"');
 
-        public string $sql = 'select * from "users"';
-
-        public function toRawSQL(): string
-        {
-            return 'select * from "users"';
-        }
-    });
+    $queryListener($query);
 });
 
 it('logs n+1 violations when enabled', function (): void {

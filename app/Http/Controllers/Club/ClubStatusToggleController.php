@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Club;
 
 use App\Models\Club;
-use App\Services\OwnershipVerifierService;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ClubStatusToggleController
 {
-    public function __invoke(Club $club, OwnershipVerifierService $ownershipVerifier): Response
+    public function __invoke(Club $club): Response
     {
-
-        $ownershipVerifier->handle($club);
+        Gate::authorize('update', $club);
 
         $club->update([
             'is_active' => ! $club->is_active,
