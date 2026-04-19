@@ -14,12 +14,12 @@ beforeEach(function (): void {
 });
 
 it('returns only active features', function (): void {
-    $activeFeature = Feature::factory()->create([
+    $activeFeature = Feature::factory()->createQuietly([
         'name' => 'Iluminacion',
         'is_active' => true,
     ]);
 
-    Feature::factory()->create([
+    Feature::factory()->createQuietly([
         'name' => 'Vestuario',
         'is_active' => false,
     ]);

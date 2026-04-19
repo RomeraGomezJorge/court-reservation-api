@@ -14,7 +14,7 @@ beforeEach(function (): void {
 });
 
 it('toggles sport type status', function (): void {
-    $sportType = SportType::factory()->create([
+    $sportType = SportType::factory()->createQuietly([
         'is_active' => true,
     ]);
 

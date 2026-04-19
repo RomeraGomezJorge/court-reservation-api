@@ -85,7 +85,7 @@
             "rector",
             "pint --parallel"
         ],
-        "test:type-coverage": "pest --type-coverage --parallel --min=100",
+        "test:type-coverage": "pest --type-coverage --parallel --processes=4 --min=100",
         "test:lint": [
             "pint --parallel --test",
             "rector --dry-run"

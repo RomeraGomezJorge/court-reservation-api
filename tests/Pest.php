@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\ClubUser;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Foundation\Testing\WithCachedConfig;
 use Illuminate\Foundation\Testing\WithCachedRoutes;
@@ -64,6 +65,8 @@ pest()
         // date/time assertions.
         // ------------------------------------------------------------------------------
         $this->freezeTime();
+
+        Model::preventLazyLoading();
     })
     ->in('app', 'Architecture');
 
@@ -71,7 +74,7 @@ expect()->extend('toBeOne', fn () => $this->toBe(1));
 
 function actingAsClubUser(): ClubUser
 {
-    $clubUser = ClubUser::factory()->create();
+    $clubUser = ClubUser::factory()->createQuietly();
     actingAs($clubUser);
 
     return $clubUser;
@@ -79,7 +82,7 @@ function actingAsClubUser(): ClubUser
 
 function actingAsUser(): User
 {
-    $user = User::factory()->create();
+    $user = User::factory()->createQuietly();
     actingAs($user);
 
     return $user;

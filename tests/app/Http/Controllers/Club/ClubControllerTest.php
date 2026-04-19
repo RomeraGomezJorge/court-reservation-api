@@ -194,26 +194,26 @@ it('returns a collection of clubs for the authenticated club user', function ():
             ['organization_name' => 'Club Propio 1'],
             ['organization_name' => 'Club Propio 2'],
         )
-        ->create([
+        ->createQuietly([
             'club_user_id' => $this->clubUser->id,
             'is_active' => true,
         ]);
 
-    Club::factory()->create([
-        'club_user_id' => ClubUser::factory()->create()->id,
+    Club::factory()->createQuietly([
+        'club_user_id' => ClubUser::factory()->createQuietly()->id,
         'organization_name' => 'Club Ajeno',
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
-    $firstCourt = Court::factory()->create([
+    $firstCourt = Court::factory()->createQuietly([
         'club_id' => $ownedClub->id,
         'sport_type_id' => $sportType->id,
         'name' => 'Cancha Principal',
         'is_available' => true,
     ]);
 
-    $secondCourt = Court::factory()->create([
+    $secondCourt = Court::factory()->createQuietly([
         'club_id' => $ownedClub->id,
         'sport_type_id' => $sportType->id,
         'name' => 'Cancha Auxiliar',
@@ -286,7 +286,7 @@ it('stores a club', function (): void {
 
 it('fails to store a club with invalid data', function (array $invalidData, array $expectedMessages): void {
     if (($invalidData['organization_name'] ?? null) === 'Club Duplicado') {
-        Club::factory()->create(['organization_name' => 'Club Duplicado']);
+        Club::factory()->createQuietly(['organization_name' => 'Club Duplicado']);
     }
 
     post(action([ClubController::class, 'store']), validClubPayload($invalidData))
@@ -316,7 +316,7 @@ it('fails to store a club when date parser returns non carbon instances', functi
 
 it('shows a club', function (): void {
 
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
         'organization_name' => 'Club Show',
         'is_active' => true,
@@ -327,7 +327,7 @@ it('shows a club', function (): void {
         ->sequence(
             ['type' => ClubServicesType::Wifi->value],
             ['type' => ClubServicesType::FirstAid->value],
-        )->create([
+        )->createQuietly([
             'club_id' => $club->id,
         ]);
 
@@ -336,7 +336,7 @@ it('shows a club', function (): void {
         ->sequence(
             ['day' => WorkingDays::Monday, 'opening_hour' => '09:00:00', 'closing_hour' => '01:00:00'],
             ['day' => WorkingDays::Tuesday, 'opening_hour' => '09:00:00', 'closing_hour' => '01:00:00'],
-        )->create([
+        )->createQuietly([
             'club_id' => $club->id,
         ]);
 
@@ -403,7 +403,7 @@ it('fails to show a club that does not exist', function (): void {
 });
 
 it('fails to show a club that is not owned by the authenticated club user', function (): void {
-    $club = Club::factory()->create();
+    $club = Club::factory()->createQuietly();
 
     get(action([ClubController::class, 'show'], $club))
         ->assertStatus(404)
@@ -414,7 +414,7 @@ it('fails to show a club that is not owned by the authenticated club user', func
 });
 
 it('updates a club', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
         'organization_name' => 'Club Base',
     ]);
@@ -465,7 +465,7 @@ it('updates a club', function (): void {
 });
 
 it('updates a club without working days payload', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
         'organization_name' => 'Club Base',
     ]);
@@ -508,7 +508,7 @@ it('updates a club without working days payload', function (): void {
 });
 
 it('updates a club clearing services', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
@@ -548,13 +548,13 @@ it('fails to update a club that does not exist', function (): void {
 });
 
 it('fails to update a club with invalid data', function (array $invalidData, array $expectedMessages): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
         'organization_name' => 'Club Base',
     ]);
 
     if (($invalidData['organization_name'] ?? null) === 'Club Duplicado') {
-        Club::factory()->create(['organization_name' => 'Club Duplicado']);
+        Club::factory()->createQuietly(['organization_name' => 'Club Duplicado']);
     }
 
     put(action([ClubController::class, 'update'], $club), validClubPayload($invalidData))
@@ -565,7 +565,7 @@ it('fails to update a club with invalid data', function (array $invalidData, arr
 })->with('invalid club payload data');
 
 it('fails to update a club when date parser returns non carbon instances', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
         'organization_name' => 'Club Base',
     ]);
@@ -588,7 +588,7 @@ it('fails to update a club when date parser returns non carbon instances', funct
 });
 
 it('fails to update a club that is not owned by the authenticated club user', function (): void {
-    $club = Club::factory()->create();
+    $club = Club::factory()->createQuietly();
 
     put(action([ClubController::class, 'update'], $club), validClubPayload([
         'address_city' => 'Cordoba',
@@ -605,7 +605,7 @@ it('fails to update a club that is not owned by the authenticated club user', fu
 
 it('deletes a club', function (): void {
     $organizationName = 'Club Eliminado';
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
         'organization_name' => $organizationName,
     ]);
@@ -629,7 +629,7 @@ it('fails to delete a club that does not exist', function (): void {
 });
 
 it('fails to delete a club that is not owned by the authenticated club user', function (): void {
-    $club = Club::factory()->create();
+    $club = Club::factory()->createQuietly();
 
     delete(action([ClubController::class, 'destroy'], $club))
         ->assertStatus(404)

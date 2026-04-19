@@ -30,7 +30,7 @@ afterEach(function (): void {
 it('builds reset password URL for club users', function (): void {
     bootAppServiceProvider();
 
-    $clubUser = ClubUser::factory()->create();
+    $clubUser = ClubUser::factory()->createQuietly();
 
     $url = invokeNotificationCallback(ResetPassword::class, $clubUser, 'token-club');
 
@@ -40,7 +40,7 @@ it('builds reset password URL for club users', function (): void {
 it('builds reset password URL for admin users', function (): void {
     bootAppServiceProvider();
 
-    $user = User::factory()->create();
+    $user = User::factory()->createQuietly();
 
     $url = invokeNotificationCallback(ResetPassword::class, $user, 'token-admin');
 
@@ -60,7 +60,7 @@ it('builds verify email URL for club users using signed route', function (): voi
     Config::set('auth.verification.expire', 90);
     bootAppServiceProvider();
 
-    $clubUser = ClubUser::factory()->unverified()->create();
+    $clubUser = ClubUser::factory()->unverified()->createQuietly();
 
     URL::shouldReceive('temporarySignedRoute')
         ->once()
@@ -79,7 +79,7 @@ it('builds verify email URL for admin users using signed route with mock', funct
     Config::set('auth.verification.expire', 60);
     bootAppServiceProvider();
 
-    $user = User::factory()->create();
+    $user = User::factory()->createQuietly();
 
     URL::shouldReceive('temporarySignedRoute')
         ->once()

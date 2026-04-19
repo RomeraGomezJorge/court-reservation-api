@@ -18,8 +18,8 @@ use function Pest\Laravel\put;
 
 function validCourtPayload(array $overrides = []): array
 {
-    $sportType = SportType::factory()->create();
-    $features = Feature::factory()->count(2)->create();
+    $sportType = SportType::factory()->createQuietly();
+    $features = Feature::factory()->count(2)->createQuietly();
 
     return array_merge([
         'name' => 'Cancha Central',
@@ -34,7 +34,7 @@ beforeEach(function (): void {
 });
 
 it('stores a court with default availability in true', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
@@ -66,13 +66,13 @@ it('stores a court with default availability in true', function (): void {
 });
 
 it('fails to store a court with duplicate name inside the same club', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
-    Court::factory()->create([
+    Court::factory()->createQuietly([
         'club_id' => $club->id,
         'sport_type_id' => $sportType->id,
         'name' => 'Cancha Repetida',
@@ -90,7 +90,7 @@ it('fails to store a court with duplicate name inside the same club', function (
 });
 
 it('fails to store a court when the club is not owned by authenticated user', function (): void {
-    $otherClub = Club::factory()->create();
+    $otherClub = Club::factory()->createQuietly();
 
     post(action([CourtController::class, 'store'], ['club' => $otherClub]), validCourtPayload())
         ->assertNotFound()
@@ -101,15 +101,15 @@ it('fails to store a court when the club is not owned by authenticated user', fu
 });
 
 it('shows a court', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create([
+    $sportType = SportType::factory()->createQuietly([
         'name' => 'Padel',
     ]);
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $club->id,
         'sport_type_id' => $sportType->id,
         'name' => 'Cancha Show',
@@ -123,7 +123,7 @@ it('shows a court', function (): void {
             ['name' => 'Iluminacion'],
             ['name' => 'Cesped sintetico'],
         )
-        ->create();
+        ->createQuietly();
 
     $court->features()->sync([$featureOne->id, $featureTwo->id]);
 
@@ -148,17 +148,17 @@ it('shows a court', function (): void {
 });
 
 it('fails to show a court when the court does not belong to the club in route', function (): void {
-    $ownedClub = Club::factory()->create([
+    $ownedClub = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $otherOwnedClub = Club::factory()->create([
+    $otherOwnedClub = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $otherOwnedClub->id,
         'sport_type_id' => $sportType->id,
     ]);
@@ -172,10 +172,10 @@ it('fails to show a court when the court does not belong to the club in route', 
 });
 
 it('fails to show a court when the club is not owned by authenticated user', function (): void {
-    $otherClub = Club::factory()->create();
-    $sportType = SportType::factory()->create();
+    $otherClub = Club::factory()->createQuietly();
+    $sportType = SportType::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $otherClub->id,
         'sport_type_id' => $sportType->id,
     ]);
@@ -189,21 +189,21 @@ it('fails to show a court when the club is not owned by authenticated user', fun
 });
 
 it('updates a court and syncs features', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
-    $newSportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
+    $newSportType = SportType::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $club->id,
         'sport_type_id' => $sportType->id,
         'name' => 'Cancha Base',
     ]);
 
-    [$oldFeature] = Feature::factory()->count(1)->create();
-    [$newFeatureOne, $newFeatureTwo] = Feature::factory()->count(2)->create();
+    [$oldFeature] = Feature::factory()->count(1)->createQuietly();
+    [$newFeatureOne, $newFeatureTwo] = Feature::factory()->count(2)->createQuietly();
 
     $court->features()->sync([$oldFeature->id]);
 
@@ -237,17 +237,17 @@ it('updates a court and syncs features', function (): void {
 });
 
 it('fails to update a court when the court does not belong to the club in route', function (): void {
-    $ownedClub = Club::factory()->create([
+    $ownedClub = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $otherOwnedClub = Club::factory()->create([
+    $otherOwnedClub = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $otherOwnedClub->id,
         'sport_type_id' => $sportType->id,
         'name' => 'Cancha Inalterable',
@@ -271,10 +271,10 @@ it('fails to update a court when the court does not belong to the club in route'
 });
 
 it('fails to update a court when the club is not owned by authenticated user', function (): void {
-    $otherClub = Club::factory()->create();
-    $sportType = SportType::factory()->create();
+    $otherClub = Club::factory()->createQuietly();
+    $sportType = SportType::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $otherClub->id,
         'sport_type_id' => $sportType->id,
         'name' => 'Cancha Inalterable',
@@ -298,14 +298,14 @@ it('fails to update a court when the club is not owned by authenticated user', f
 });
 
 it('updates a court without features payload keeping existing ones', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
-    $feature = Feature::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
+    $feature = Feature::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $club->id,
         'sport_type_id' => $sportType->id,
     ]);
@@ -325,13 +325,13 @@ it('updates a court without features payload keeping existing ones', function ()
 });
 
 it('deletes a court with soft delete and renames it to keep unique constraints available', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $club->id,
         'sport_type_id' => $sportType->id,
         'name' => 'Cancha Eliminada',
@@ -347,17 +347,17 @@ it('deletes a court with soft delete and renames it to keep unique constraints a
 });
 
 it('fails to delete a court when the court does not belong to the club in route', function (): void {
-    $ownedClub = Club::factory()->create([
+    $ownedClub = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $otherOwnedClub = Club::factory()->create([
+    $otherOwnedClub = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $otherOwnedClub->id,
         'sport_type_id' => $sportType->id,
         'name' => 'Cancha Sin Eliminar',
@@ -374,18 +374,18 @@ it('fails to delete a court when the court does not belong to the club in route'
 });
 
 it('fails to delete a court when the club is not owned by authenticated user', function (): void {
-    $club = Club::factory()->create(
+    $club = Club::factory()->createQuietly(
         ['club_user_id' => $this->clubUser->id]
     );
 
-    $otherClubUser = ClubUser::factory()->create();
-    $otherClub = Club::factory()->create([
+    $otherClubUser = ClubUser::factory()->createQuietly();
+    $otherClub = Club::factory()->createQuietly([
         'club_user_id' => $otherClubUser->id,
     ]);
 
-    $sportType = SportType::factory()->create();
+    $sportType = SportType::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $otherClub->id,
         'sport_type_id' => $sportType->id,
         'name' => 'Cancha Sin Eliminar',

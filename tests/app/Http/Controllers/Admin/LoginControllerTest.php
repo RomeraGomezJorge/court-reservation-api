@@ -15,7 +15,7 @@ beforeEach(function (): void {
     $this->plaintextPassword = 'P@ssw0rd12345';
 
     $this->user = User::factory()
-        ->create([
+        ->createQuietly([
             'email' => 'test@example.com',
             'password' => $this->plaintextPassword,
         ]);
