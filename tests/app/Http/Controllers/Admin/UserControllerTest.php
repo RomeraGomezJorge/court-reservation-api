@@ -39,7 +39,7 @@ it('stores a user', function (): void {
 
 it('fails to store a user with invalid data', function (array $invalidData, array $expectedMessages): void {
     if (($invalidData['email'] ?? null) === 'duplicate@example.com') {
-        User::factory()->create(['email' => 'duplicate@example.com']);
+        User::factory()->createQuietly(['email' => 'duplicate@example.com']);
     }
 
     $userData = [
@@ -144,7 +144,7 @@ it('fails to update a user with invalid data', function (array $invalidData, arr
     $user = User::factory()->createQuietly();
 
     if (($invalidData['email'] ?? null) === 'duplicate@example.com') {
-        User::factory()->create(['email' => 'duplicate@example.com']);
+        User::factory()->createQuietly(['email' => 'duplicate@example.com']);
     }
 
     put(action([UserController::class, 'update'], $user), array_merge([

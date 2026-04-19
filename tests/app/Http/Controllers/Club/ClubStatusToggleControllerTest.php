@@ -14,7 +14,7 @@ beforeEach(function (): void {
 });
 
 it('toggles club status from active to inactive', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
         'is_active' => true,
     ]);
@@ -27,7 +27,7 @@ it('toggles club status from active to inactive', function (): void {
 });
 
 it('toggles club status from inactive to active', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
         'is_active' => false,
     ]);

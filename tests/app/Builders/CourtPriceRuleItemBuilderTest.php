@@ -51,7 +51,7 @@ it('returns empty array when court has no price rule items', function (): void {
 
     CourtPriceRule::factory()
         ->for($court)
-        ->create(['day' => CourtPriceRuleDay::Base]);
+        ->createQuietly(['day' => CourtPriceRuleDay::Base]);
 
     $playTimes = CourtPriceRuleItem::query()
         ->getPlayTimesForCourt($court->id);
@@ -64,7 +64,7 @@ it('returns play times ordered correctly', function (): void {
 
     $rule = CourtPriceRule::factory()
         ->for($court)
-        ->create(['day' => CourtPriceRuleDay::Base]);
+        ->createQuietly(['day' => CourtPriceRuleDay::Base]);
 
     CourtPriceRuleItem::factory()
         ->for($rule, 'priceRule')
@@ -96,8 +96,8 @@ it('retrieves price start times for a court', function (): void {
             ['day' => CourtPriceRuleDay::Base],
             ['day' => CourtPriceRuleDay::Monday],
         )
-        ->createQuietly()
-        ->all();
+        ->createQuietly();
+
 
     CourtPriceRuleItem::factory()
         ->for($genericRule, 'priceRule')
@@ -130,7 +130,7 @@ it('returns empty array when court has no price start times', function (): void 
 
     CourtPriceRule::factory()
         ->for($court)
-        ->create(['day' => CourtPriceRuleDay::Base]);
+        ->createQuietly(['day' => CourtPriceRuleDay::Base]);
 
     $priceStartTimes = CourtPriceRuleItem::query()
         ->getPriceStartsAtForCourt($court->id);
@@ -143,7 +143,7 @@ it('returns price start times ordered correctly', function (): void {
 
     $rule = CourtPriceRule::factory()
         ->for($court)
-        ->create(['day' => CourtPriceRuleDay::Base]);
+        ->createQuietly(['day' => CourtPriceRuleDay::Base]);
 
     CourtPriceRuleItem::factory()
         ->for($rule, 'priceRule')
@@ -176,7 +176,7 @@ it('deduplicates price start times correctly', function (): void {
 
     CourtPriceRuleItem::factory()
         ->for($genericRule, 'priceRule')
-        ->create([
+        ->createQuietly([
             'play_time_minutes' => PlayTime::SixtyMinutes,
             'price_starts_at' => '08:00:00',
         ]);

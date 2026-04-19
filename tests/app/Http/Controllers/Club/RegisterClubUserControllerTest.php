@@ -38,7 +38,7 @@ it('registers a club user and sends verification email', function (): void {
 
 it('fails to register a club user with invalid data', function (array $invalidData, array $expectedMessages): void {
     if (($invalidData['email'] ?? null) === 'club-duplicado@example.com') {
-        ClubUser::factory()->create(['email' => 'club-duplicado@example.com']);
+        ClubUser::factory()->createQuietly(['email' => 'club-duplicado@example.com']);
     }
 
     post(action([RegisterClubUserController::class, 'store']), array_merge($this->validPayload, $invalidData))

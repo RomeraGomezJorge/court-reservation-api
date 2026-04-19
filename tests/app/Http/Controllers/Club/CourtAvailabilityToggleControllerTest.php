@@ -16,13 +16,13 @@ beforeEach(function (): void {
 });
 
 it('toggles court availability', function (): void {
-    $club = Club::factory()->create([
+    $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
     $sportType = SportType::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $club->id,
         'sport_type_id' => $sportType->id,
         'is_available' => true,
@@ -45,7 +45,7 @@ it('fails to toggle court availability when the court is not owned by authentica
     $otherClub = Club::factory()->createQuietly();
     $sportType = SportType::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $otherClub->id,
         'sport_type_id' => $sportType->id,
         'is_available' => true,
@@ -60,17 +60,17 @@ it('fails to toggle court availability when the court is not owned by authentica
 });
 
 it('fails to toggle court availability when the court does not belong to the club in route', function (): void {
-    $ownedClub = Club::factory()->create([
+    $ownedClub = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    $otherOwnedClub = Club::factory()->create([
+    $otherOwnedClub = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
 
     $sportType = SportType::factory()->createQuietly();
 
-    $court = Court::factory()->create([
+    $court = Court::factory()->createQuietly([
         'club_id' => $otherOwnedClub->id,
         'sport_type_id' => $sportType->id,
         'is_available' => true,

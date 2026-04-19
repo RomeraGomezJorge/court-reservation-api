@@ -32,7 +32,7 @@ it('stores a sport type', function (): void {
 
 it('fails to store a sport type with invalid data', function (array $invalidData, array $expectedMessages): void {
     if (($invalidData['name'] ?? null) === 'Sport Type Duplicate') {
-        SportType::query()->create(['name' => 'Sport Type Duplicate', 'is_active' => true]);
+        SportType::query()->createQuietly(['name' => 'Sport Type Duplicate', 'is_active' => true]);
     }
 
     $serviceData = [
@@ -61,7 +61,7 @@ it('fails to store a sport type with invalid data', function (array $invalidData
 ]);
 
 it('updates a sport type', function (): void {
-    $service = SportType::query()->create([
+    $service = SportType::query()->createQuietly([
         'name' => 'Sport Type base',
         'is_active' => true,
     ]);
@@ -88,13 +88,13 @@ it('fails to update a sport type that does not exist', function (): void {
 });
 
 it('fails to update a sport type with invalid data', function (array $invalidData, array $expectedMessages): void {
-    $service = SportType::query()->create([
+    $service = SportType::query()->createQuietly([
         'name' => 'Sport Type base',
         'is_active' => true,
     ]);
 
     if (($invalidData['name'] ?? null) === 'Sport Type Duplicated') {
-        SportType::query()->create(['name' => 'Sport Type Duplicated', 'is_active' => true]);
+        SportType::query()->createQuietly(['name' => 'Sport Type Duplicated', 'is_active' => true]);
     }
 
     put(action([SportTypeController::class, 'update'], $service->id), array_merge([
@@ -121,7 +121,7 @@ it('fails to update a sport type with invalid data', function (array $invalidDat
 ]);
 
 it('deletes a sport type', function (): void {
-    $service = SportType::query()->create([
+    $service = SportType::query()->createQuietly([
         'name' => 'Sport Type to delete',
         'is_active' => true,
     ]);
@@ -142,7 +142,7 @@ it('fails to delete a sport type that does not exist', function (): void {
 });
 
 it('shows a sport type', function (): void {
-    $service = SportType::query()->create([
+    $service = SportType::query()->createQuietly([
         'name' => 'Sport type show',
         'is_active' => true,
     ]);

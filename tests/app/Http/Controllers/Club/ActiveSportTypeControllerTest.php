@@ -14,12 +14,12 @@ beforeEach(function (): void {
 });
 
 it('returns only active sport types', function (): void {
-    $activeSportType = SportType::factory()->create([
+    $activeSportType = SportType::factory()->createQuietly([
         'name' => 'Padel',
         'is_active' => true,
     ]);
 
-    SportType::factory()->create([
+    SportType::factory()->createQuietly([
         'name' => 'Tenis',
         'is_active' => false,
     ]);

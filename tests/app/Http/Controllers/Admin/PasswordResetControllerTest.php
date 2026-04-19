@@ -17,7 +17,7 @@ use function Pest\Laravel\put;
 beforeEach(function (): void {
     Notification::fake();
 
-    $this->user = User::factory()->create([
+    $this->user = User::factory()->createQuietly([
         'email' => 'admin@example.com',
     ]);
 });

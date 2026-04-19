@@ -14,7 +14,7 @@ beforeEach(function (): void {
 });
 
 it('toggles feature status', function (): void {
-    $feature = Feature::factory()->create([
+    $feature = Feature::factory()->createQuietly([
         'is_active' => true,
     ]);
 

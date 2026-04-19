@@ -32,7 +32,7 @@ it('stores a feature', function (): void {
 
 it('fails to store a feature with invalid data', function (array $invalidData, array $expectedMessages): void {
     if (($invalidData['name'] ?? null) === 'Feature duplicada') {
-        Feature::query()->create(['name' => 'Feature duplicada', 'is_active' => true]);
+        Feature::query()->createQuietly(['name' => 'Feature duplicada', 'is_active' => true]);
     }
 
     $featureData = [
@@ -61,7 +61,7 @@ it('fails to store a feature with invalid data', function (array $invalidData, a
 ]);
 
 it('updates a feature', function (): void {
-    $feature = Feature::query()->create([
+    $feature = Feature::query()->createQuietly([
         'name' => 'Feature base',
         'is_active' => true,
     ]);
@@ -88,13 +88,13 @@ it('fails to update a feature that does not exist', function (): void {
 });
 
 it('fails to update a feature with invalid data', function (array $invalidData, array $expectedMessages): void {
-    $feature = Feature::query()->create([
+    $feature = Feature::query()->createQuietly([
         'name' => 'Feature base',
         'is_active' => true,
     ]);
 
     if (($invalidData['name'] ?? null) === 'Feature duplicada') {
-        Feature::query()->create(['name' => 'Feature duplicada', 'is_active' => true]);
+        Feature::query()->createQuietly(['name' => 'Feature duplicada', 'is_active' => true]);
     }
 
     put(action([FeatureController::class, 'update'], $feature->id), array_merge([
@@ -121,7 +121,7 @@ it('fails to update a feature with invalid data', function (array $invalidData, 
 ]);
 
 it('deletes a feature', function (): void {
-    $feature = Feature::query()->create([
+    $feature = Feature::query()->createQuietly([
         'name' => 'Feature a eliminar',
         'is_active' => true,
     ]);
@@ -142,7 +142,7 @@ it('fails to delete a feature that does not exist', function (): void {
 });
 
 it('shows a feature', function (): void {
-    $feature = Feature::query()->create([
+    $feature = Feature::query()->createQuietly([
         'name' => 'Feature show',
         'is_active' => true,
     ]);
@@ -166,8 +166,8 @@ it('fails to show a feature that does not exist', function (): void {
 });
 
 it('returns a collection of features', function (): void {
-    $firstFeature = Feature::query()->create(['name' => 'Feature 1', 'is_active' => true]);
-    $secondFeature = Feature::query()->create(['name' => 'Feature 2', 'is_active' => false]);
+    $firstFeature = Feature::query()->createQuietly(['name' => 'Feature 1', 'is_active' => true]);
+    $secondFeature = Feature::query()->createQuietly(['name' => 'Feature 2', 'is_active' => false]);
 
     get(action([FeatureController::class, 'index']))
         ->assertOk()
