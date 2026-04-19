@@ -79,7 +79,11 @@ it('returns play times ordered correctly', function (): void {
     $playTimes = CourtPriceRuleItem::query()
         ->getPlayTimesForCourt($court->id);
 
-    expect($playTimes)->toBe([60, 90, 120]);
+    expect($playTimes)->toBe([
+        PlayTime::SixtyMinutes->value,
+        PlayTime::NinetyMinutes->value,
+        PlayTime::OneHundredTwentyMinutes->value,
+    ]);
 });
 
 it('retrieves price start times for a court', function (): void {
