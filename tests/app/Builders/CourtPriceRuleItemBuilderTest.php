@@ -98,7 +98,6 @@ it('retrieves price start times for a court', function (): void {
         )
         ->createQuietly();
 
-
     CourtPriceRuleItem::factory()
         ->for($genericRule, 'priceRule')
         ->count(2)
