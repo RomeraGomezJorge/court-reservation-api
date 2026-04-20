@@ -228,8 +228,8 @@ it('fails store when duplicated starts_at in the same prices list', function ():
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00:00', 'price' => 1000],
                             ['starts_at' => '10:00:00', 'price' => 1200],
+                            ['starts_at' => '10:00:00', 'price' => 1400],
                         ],
                     ],
                 ],
@@ -241,10 +241,12 @@ it('fails store when duplicated starts_at in the same prices list', function ():
         action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]),
         $payload,
     );
-
     $response->assertExactJson([
         'code' => 422,
-        'messages' => ['Ya existe un precio configurado para ese día, duración y hora de inicio.'],
+        'messages' => [
+            'Ya existe un precio configurado para ese día, duración y hora de inicio.',
+            'No podés definir turnos que se superpongan. El turno de 10:00:00 (60 min) invade el rango del turno de 10:00:00 (termina a las 11:00:00).',
+        ],
     ]);
 });
 
@@ -362,6 +364,61 @@ it('reports every duplicated slot found in the same day payload', function (): v
         ->and($messages[1])->toBe('Ya existe un precio configurado para ese día, duración y hora de inicio.');
 });
 
+it('fails store when two slots overlap within the same play time item', function (): void {
+    [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
+
+    $payload = [
+        'court_id' => $court->id,
+        'rules' => [
+            [
+                'day' => 'monday',
+                'items' => [
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '10:00:00', 'price' => 1000],
+                            ['starts_at' => '10:30:00', 'price' => 1200],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    post(action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]), $payload)
+        ->assertExactJson([
+            'code' => 422,
+            'messages' => [
+                'No podés definir turnos que se superpongan. El turno de 10:30:00 (60 min) invade el rango del turno de 10:00:00 (termina a las 11:00:00).',
+            ],
+        ]);
+});
+
+it('allows adjacent slots within the same play time item', function (): void {
+    [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
+
+    $payload = [
+        'court_id' => $court->id,
+        'rules' => [
+            [
+                'day' => 'monday',
+                'items' => [
+                    [
+                        'play_time_minutes' => 60,
+                        'prices' => [
+                            ['starts_at' => '10:00:00', 'price' => 1000],
+                            ['starts_at' => '11:00:00', 'price' => 1200],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    post(action([CourtPriceRuleController::class, 'store'], ['club' => $club, 'court' => $court]), $payload)
+        ->assertStatus(201);
+});
+
 it('fails store when price value is duplicated in same item', function (): void {
     [$club, $court] = createClubAndCourtForPriceRuleTests($this->clubUser->id);
 
@@ -372,10 +429,10 @@ it('fails store when price value is duplicated in same item', function (): void 
                 'day' => 'tuesday',
                 'items' => [
                     [
-                        'play_time_minutes' => 90,
+                        'play_time_minutes' => 60,
                         'prices' => [
                             ['starts_at' => '09:00:00', 'price' => 1400.50],
-                            ['starts_at' => '10:00:00', 'price' => 1400.50],
+                            ['starts_at' => '10:30:00', 'price' => 1400.50],
                         ],
                     ],
                 ],
@@ -404,7 +461,7 @@ it('allows different float and integer prices inside the same item', function ()
                 'day' => 'tuesday',
                 'items' => [
                     [
-                        'play_time_minutes' => 90,
+                        'play_time_minutes' => 60,
                         'prices' => [
                             ['starts_at' => '09:00:00', 'price' => 1000.1],
                             ['starts_at' => '10:00:00', 'price' => 1000],
@@ -429,7 +486,7 @@ it('reports every duplicated price found in the same item', function (): void {
                 'day' => 'tuesday',
                 'items' => [
                     [
-                        'play_time_minutes' => 90,
+                        'play_time_minutes' => 60,
                         'prices' => [
                             ['starts_at' => '09:00:00', 'price' => 1400],
                             ['starts_at' => '10:00:00', 'price' => 1400],

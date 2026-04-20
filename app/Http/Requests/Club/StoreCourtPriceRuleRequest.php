@@ -10,6 +10,7 @@ use App\Models\Court;
 use Illuminate\Contracts\Validation\Rule as RuleContract;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
@@ -53,6 +54,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
 
                 $this->validateNoDuplicateDayAndTimeWithItems($validator);
                 $this->validateNoDuplicatePricesPerDay($validator);
+                $this->validateNoOverlapsWithinSamePlayTime($validator);
             },
         ];
     }
@@ -120,7 +122,6 @@ final class StoreCourtPriceRuleRequest extends FormRequest
                     }
 
                     $priceOccurrencesByDay[$day][$normalizedPrice]++;
-
                 }
             }
         }
@@ -147,6 +148,43 @@ final class StoreCourtPriceRuleRequest extends FormRequest
                     'day' => $dayLabel,
                 ]),
             );
+        }
+    }
+
+    private function validateNoOverlapsWithinSamePlayTime(Validator $validator): void
+    {
+        foreach ($this->rulesPayload() as $ruleIndex => $rule) {
+            foreach ($rule['items'] as $itemIndex => $item) {
+                $playTimeMinutes = (int) $item['play_time_minutes'];
+                $prices = $item['prices'];
+
+                foreach ($prices as $currentIndex => $currentPrice) {
+                    $slotStart = Date::createFromTimeString($currentPrice['starts_at']);
+                    $slotEnd = $slotStart->copy()->addMinutes($playTimeMinutes);
+
+                    foreach ($prices as $otherIndex => $otherPrice) {
+                        if ($otherIndex <= $currentIndex) {
+                            continue; // evitar comparar contra sí mismo o duplicar pares
+                        }
+
+                        $otherStart = Date::createFromTimeString($otherPrice['starts_at']);
+
+                        $otherStartsBeforeCurrentEnds = $otherStart->isBefore($slotEnd);
+
+                        if ($otherStartsBeforeCurrentEnds) {
+                            $validator->errors()->add(
+                                "rules.{$ruleIndex}.items.{$itemIndex}.prices.{$otherIndex}.starts_at",
+                                __('validation.court_price_rule_overlap_within_play_time', [
+                                    'start_time' => $otherPrice['starts_at'],
+                                    'duration' => $playTimeMinutes,
+                                    'conflict_start_time' => $currentPrice['starts_at'],
+                                    'conflict_end_time' => $slotEnd->format('H:i:s'),
+                                ]),
+                            );
+                        }
+                    }
+                }
+            }
         }
     }
 
