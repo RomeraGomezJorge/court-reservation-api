@@ -11,6 +11,7 @@ use App\Models\CourtPriceRule;
 use App\Models\CourtPriceRuleItem;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Date;
+use InvalidArgumentException;
 
 final class CourtPriceRulesShowBuilderService
 {
@@ -35,11 +36,12 @@ final class CourtPriceRulesShowBuilderService
         /** @var Collection<int, CourtPriceRule> $priceRules */
         $priceRules = $court->priceRules()->with('items')->get();
 
-        $playTime = CourtPriceRuleItem::query()->getPlayTimesForCourt($court->id);
+        /* @var array<int, string> $priceStartsAt */
         $priceStartsAt = CourtPriceRuleItem::query()->getPriceStartsAtForCourt($court->id);
+        $playTime = CourtPriceRuleItem::query()->getPlayTimesForCourt($court->id);
 
         $priceStartsAt = array_map(
-            fn (string $time): string => Date::createFromFormat('H:i:s', $time)->format('H:i'),
+            $this->formatStartTime(...),
             $priceStartsAt,
         );
 
@@ -92,7 +94,7 @@ final class CourtPriceRulesShowBuilderService
         $itemsGroupedByStartTime = [];
 
         foreach ($priceRule->items as $item) {
-            $startTime = Date::createFromFormat('H:i:s', $item->price_starts_at)->format('H:i');
+            $startTime = $this->formatStartTime($item->price_starts_at);
             $itemsGroupedByStartTime[$startTime][] = $item;
         }
 
@@ -134,5 +136,16 @@ final class CourtPriceRulesShowBuilderService
         }
 
         return $playTimePrices;
+    }
+
+    private function formatStartTime(string $time): string
+    {
+        $date = Date::createFromFormat('H:i:s', $time);
+
+        if ($date === null) {
+            throw new InvalidArgumentException("Invalid time format [{$time}] for court price rules. Expected H:i:s.");
+        }
+
+        return $date->format('H:i');
     }
 }
