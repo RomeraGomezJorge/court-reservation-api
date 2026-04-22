@@ -31,7 +31,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
             'rules.*.items' => ['required', 'array', 'min:1'],
             'rules.*.items.*.play_time_minutes' => ['required', Rule::enum(PlayTime::class)],
             'rules.*.items.*.prices' => ['required', 'array', 'min:1'],
-            'rules.*.items.*.prices.*.starts_at' => ['required', 'date_format:H:i:s'],
+            'rules.*.items.*.prices.*.starts_at' => ['required', 'date_format:H:i'],
             'rules.*.items.*.prices.*.price' => ['required', 'numeric', 'min:0'],
         ];
     }
@@ -178,7 +178,7 @@ final class StoreCourtPriceRuleRequest extends FormRequest
                                     'start_time' => $otherPrice['starts_at'],
                                     'duration' => $playTimeMinutes,
                                     'conflict_start_time' => $currentPrice['starts_at'],
-                                    'conflict_end_time' => $slotEnd->format('H:i:s'),
+                                    'conflict_end_time' => $slotEnd->format('H:i'),
                                 ]),
                             );
                         }

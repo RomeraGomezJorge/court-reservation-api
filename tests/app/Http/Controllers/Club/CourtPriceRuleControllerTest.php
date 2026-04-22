@@ -28,14 +28,14 @@ function validPriceRulesPayload(Court $court): array
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '00:00:00', 'price' => 1000],
-                            ['starts_at' => '12:00:00', 'price' => 1200],
+                            ['starts_at' => '00:00', 'price' => 1000],
+                            ['starts_at' => '12:00', 'price' => 1200],
                         ],
                     ],
                     [
                         'play_time_minutes' => 90,
                         'prices' => [
-                            ['starts_at' => '00:00:00', 'price' => 1400],
+                            ['starts_at' => '00:00', 'price' => 1400],
                         ],
                     ],
                 ],
@@ -46,7 +46,7 @@ function validPriceRulesPayload(Court $court): array
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '00:00:00', 'price' => 900],
+                            ['starts_at' => '00:00', 'price' => 900],
                         ],
                     ],
                 ],
@@ -194,11 +194,11 @@ it('validates store payload structure and scalar constraints', function (Closure
     ],
     'starts_at format must be H:i:s' => [
         fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'][0]['starts_at'] = '9:00'),
-        'El campo hora de inicio debe coincidir con el formato H:i:s.',
+        'El campo hora de inicio debe coincidir con el formato H:i.',
     ],
-    'starts_at format must reject values without seconds and keep strict H:i:s' => [
-        fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'][0]['starts_at'] = '10:00'),
-        'El campo hora de inicio debe coincidir con el formato H:i:s.',
+    'starts_at format must reject values with seconds and keep strict H:i' => [
+        fn (array $payload): array => tap($payload, fn (&$p): string => $p['rules'][0]['items'][0]['prices'][0]['starts_at'] = '10:00:00'),
+        'El campo hora de inicio debe coincidir con el formato H:i.',
     ],
     'missing price' => [
         fn (array $payload): array => tap($payload, function (array &$p): void {
@@ -228,8 +228,8 @@ it('fails store when duplicated starts_at in the same prices list', function ():
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00:00', 'price' => 1200],
-                            ['starts_at' => '10:00:00', 'price' => 1400],
+                            ['starts_at' => '10:00', 'price' => 1200],
+                            ['starts_at' => '10:00', 'price' => 1400],
                         ],
                     ],
                 ],
@@ -245,7 +245,7 @@ it('fails store when duplicated starts_at in the same prices list', function ():
         'code' => 422,
         'messages' => [
             'Ya existe un precio configurado para ese día, duración y hora de inicio.',
-            'No podés definir turnos que se superpongan. El turno de 10:00:00 (60 min) invade el rango del turno de 10:00:00 (termina a las 11:00:00).',
+            'No podés definir turnos que se superpongan. El turno de 10:00 (60 min) invade el rango del turno de 10:00 (termina a las 11:00).',
         ],
     ]);
 });
@@ -262,13 +262,13 @@ it('fails store when duplicated play_time_minutes in the same day', function ():
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00:00', 'price' => 1000],
+                            ['starts_at' => '10:00', 'price' => 1000],
                         ],
                     ],
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00:00', 'price' => 1500],
+                            ['starts_at' => '10:00', 'price' => 1500],
                         ],
                     ],
                 ],
@@ -299,14 +299,14 @@ it('fails store when duplicated logical slot appears in a complex payload', func
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '09:00:00', 'price' => 1000],
-                            ['starts_at' => '10:00:00', 'price' => 1200],
+                            ['starts_at' => '09:00', 'price' => 1000],
+                            ['starts_at' => '10:00', 'price' => 1200],
                         ],
                     ],
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00:00', 'price' => 1300],
+                            ['starts_at' => '10:00', 'price' => 1300],
                         ],
                     ],
                 ],
@@ -337,15 +337,15 @@ it('reports every duplicated slot found in the same day payload', function (): v
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '09:00:00', 'price' => 1000],
-                            ['starts_at' => '10:00:00', 'price' => 1200],
+                            ['starts_at' => '09:00', 'price' => 1000],
+                            ['starts_at' => '10:00', 'price' => 1200],
                         ],
                     ],
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '09:00:00', 'price' => 1300],
-                            ['starts_at' => '10:00:00', 'price' => 1400],
+                            ['starts_at' => '09:00', 'price' => 1300],
+                            ['starts_at' => '10:00', 'price' => 1400],
                         ],
                     ],
                 ],
@@ -376,8 +376,8 @@ it('fails store when two slots overlap within the same play time item', function
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00:00', 'price' => 1000],
-                            ['starts_at' => '10:30:00', 'price' => 1200],
+                            ['starts_at' => '10:00', 'price' => 1000],
+                            ['starts_at' => '10:30', 'price' => 1200],
                         ],
                     ],
                 ],
@@ -389,7 +389,7 @@ it('fails store when two slots overlap within the same play time item', function
         ->assertExactJson([
             'code' => 422,
             'messages' => [
-                'No podés definir turnos que se superpongan. El turno de 10:30:00 (60 min) invade el rango del turno de 10:00:00 (termina a las 11:00:00).',
+                'No podés definir turnos que se superpongan. El turno de 10:30 (60 min) invade el rango del turno de 10:00 (termina a las 11:00).',
             ],
         ]);
 });
@@ -406,8 +406,8 @@ it('allows adjacent slots within the same play time item', function (): void {
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00:00', 'price' => 1000],
-                            ['starts_at' => '11:00:00', 'price' => 1200],
+                            ['starts_at' => '10:00', 'price' => 1000],
+                            ['starts_at' => '11:00', 'price' => 1200],
                         ],
                     ],
                 ],
@@ -431,8 +431,8 @@ it('fails store when price value is duplicated in same item', function (): void 
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '09:00:00', 'price' => 1400.50],
-                            ['starts_at' => '10:30:00', 'price' => 1400.50],
+                            ['starts_at' => '09:00', 'price' => 1400.50],
+                            ['starts_at' => '10:30', 'price' => 1400.50],
                         ],
                     ],
                 ],
@@ -463,8 +463,8 @@ it('allows different float and integer prices inside the same item', function ()
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '09:00:00', 'price' => 1000.1],
-                            ['starts_at' => '10:00:00', 'price' => 1000],
+                            ['starts_at' => '09:00', 'price' => 1000.1],
+                            ['starts_at' => '10:00', 'price' => 1000],
                         ],
                     ],
                 ],
@@ -488,9 +488,9 @@ it('reports every duplicated price found in the same item', function (): void {
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '09:00:00', 'price' => 1400],
-                            ['starts_at' => '10:00:00', 'price' => 1400],
-                            ['starts_at' => '11:00:00', 'price' => 1400],
+                            ['starts_at' => '09:00', 'price' => 1400],
+                            ['starts_at' => '10:00', 'price' => 1400],
+                            ['starts_at' => '11:00', 'price' => 1400],
                         ],
                     ],
                 ],
@@ -518,13 +518,13 @@ it('fails store when price value is duplicated across different items in the sam
                     [
                         'play_time_minutes' => 45,
                         'prices' => [
-                            ['starts_at' => '09:00:00', 'price' => 1000],
+                            ['starts_at' => '09:00', 'price' => 1000],
                         ],
                     ],
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00:00', 'price' => 1000],
+                            ['starts_at' => '10:00', 'price' => 1000],
                         ],
                     ],
                 ],
@@ -555,14 +555,14 @@ it('normalizes price precision and reports every duplicated price per day', func
                     [
                         'play_time_minutes' => 45,
                         'prices' => [
-                            ['starts_at' => '08:00:00', 'price' => 10.15],
+                            ['starts_at' => '08:00', 'price' => 10.15],
                         ],
                     ],
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '09:00:00', 'price' => 10.149],
-                            ['starts_at' => '10:00:00', 'price' => 10.151],
+                            ['starts_at' => '09:00', 'price' => 10.149],
+                            ['starts_at' => '10:00', 'price' => 10.151],
                         ],
                     ],
                 ],
@@ -590,15 +590,15 @@ it('reports one duplicate-price message per day with sorted price list', functio
                     [
                         'play_time_minutes' => 45,
                         'prices' => [
-                            ['starts_at' => '08:00:00', 'price' => 1500],
-                            ['starts_at' => '09:00:00', 'price' => 1200],
+                            ['starts_at' => '08:00', 'price' => 1500],
+                            ['starts_at' => '09:00', 'price' => 1200],
                         ],
                     ],
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '10:00:00', 'price' => 1200],
-                            ['starts_at' => '11:00:00', 'price' => 1500],
+                            ['starts_at' => '10:00', 'price' => 1200],
+                            ['starts_at' => '11:00', 'price' => 1500],
                         ],
                     ],
                 ],
@@ -609,13 +609,13 @@ it('reports one duplicate-price message per day with sorted price list', functio
                     [
                         'play_time_minutes' => 45,
                         'prices' => [
-                            ['starts_at' => '08:00:00', 'price' => 980.5],
+                            ['starts_at' => '08:00', 'price' => 980.5],
                         ],
                     ],
                     [
                         'play_time_minutes' => 60,
                         'prices' => [
-                            ['starts_at' => '09:00:00', 'price' => 980.50],
+                            ['starts_at' => '09:00', 'price' => 980.50],
                         ],
                     ],
                 ],
@@ -666,7 +666,7 @@ it('stores price rules for a court', function (): void {
     $this->assertDatabaseHas('court_price_rule_items', [
         'court_price_rule_id' => $baseRule->id,
         'play_time_minutes' => 60,
-        'price_starts_at' => '12:00:00',
+        'price_starts_at' => '12:00',
         'price' => 1200,
     ]);
 });
@@ -683,18 +683,21 @@ it('shows price rules with play time labels in prices', function (): void {
         'sport_type_id' => $sportType->id,
     ]);
 
-    $baseRule = CourtPriceRule::factory()->forCourt($court)->base()->createQuietly();
+    $baseRule = CourtPriceRule::factory()
+        ->forCourt($court)
+        ->base()
+        ->createQuietly();
 
     CourtPriceRuleItem::factory()
         ->forRule($baseRule)
         ->count(6)
         ->state(new Sequence(
-            ['play_time_minutes' => 60, 'price_starts_at' => '18:00:00', 'price' => 5000],
-            ['play_time_minutes' => 90, 'price_starts_at' => '18:00:00', 'price' => 6500],
-            ['play_time_minutes' => 60, 'price_starts_at' => '09:00:00', 'price' => 3000],
-            ['play_time_minutes' => 90, 'price_starts_at' => '09:00:00', 'price' => 4500],
-            ['play_time_minutes' => 60, 'price_starts_at' => '12:00:00', 'price' => 4000],
-            ['play_time_minutes' => 90, 'price_starts_at' => '12:00:00', 'price' => 5200],
+            ['play_time_minutes' => 60, 'price_starts_at' => '18:00', 'price' => 5000],
+            ['play_time_minutes' => 90, 'price_starts_at' => '18:00', 'price' => 6500],
+            ['play_time_minutes' => 60, 'price_starts_at' => '09:00', 'price' => 3000],
+            ['play_time_minutes' => 90, 'price_starts_at' => '09:00', 'price' => 4500],
+            ['play_time_minutes' => 60, 'price_starts_at' => '12:00', 'price' => 4000],
+            ['play_time_minutes' => 90, 'price_starts_at' => '12:00', 'price' => 5200],
         ))
         ->createQuietly();
 
@@ -704,8 +707,8 @@ it('shows price rules with play time labels in prices', function (): void {
         ->forRule($mondayRule)
         ->count(2)
         ->state(new Sequence(
-            ['play_time_minutes' => 60, 'price_starts_at' => '00:00:00', 'price' => 2800],
-            ['play_time_minutes' => 90, 'price_starts_at' => '00:00:00', 'price' => 4200],
+            ['play_time_minutes' => 60, 'price_starts_at' => '00:00', 'price' => 2800],
+            ['play_time_minutes' => 90, 'price_starts_at' => '00:00', 'price' => 4200],
         ))
         ->createQuietly();
 
@@ -714,31 +717,31 @@ it('shows price rules with play time labels in prices', function (): void {
         ->assertExactJson([
             'court_id' => $court->id,
             'play_time' => [60, 90],
-            'price_starts_at' => ['00:00:00', '09:00:00', '12:00:00', '18:00:00'],
+            'price_starts_at' => ['00:00', '09:00', '12:00', '18:00'],
             'days' => [
                 [
                     'day' => 'base',
                     'label' => 'Por defecto',
                     'time_slots' => [
                         [
-                            'label' => 'Desde 09:00:00',
-                            'starts_at' => '09:00:00',
+                            'label' => 'Desde 09:00',
+                            'starts_at' => '09:00',
                             'prices' => [
                                 '60 min' => '3000.00',
                                 '90 min' => '4500.00',
                             ],
                         ],
                         [
-                            'label' => 'Desde 12:00:00',
-                            'starts_at' => '12:00:00',
+                            'label' => 'Desde 12:00',
+                            'starts_at' => '12:00',
                             'prices' => [
                                 '60 min' => '4000.00',
                                 '90 min' => '5200.00',
                             ],
                         ],
                         [
-                            'label' => 'Desde 18:00:00',
-                            'starts_at' => '18:00:00',
+                            'label' => 'Desde 18:00',
+                            'starts_at' => '18:00',
                             'prices' => [
                                 '60 min' => '5000.00',
                                 '90 min' => '6500.00',
@@ -751,8 +754,8 @@ it('shows price rules with play time labels in prices', function (): void {
                     'label' => 'Lunes',
                     'time_slots' => [
                         [
-                            'label' => 'Desde 00:00:00',
-                            'starts_at' => '00:00:00',
+                            'label' => 'Desde 00:00',
+                            'starts_at' => '00:00',
                             'prices' => [
                                 '60 min' => '2800.00',
                                 '90 min' => '4200.00',
@@ -812,7 +815,7 @@ it('replaces old data on each store call', function (): void {
     ]);
 
     $oldRule = CourtPriceRule::factory()->forCourt($court)->base()->createQuietly();
-    CourtPriceRuleItem::factory()->forRule($oldRule)->forPlayTimeMinutes(60)->startingAt('08:00:00')->createQuietly([
+    CourtPriceRuleItem::factory()->forRule($oldRule)->forPlayTimeMinutes(60)->startingAt('08:00')->createQuietly([
         'price' => 500,
     ]);
 

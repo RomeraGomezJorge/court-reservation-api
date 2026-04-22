@@ -10,6 +10,7 @@ use App\Models\Court;
 use App\Models\CourtPriceRule;
 use App\Models\CourtPriceRuleItem;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Date;
 
 final class CourtPriceRulesShowBuilderService
 {
@@ -36,6 +37,11 @@ final class CourtPriceRulesShowBuilderService
 
         $playTime = CourtPriceRuleItem::query()->getPlayTimesForCourt($court->id);
         $priceStartsAt = CourtPriceRuleItem::query()->getPriceStartsAtForCourt($court->id);
+
+        $priceStartsAt = array_map(
+            fn (string $time): string => Date::createFromFormat('H:i:s', $time)->format('H:i'),
+            $priceStartsAt,
+        );
 
         return [
             'court_id' => $court->id,
@@ -86,7 +92,7 @@ final class CourtPriceRulesShowBuilderService
         $itemsGroupedByStartTime = [];
 
         foreach ($priceRule->items as $item) {
-            $startTime = $item->price_starts_at;
+            $startTime = Date::createFromFormat('H:i:s', $item->price_starts_at)->format('H:i');
             $itemsGroupedByStartTime[$startTime][] = $item;
         }
 
