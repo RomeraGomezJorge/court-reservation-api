@@ -6,6 +6,7 @@ namespace App\Builders;
 
 use App\Enums\PlayTime;
 use App\Models\CourtPriceRuleItem;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -35,7 +36,7 @@ final class CourtPriceRuleItemBuilder extends Builder
     /**
      * Retrieves unique and sorted price start times for a court.
      *
-     * @return array<int, string>
+     * @return array<int,CarbonImmutable>
      */
     public function getPriceStartsAtForCourt(int $courtId): array
     {
