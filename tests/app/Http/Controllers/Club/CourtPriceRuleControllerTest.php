@@ -666,7 +666,7 @@ it('stores price rules for a court', function (): void {
     $this->assertDatabaseHas('court_price_rule_items', [
         'court_price_rule_id' => $baseRule->id,
         'play_time_minutes' => 60,
-        'price_starts_at' => '12:00',
+        'price_starts_at' => '12:00:00',
         'price' => 1200,
     ]);
 });

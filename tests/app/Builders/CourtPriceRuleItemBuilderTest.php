@@ -151,7 +151,7 @@ it('returns price start times ordered correctly', function (): void {
 
     CourtPriceRuleItem::factory()
         ->for($rule, 'priceRule')
-        ->count(4)
+        ->count(3)
         ->sequence(
             ['price_starts_at' => '18:00:00'],
             ['price_starts_at' => '08:00:00'],
@@ -210,6 +210,8 @@ it('deduplicates price start times correctly', function (): void {
 
     $priceStartTimes = CourtPriceRuleItem::query()
         ->getPriceStartsAtForCourt($court->id);
+
+    $this->assertCount(1, $priceStartTimes);
 
     $this->assertEquals(
         $priceStartTimes[0]->format('H:i:s'),
