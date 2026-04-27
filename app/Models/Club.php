@@ -143,4 +143,14 @@ final class Club extends Model
     {
         return $this->hasMany(Court::class);
     }
+
+    /**
+     * Get the app users that belong to this club.
+     *
+     * @return BelongsToMany<AppUser, $this>
+     */
+    public function appUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(AppUser::class, 'app_user_club');
+    }
 }
