@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Club\ActiveFeatureController;
 use App\Http\Controllers\Club\ActiveSportTypeController;
+use App\Http\Controllers\Club\ClubAppUserController;
 use App\Http\Controllers\Club\ClubController;
 use App\Http\Controllers\Club\ClubStatusToggleController;
 use App\Http\Controllers\Club\CourtAvailabilityToggleController;
@@ -41,6 +42,7 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
         CLUB
     =============================================*/
     Route::apiResource('clubs', ClubController::class);
+    Route::apiResource('clubs.app-users', ClubAppUserController::class);
     Route::patch('clubs/{club}/toggle-active', ClubStatusToggleController::class);
 
     /*=============================================

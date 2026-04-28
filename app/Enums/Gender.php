@@ -15,4 +15,3 @@ enum Gender: string
         return __('genders.'.$this->value);
     }
 }
-

@@ -14,4 +14,3 @@ final class AppUserSeeder extends Seeder
         AppUser::factory(10)->create();
     }
 }
-

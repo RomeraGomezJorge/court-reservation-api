@@ -45,4 +45,3 @@ final class AppUserFactory extends Factory
         ]);
     }
 }
-

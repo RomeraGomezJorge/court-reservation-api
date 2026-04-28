@@ -7,4 +7,3 @@ return [
     'female' => 'Femenino',
     'other' => 'Otro',
 ];
-

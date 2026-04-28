@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\AppUser;
 use App\Models\ClubUser;
 use App\Models\User;
 
@@ -45,6 +46,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'app_user' => [
+            'driver' => 'session',
+            'provider' => 'app_users',
+        ],
     ],
 
     /*
@@ -72,6 +77,10 @@ return [
         'club_users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', ClubUser::class),
+        ],
+        'app_users' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL', AppUser::class),
         ],
 
         // 'users' => [

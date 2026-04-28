@@ -99,4 +99,3 @@ final class AppUser extends Authenticatable implements MustVerifyEmail
         return $model->{$relation}()->is($this);
     }
 }
-
