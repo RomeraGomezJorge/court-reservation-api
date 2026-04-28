@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\Club;
 
 use App\Enums\Gender;
-use App\Models\AppUser;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,11 +24,10 @@ final class StoreAppUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            'phone_number' => ['required', 'string', 'max:50','unique:app_users,phone_number'],
+            'phone_number' => ['required', 'string', 'max:50', 'unique:app_users,phone_number'],
             'email' => ['nullable', 'email', 'max:100', 'unique:app_users,email'],
             'birthday' => ['required', 'date', 'before_or_equal:today'],
             'gender' => ['required', Rule::enum(Gender::class)],
         ];
     }
-
 }

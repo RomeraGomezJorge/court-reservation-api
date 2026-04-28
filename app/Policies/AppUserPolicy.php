@@ -54,5 +54,4 @@ final class AppUserPolicy
 
         return Response::allow();
     }
-
 }

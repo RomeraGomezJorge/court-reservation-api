@@ -47,7 +47,7 @@ function appUserIndexResponsePayload(string $path, array $appUsers): array
 
     return [
         'data' => array_map(
-            fn (AppUser $appUser): array => appUserResourcePayload($appUser),
+            appUserResourcePayload(...),
             $appUsers,
         ),
         'links' => [
@@ -245,6 +245,10 @@ it('fails to store an app user with invalid data', function (array $invalidData,
         'invalidData' => ['name' => ''],
         'expectedMessages' => ['El campo nombre es obligatorio.'],
     ],
+    'empty last name' => [
+        'invalidData' => ['last_name' => ''],
+        'expectedMessages' => ['El campo apellido es obligatorio.'],
+    ],
     'duplicate phone number' => [
         'invalidData' => ['phone_number' => 'duplicado-telefono'],
         'expectedMessages' => ['El campo teléfono ya ha sido registrado.'],
@@ -255,11 +259,11 @@ it('fails to store an app user with invalid data', function (array $invalidData,
     ],
     'future birthday' => [
         'invalidData' => ['birthday' => '2999-01-01'],
-        'expectedMessages' => ['El campo birthday debe ser una fecha anterior o igual a today.'],
+        'expectedMessages' => ['El campo fecha de nacimiento debe ser una fecha anterior o igual a today.'],
     ],
     'invalid gender' => [
         'invalidData' => ['gender' => 'invalid-gender'],
-        'expectedMessages' => ['El campo gender no está en la lista de valores permitidos.'],
+        'expectedMessages' => ['El campo género no está en la lista de valores permitidos.'],
     ],
 ]);
 

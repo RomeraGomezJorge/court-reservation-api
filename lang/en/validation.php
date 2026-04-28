@@ -204,5 +204,8 @@ return [
         'working_days.*.closing_hour' => 'closing hour',
         'working_days.*.day' => 'day',
         'working_days.*.opening_hour' => 'opening hour',
+        'last_name' => 'last name',
+        'birthday' => 'birthday',
+        'gender' => 'gender',
     ],
 ];

@@ -205,5 +205,8 @@ return [
         'working_days.*.closing_hour' => 'hora de cierre',
         'working_days.*.day' => 'día',
         'working_days.*.opening_hour' => 'hora de apertura',
+        'last_name' => 'apellido',
+        'birthday' => 'fecha de nacimiento',
+        'gender' => 'género',
     ],
 ];

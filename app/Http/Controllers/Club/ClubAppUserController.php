@@ -29,10 +29,10 @@ final class ClubAppUserController
         $appUsers = $club->appUsers()
             ->latest(AppUser::query()->getModel()->getQualifiedKeyName())
             ->when($request->validated('name'), function ($query, string $name): void {
-                $query->whereLike('name',  "%{$name}%");
+                $query->whereLike('name', "%{$name}%");
             })
             ->when($request->validated('last_name'), function ($query, string $lastName): void {
-                $query->whereLike('last_name',  "%{$lastName}%");
+                $query->whereLike('last_name', "%{$lastName}%");
             })
             ->when($request->validated('phone_number'), function ($query, string $phoneNumber): void {
                 $query->whereLike('phone_number', "%{$phoneNumber}%");
