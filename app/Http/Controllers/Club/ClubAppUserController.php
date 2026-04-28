@@ -10,6 +10,7 @@ use App\Http\Requests\Club\UpdateAppUserRequest;
 use App\Http\Resources\Club\AppUserResource;
 use App\Models\AppUser;
 use App\Models\Club;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
@@ -28,13 +29,13 @@ final class ClubAppUserController
 
         $appUsers = $club->appUsers()
             ->latest(AppUser::query()->getModel()->getQualifiedKeyName())
-            ->when($request->validated('name'), function ($query, string $name): void {
+            ->when($request->validated('name'), function (Builder $query, string $name): void {
                 $query->whereLike('name', "%{$name}%");
             })
-            ->when($request->validated('last_name'), function ($query, string $lastName): void {
+            ->when($request->validated('last_name'), function (Builder $query, string $lastName): void {
                 $query->whereLike('last_name', "%{$lastName}%");
             })
-            ->when($request->validated('phone_number'), function ($query, string $phoneNumber): void {
+            ->when($request->validated('phone_number'), function (Builder $query, string $phoneNumber): void {
                 $query->whereLike('phone_number', "%{$phoneNumber}%");
             })
             ->paginate();
