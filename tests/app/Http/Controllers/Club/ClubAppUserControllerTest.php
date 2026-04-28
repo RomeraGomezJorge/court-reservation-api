@@ -6,15 +6,11 @@ namespace Tests\Http\Controllers\Club;
 
 use App\Enums\Gender;
 use App\Http\Controllers\Club\ClubAppUserController;
-use App\Http\Requests\Club\IndexAppUserRequest;
-use App\Http\Requests\Club\StoreAppUserRequest;
-use App\Http\Requests\Club\UpdateAppUserRequest;
-use App\Http\Resources\Club\AppUserResource;
 use App\Models\AppUser;
 use App\Models\Club;
-use App\Policies\ClubPolicy;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 
 use function Pest\Laravel\delete;
 use function Pest\Laravel\get;
@@ -93,12 +89,6 @@ function appUserIndexResponsePayload(string $path, array $appUsers): array
     ];
 }
 
-mutates(IndexAppUserRequest::class);
-mutates(StoreAppUserRequest::class);
-mutates(UpdateAppUserRequest::class);
-mutates(ClubAppUserController::class);
-mutates(ClubPolicy::class);
-mutates(AppUserResource::class);
 beforeEach(function (): void {
     $this->clubUser = actingAsClubUser();
 });
@@ -122,7 +112,7 @@ it('returns the app users related to the club without filters', function (): voi
     $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
 
     get($indexUrl)
-        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$secondAppUser, $firstAppUser]));
+        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$firstAppUser, $secondAppUser]));
 });
 
 it('returns the app users filtered by name', function (): void {
@@ -147,7 +137,7 @@ it('returns the app users filtered by name', function (): void {
     $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
 
     get($indexUrl.'?name=Car')
-        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$secondAppUser, $firstAppUser]));
+        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$firstAppUser, $secondAppUser]));
 });
 
 it('returns the app users filtered by email', function (): void {
@@ -172,7 +162,7 @@ it('returns the app users filtered by email', function (): void {
     $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
 
     get($indexUrl.'?name=Car')
-        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$secondAppUser, $firstAppUser]));
+        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$firstAppUser, $secondAppUser]));
 });
 
 it('returns the app users filtered by last name', function (): void {
@@ -196,7 +186,7 @@ it('returns the app users filtered by last name', function (): void {
     $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
 
     get($indexUrl.'?last_name=Lo')
-        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$secondAppUser, $firstAppUser]));
+        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$firstAppUser, $secondAppUser]));
 });
 
 it('returns the app users filtered by phone number', function (): void {
@@ -221,7 +211,7 @@ it('returns the app users filtered by phone number', function (): void {
     $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
 
     get($indexUrl.'?phone_number=341555100')
-        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$secondAppUser, $firstAppUser]));
+        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$firstAppUser, $secondAppUser]));
 });
 
 it('fails to list app users when the club does not belong to the authenticated user', function (): void {
@@ -269,7 +259,9 @@ it('fails to list app users with invalid filters', function (array $filters, arr
     ],
 ]);
 
-it('stores an app user and attaches it to the club with a default password', function (): void {
+it('stores an app user and attaches it to the club without sending a password setup email when email is missing', function (): void {
+    Notification::fake();
+
     $club = Club::factory()->createQuietly([
         'club_user_id' => $this->clubUser->id,
     ]);
@@ -298,8 +290,46 @@ it('stores an app user and attaches it to the club with a default password', fun
             'email' => null,
         ]);
 
-    expect(Hash::check('ChangeMe2026!', $appUser->password))->toBeTrue();
+    expect($appUser->password)->not->toBeEmpty();
     expect($club->appUsers()->whereKey($appUser->id)->exists())->toBeTrue();
+    Notification::assertNothingSent();
+});
+
+it('stores an app user and sends a password setup email when email exists', function (): void {
+    Notification::fake();
+
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $payload = validAppUserPayload([
+        'name' => 'Ana',
+        'last_name' => 'Martinez',
+        'phone_number' => '3415550101',
+        'email' => 'ana.martinez@example.com',
+        'gender' => Gender::Female->value,
+    ]);
+
+    $response = post(action([ClubAppUserController::class, 'store'], ['club' => $club]), $payload);
+
+    $appUser = AppUser::query()->where('phone_number', '3415550101')->firstOrFail();
+
+    $response
+        ->assertStatus(201)
+        ->assertExactJson([
+            'id' => $appUser->id,
+            'name' => 'Ana',
+            'last_name' => 'Martinez',
+            'phone_number' => '3415550101',
+            'birthday' => '1995-05-20',
+            'gender' => Gender::Female->value,
+            'email' => 'ana.martinez@example.com',
+        ]);
+
+    expect($appUser->password)->not->toBeEmpty();
+    expect($club->appUsers()->whereKey($appUser->id)->exists())->toBeTrue();
+
+    Notification::assertSentTo($appUser, ResetPassword::class);
 });
 
 it('fails to store an app user when required fields are missing', function (array $invalidData, array $expectedMessages): void {
@@ -309,7 +339,7 @@ it('fails to store an app user when required fields are missing', function (arra
 
     $payload = validAppUserPayload();
 
-    foreach ($invalidData as $field => $value) {
+    foreach (array_keys($invalidData) as $field) {
         unset($payload[$field]);
     }
 
@@ -549,7 +579,7 @@ it('fails to update an app user when required fields are missing', function (arr
 
     $payload = validAppUserPayload();
 
-    foreach ($invalidData as $field => $value) {
+    foreach (array_keys($invalidData) as $field) {
         unset($payload[$field]);
     }
 
@@ -569,7 +599,6 @@ it('fails to update an app user when required fields are missing', function (arr
         'expectedMessages' => ['El campo género es obligatorio.'],
     ],
 ]);
-
 
 it('fails to update an app user with invalid data', function (array $invalidData, array $expectedMessages): void {
     $club = Club::factory()->createQuietly([

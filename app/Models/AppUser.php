@@ -8,6 +8,8 @@ use App\Enums\Gender;
 use Carbon\CarbonInterface;
 use Database\Factories\AppUserFactory;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
+use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -35,8 +37,9 @@ use Override;
  * @property-read CarbonInterface|null $deleted_at
  * @property-read Collection<int, Club> $clubs
  */
-final class AppUser extends Authenticatable implements MustVerifyEmail
+final class AppUser extends Authenticatable implements CanResetPassword, MustVerifyEmail
 {
+    use CanResetPasswordTrait;
     use HasApiTokens;
 
     /** @use HasFactory<AppUserFactory> */

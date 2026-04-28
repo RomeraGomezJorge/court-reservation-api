@@ -16,19 +16,19 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 final class ClubAppUserController
 {
-    private const string DEFAULT_PASSWORD = 'ChangeMe2026!';
-
     public function index(IndexAppUserRequest $request, Club $club): AnonymousResourceCollection
     {
         Gate::authorize('view', $club);
 
         $appUsers = $club->appUsers()
-            ->latest(AppUser::query()->getModel()->getQualifiedKeyName())
+            ->latest()
             ->when($request->validated('name'), function (Builder $query, string $name): void {
                 $query->whereLike('name', "%{$name}%");
             })
@@ -56,10 +56,16 @@ final class ClubAppUserController
         $appUser = DB::transaction(function () use ($request, $club): AppUser {
             $appUser = AppUser::query()->create([
                 ...$request->validated(),
-                'password' => Hash::make(self::DEFAULT_PASSWORD),
+                'password' => Hash::make(Str::password(32)),
             ]);
 
             $club->appUsers()->attach($appUser->id);
+
+            DB::afterCommit(function () use ($appUser): void {
+                if ($appUser->email !== null) {
+                    Password::broker('app_users')->sendResetLink(['email' => $appUser->email]);
+                }
+            });
 
             return $appUser;
         });
