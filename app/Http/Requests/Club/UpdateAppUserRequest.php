@@ -32,7 +32,7 @@ final class UpdateAppUserRequest extends FormRequest
             'phone_number' => [
                 'required',
                 'string',
-                'max:100',
+                'max:50',
                 'unique:app_users,phone_number,'.$appUser->id,
             ],
             'email' => [

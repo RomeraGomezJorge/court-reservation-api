@@ -7,7 +7,7 @@ namespace App\Http\Requests\Club;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-final class AppUserIndexRequest extends FormRequest
+final class IndexAppUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -18,9 +18,10 @@ final class AppUserIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['nullable', 'string', 'max:255'],
-            'last_name' => ['nullable', 'string', 'max:255'],
-            'phone_number' => ['nullable', 'string', 'max:255'],
+            'name' => ['nullable',  'max:100'],
+            'last_name' => ['nullable',  'max:100'],
+            'email' => ['nullable','email','max:100'],
+            'phone_number' => ['nullable',  'max:50'],
         ];
     }
 }

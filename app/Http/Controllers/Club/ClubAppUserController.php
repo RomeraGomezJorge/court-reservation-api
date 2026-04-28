@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Club;
 
-use App\Http\Requests\Club\AppUserIndexRequest;
+use App\Http\Requests\Club\IndexAppUserRequest;
 use App\Http\Requests\Club\StoreAppUserRequest;
 use App\Http\Requests\Club\UpdateAppUserRequest;
 use App\Http\Resources\Club\AppUserResource;
@@ -23,7 +23,7 @@ final class ClubAppUserController
 {
     private const string DEFAULT_PASSWORD = 'ChangeMe2026!';
 
-    public function index(AppUserIndexRequest $request, Club $club): AnonymousResourceCollection
+    public function index(IndexAppUserRequest $request, Club $club): AnonymousResourceCollection
     {
         Gate::authorize('view', $club);
 
@@ -37,6 +37,9 @@ final class ClubAppUserController
             })
             ->when($request->validated('phone_number'), function (Builder $query, string $phoneNumber): void {
                 $query->whereLike('phone_number', "%{$phoneNumber}%");
+            })
+            ->when($request->validated('email'), function (Builder $query, string $email): void {
+                $query->whereLike('email', "%{$email}%");
             })
             ->paginate();
 
