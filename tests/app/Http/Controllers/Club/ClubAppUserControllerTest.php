@@ -8,6 +8,7 @@ use App\Enums\Gender;
 use App\Http\Controllers\Club\ClubAppUserController;
 use App\Models\AppUser;
 use App\Models\Club;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 
 use function Pest\Laravel\delete;
@@ -27,51 +28,164 @@ function validAppUserPayload(array $overrides = []): array
     ], $overrides);
 }
 
+function appUserResourcePayload(AppUser $appUser): array
+{
+    return [
+        'id' => $appUser->id,
+        'name' => $appUser->name,
+        'last_name' => $appUser->last_name,
+        'phone_number' => $appUser->phone_number,
+        'birthday' => Date::parse($appUser->birthday)->toDateString(),
+        'gender' => $appUser->gender->value,
+        'email' => $appUser->email,
+    ];
+}
+
+function appUserIndexResponsePayload(string $path, array $appUsers): array
+{
+    $pageUrl = $path.'?page=1';
+
+    return [
+        'data' => array_map(
+            fn (AppUser $appUser): array => appUserResourcePayload($appUser),
+            $appUsers,
+        ),
+        'links' => [
+            'first' => $pageUrl,
+            'last' => $pageUrl,
+            'prev' => null,
+            'next' => null,
+        ],
+        'meta' => [
+            'current_page' => 1,
+            'from' => 1,
+            'last_page' => 1,
+            'links' => [
+                [
+                    'url' => null,
+                    'label' => '&laquo; Anterior',
+                    'active' => false,
+                    'page' => null,
+                ],
+                [
+                    'url' => $pageUrl,
+                    'label' => '1',
+                    'active' => true,
+                    'page' => 1,
+                ],
+                [
+                    'url' => null,
+                    'label' => 'Siguiente &raquo;',
+                    'active' => false,
+                    'page' => null,
+                ],
+            ],
+            'path' => $path,
+            'per_page' => 15,
+            'to' => count($appUsers),
+            'total' => count($appUsers),
+        ],
+    ];
+}
+
 beforeEach(function (): void {
     $this->clubUser = actingAsClubUser();
 });
 
-it('returns the app users related to the club with filters applied', function (): void {
-    $club = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
-    ]);
+it('returns the app users related to the club without filters', function (): void {
 
-    $otherClub = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
-    ]);
+    [$club, $otherClub] = Club::factory()
+        ->count(2)
+        ->createQuietly([
+            'club_user_id' => $this->clubUser->id,
+        ]);
 
-    $firstAppUser = AppUser::factory()->createQuietly([
-        'name' => 'Carlos',
-        'last_name' => 'Lopez',
-        'phone_number' => '3415550001',
-        'birthday' => '1990-01-01',
-        'gender' => Gender::Male,
-    ]);
-
-    $secondAppUser = AppUser::factory()->createQuietly([
-        'name' => 'Carla',
-        'last_name' => 'Gomez',
-        'phone_number' => '3415550002',
-        'birthday' => '1991-02-02',
-        'gender' => Gender::Female,
-    ]);
-
-    $otherAppUser = AppUser::factory()->createQuietly([
-        'name' => 'Diego',
-        'last_name' => 'Diaz',
-        'phone_number' => '3415550003',
-        'birthday' => '1992-03-03',
-        'gender' => Gender::Other,
-    ]);
+    [$firstAppUser, $secondAppUser, $thirdAppUser] = AppUser::factory()
+        ->count(3)
+        ->createQuietly()
+        ->all();
 
     $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
-    $otherClub->appUsers()->attach($otherAppUser->id);
+    $otherClub->appUsers()->attach($thirdAppUser->id);
 
-    get(action([ClubAppUserController::class, 'index'], ['club' => $club]).'?name=Car')
-        ->assertStatus(200)
-        ->assertJsonCount(2, 'data')
-        ->assertJsonPath('data.0.id', $secondAppUser->id)
-        ->assertJsonPath('data.1.id', $firstAppUser->id);
+    $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
+
+    get($indexUrl)
+        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$secondAppUser, $firstAppUser]));
+});
+
+it('returns the app users filtered by name', function (): void {
+    [$club, $otherClub] = Club::factory()
+        ->count(2)
+        ->createQuietly([
+            'club_user_id' => $this->clubUser->id,
+        ]);
+
+    [$firstAppUser, $secondAppUser, $thirdAppUser] = AppUser::factory()
+        ->count(3)
+        ->sequence(
+            ['name' => 'Carlos'],
+            ['name' => 'Carla'],
+            ['name' => 'Diego'],
+        )
+        ->createQuietly();
+
+    $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
+    $otherClub->appUsers()->attach($thirdAppUser->id);
+
+    $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
+
+    get($indexUrl.'?name=Car')
+        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$secondAppUser, $firstAppUser]));
+});
+
+it('returns the app users filtered by last name', function (): void {
+    [$club, $otherClub] = Club::factory()
+        ->count(2)
+        ->createQuietly([
+            'club_user_id' => $this->clubUser->id,
+        ]);
+    [$firstAppUser, $secondAppUser, $thirdAppUser] = AppUser::factory()
+        ->count(3)
+        ->sequence(
+            ['last_name' => 'Lopez'],
+            ['last_name' => 'Lozano'],
+            ['last_name' => 'Diaz'],
+        )
+        ->createQuietly();
+
+    $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
+    $otherClub->appUsers()->attach($thirdAppUser->id);
+
+    $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
+
+    get($indexUrl.'?last_name=Lo')
+        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$secondAppUser, $firstAppUser]));
+});
+
+it('returns the app users filtered by phone number', function (): void {
+    [$club, $otherClub] = Club::factory()
+        ->count(2)
+        ->createQuietly([
+            'club_user_id' => $this->clubUser->id,
+        ]);
+
+    [$firstAppUser, $secondAppUser, $thirdAppUser] = AppUser::factory()
+        ->count(3)
+        ->sequence(
+            ['phone_number' => '3415551001'],
+            ['phone_number' => '3415551002'],
+            ['phone_number' => '9999999999'],
+        )
+        ->createQuietly();
+
+    $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
+    $otherClub->appUsers()->attach($thirdAppUser->id);
+
+    $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
+
+    get($indexUrl.'?phone_number=341555100')
+        ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$secondAppUser, $firstAppUser]));
 });
 
 it('stores an app user and attaches it to the club with a default password', function (): void {
