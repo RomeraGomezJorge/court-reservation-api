@@ -8,6 +8,7 @@ use App\Enums\Gender;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
 
 final class StoreRegisterAppUserRequest extends FormRequest
@@ -17,7 +18,7 @@ final class StoreRegisterAppUserRequest extends FormRequest
         return true;
     }
 
-    /** @return array<string, array<int, ValidationRule|Rule|string|Password>> */
+    /** @return array<string, array<int, ValidationRule|Rule|Enum|string|Password>> */
     public function rules(): array
     {
         return [

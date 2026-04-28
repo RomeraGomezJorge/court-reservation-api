@@ -14,6 +14,6 @@ final class LoginController
         /** @var AppUser $appUser */
         $appUser = AppUser::query()->where('email', $request->email)->firstOrFail();
 
-        return $appUser->createToken($appUser->email)->plainTextToken;
+        return $appUser->createToken($request->email)->plainTextToken;
     }
 }
