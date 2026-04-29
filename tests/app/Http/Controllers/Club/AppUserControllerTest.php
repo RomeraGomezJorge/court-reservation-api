@@ -259,42 +259,6 @@ it('fails to list app users with invalid filters', function (array $filters, arr
     ],
 ]);
 
-it('stores an app user and attaches it to the club without sending a password setup email when email is missing', function (): void {
-    Notification::fake();
-
-    $club = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
-    ]);
-
-    $payload = validAppUserPayload([
-        'name' => 'Ana',
-        'last_name' => 'Martinez',
-        'phone_number' => '3415550100',
-        'email' => null,
-        'gender' => Gender::Female->value,
-    ]);
-
-    $response = post(action([AppUserController::class, 'store'], ['club' => $club]), $payload);
-
-    $appUser = AppUser::query()->where('phone_number', '3415550100')->firstOrFail();
-
-    $response
-        ->assertStatus(201)
-        ->assertExactJson([
-            'id' => $appUser->id,
-            'name' => 'Ana',
-            'last_name' => 'Martinez',
-            'phone_number' => '3415550100',
-            'birthday' => '1995-05-20',
-            'gender' => Gender::Female->value,
-            'email' => null,
-        ]);
-
-    expect($appUser->password)->not->toBeEmpty();
-    expect($club->appUsers()->whereKey($appUser->id)->exists())->toBeTrue();
-    Notification::assertNothingSent();
-});
-
 it('stores an app user and sends a password setup email when email exists', function (): void {
     Notification::fake();
 

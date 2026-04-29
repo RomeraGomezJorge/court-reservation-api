@@ -62,9 +62,7 @@ final class AppUserController
             $club->appUsers()->attach($appUser->id);
 
             DB::afterCommit(function () use ($appUser): void {
-                if ($appUser->email !== null) {
-                    Password::broker('app_users')->sendResetLink(['email' => $appUser->email]);
-                }
+                Password::broker('app_users')->sendResetLink(['email' => $appUser->email]);
             });
 
             return $appUser;

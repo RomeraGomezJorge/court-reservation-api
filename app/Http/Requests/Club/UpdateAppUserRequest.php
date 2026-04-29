@@ -36,7 +36,6 @@ final class UpdateAppUserRequest extends FormRequest
                 'unique:app_users,phone_number,'.$appUser->id,
             ],
             'email' => [
-                'nullable',
                 'email',
                 'max:100',
                 'unique:app_users,email,'.$appUser->id,
