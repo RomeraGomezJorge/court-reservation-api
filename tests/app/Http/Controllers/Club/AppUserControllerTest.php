@@ -150,9 +150,9 @@ it('returns the app users filtered by email', function (): void {
     [$firstAppUser, $secondAppUser, $thirdAppUser] = AppUser::factory()
         ->count(3)
         ->sequence(
-            ['name' => 'Carlos@example.com'],
-            ['name' => 'Carla@example.com'],
-            ['name' => 'Diego@example.com'],
+            ['email' => 'Carlos@example.com'],
+            ['email' => 'Carla@example.com'],
+            ['email' => 'Diego@example.com'],
         )
         ->createQuietly();
 
@@ -161,7 +161,7 @@ it('returns the app users filtered by email', function (): void {
 
     $indexUrl = action([AppUserController::class, 'index'], ['club' => $club]);
 
-    get($indexUrl.'?name=Car')
+    get($indexUrl.'?email=Car')
         ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$firstAppUser, $secondAppUser]));
 });
 
@@ -252,10 +252,6 @@ it('fails to list app users with invalid filters', function (array $filters, arr
     'long phone number' => [
         'filters' => ['phone_number' => str_repeat('a', 51)],
         'expectedMessages' => ['El campo teléfono no debe ser mayor que 50 caracteres.'],
-    ],
-    'invalid email format' => [
-        'filters' => ['email' => 'invalid-email'],
-        'expectedMessages' => ['El campo correo electrónico no es un correo válido.'],
     ],
 ]);
 
