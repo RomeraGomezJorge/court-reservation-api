@@ -31,20 +31,6 @@ Content-Type: application/json
   "gender": "male"
 }
 
-### Update app user - removing email (nullable)
-PUT {{base_url}}/api/club/clubs/{{club_id}}/app-users/{{app_user_id}}
-Authorization: Bearer {{token_club_user}}
-Content-Type: application/json
-
-{
-  "name": "Juan",
-  "last_name": "Perez",
-  "phone_number": "3415550202",
-  "email": null,
-  "birthday": "1995-05-20",
-  "gender": "male"
-}
-
 ### FAIL: Update app user - empty name
 PUT {{base_url}}/api/club/clubs/{{club_id}}/app-users/{{app_user_id}}
 Authorization: Bearer {{token_club_user}}
