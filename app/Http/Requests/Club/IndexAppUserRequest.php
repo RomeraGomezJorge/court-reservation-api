@@ -20,7 +20,7 @@ final class IndexAppUserRequest extends FormRequest
         return [
             'name' => ['nullable', 'string', 'max:100'],
             'last_name' => ['nullable', 'string', 'max:100'],
-            'email' => ['nullable', 'max:100'],
+            'email' => ['nullable', 'string', 'max:100'],
             'phone_number' => ['nullable', 'string', 'max:50'],
         ];
     }
