@@ -1,0 +1,24 @@
+### Delete AppUser
+
+@club_id = 1
+@app_user_id = 3
+
+
+### Delete app user (only detaches from club, doesn't delete record)
+DELETE {{base_url}}/api/club/clubs/{{club_id}}/app-users/{{app_user_id}}
+Authorization: Bearer {{token_club_user}}
+Content-Type: application/json
+Accept: application/json
+
+### FAIL: Delete app user that doesn't belong to club
+DELETE {{base_url}}/api/club/clubs/{{club_id}}/app-users/9999
+Authorization: Bearer {{token_club_user}}
+Content-Type: application/json
+Accept: application/json
+
+### FAIL: Delete app user - no authorization (club doesn't belong to user)
+DELETE {{base_url}}/api/club/clubs/9999/app-users/{{app_user_id}}
+Authorization: Bearer {{token_club_user}}
+Content-Type: application/json
+Accept: application/json
+

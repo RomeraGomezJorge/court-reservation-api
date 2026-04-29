@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
-final class ClubAppUserController
+final class AppUserController
 {
     public function index(IndexAppUserRequest $request, Club $club): AnonymousResourceCollection
     {

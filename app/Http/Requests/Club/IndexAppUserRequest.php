@@ -18,10 +18,10 @@ final class IndexAppUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['nullable',  'max:100'],
-            'last_name' => ['nullable',  'max:100'],
+            'name' => ['nullable', 'string', 'max:100'],
+            'last_name' => ['nullable', 'string', 'max:100'],
             'email' => ['nullable', 'email', 'max:100'],
-            'phone_number' => ['nullable',  'max:50'],
+            'phone_number' => ['nullable', 'string', 'max:50'],
         ];
     }
 }

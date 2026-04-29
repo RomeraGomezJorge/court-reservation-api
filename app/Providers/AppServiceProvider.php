@@ -53,21 +53,21 @@ final class AppServiceProvider extends ServiceProvider
 
         JsonResource::withoutWrapping();
 
-        ResetPassword::createUrlUsing(callback: function (ClubUser|AppUser|User $notifiable, string $token): string {
+        ResetPassword::createUrlUsing(callback: function (ClubUser|User|AppUser $notifiable, string $token): string {
             $routeName = match (true) {
+                $notifiable instanceof User => 'admin',
                 $notifiable instanceof ClubUser => 'club',
                 $notifiable instanceof AppUser => 'app',
-                $notifiable instanceof User => 'admin',
             };
 
             return config()->string('app.spa_url')."/#/{$routeName}/auth/reset-password/".$token;
         });
 
-        VerifyEmail::createUrlUsing(function (ClubUser|AppUser|User $notifiable) {
+        VerifyEmail::createUrlUsing(function (ClubUser|User|AppUser $notifiable) {
             $routeName = match (true) {
+                $notifiable instanceof User => 'verification.verify',
                 $notifiable instanceof ClubUser => 'verification.club.verify',
                 $notifiable instanceof AppUser => 'verification.app.verify',
-                $notifiable instanceof User => 'verification.verify',
             };
 
             return URL::temporarySignedRoute(

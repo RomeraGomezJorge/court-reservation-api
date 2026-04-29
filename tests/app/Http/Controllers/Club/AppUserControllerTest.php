@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Http\Controllers\Club;
 
 use App\Enums\Gender;
-use App\Http\Controllers\Club\ClubAppUserController;
+use App\Http\Controllers\Club\AppUserController;
 use App\Models\AppUser;
 use App\Models\Club;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -109,7 +109,7 @@ it('returns the app users related to the club without filters', function (): voi
     $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
     $otherClub->appUsers()->attach($thirdAppUser->id);
 
-    $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
+    $indexUrl = action([AppUserController::class, 'index'], ['club' => $club]);
 
     get($indexUrl)
         ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$firstAppUser, $secondAppUser]));
@@ -134,7 +134,7 @@ it('returns the app users filtered by name', function (): void {
     $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
     $otherClub->appUsers()->attach($thirdAppUser->id);
 
-    $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
+    $indexUrl = action([AppUserController::class, 'index'], ['club' => $club]);
 
     get($indexUrl.'?name=Car')
         ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$firstAppUser, $secondAppUser]));
@@ -159,7 +159,7 @@ it('returns the app users filtered by email', function (): void {
     $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
     $otherClub->appUsers()->attach($thirdAppUser->id);
 
-    $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
+    $indexUrl = action([AppUserController::class, 'index'], ['club' => $club]);
 
     get($indexUrl.'?name=Car')
         ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$firstAppUser, $secondAppUser]));
@@ -183,7 +183,7 @@ it('returns the app users filtered by last name', function (): void {
     $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
     $otherClub->appUsers()->attach($thirdAppUser->id);
 
-    $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
+    $indexUrl = action([AppUserController::class, 'index'], ['club' => $club]);
 
     get($indexUrl.'?last_name=Lo')
         ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$firstAppUser, $secondAppUser]));
@@ -208,7 +208,7 @@ it('returns the app users filtered by phone number', function (): void {
     $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
     $otherClub->appUsers()->attach($thirdAppUser->id);
 
-    $indexUrl = action([ClubAppUserController::class, 'index'], ['club' => $club]);
+    $indexUrl = action([AppUserController::class, 'index'], ['club' => $club]);
 
     get($indexUrl.'?phone_number=341555100')
         ->assertExactJson(appUserIndexResponsePayload($indexUrl, [$firstAppUser, $secondAppUser]));
@@ -217,7 +217,7 @@ it('returns the app users filtered by phone number', function (): void {
 it('fails to list app users when the club does not belong to the authenticated user', function (): void {
     $club = Club::factory()->createQuietly();
 
-    get(action([ClubAppUserController::class, 'index'], ['club' => $club]))
+    get(action([AppUserController::class, 'index'], ['club' => $club]))
         ->assertNotFound()
         ->assertExactJson([
             'code' => 404,
@@ -230,7 +230,7 @@ it('fails to list app users with invalid filters', function (array $filters, arr
         'club_user_id' => $this->clubUser->id,
     ]);
 
-    get(action([ClubAppUserController::class, 'index'], ['club' => $club]).'?'.http_build_query($filters))
+    get(action([AppUserController::class, 'index'], ['club' => $club]).'?'.http_build_query($filters))
         ->assertStatus(422)
         ->assertExactJson([
             'code' => 422,
@@ -274,7 +274,7 @@ it('stores an app user and attaches it to the club without sending a password se
         'gender' => Gender::Female->value,
     ]);
 
-    $response = post(action([ClubAppUserController::class, 'store'], ['club' => $club]), $payload);
+    $response = post(action([AppUserController::class, 'store'], ['club' => $club]), $payload);
 
     $appUser = AppUser::query()->where('phone_number', '3415550100')->firstOrFail();
 
@@ -310,7 +310,7 @@ it('stores an app user and sends a password setup email when email exists', func
         'gender' => Gender::Female->value,
     ]);
 
-    $response = post(action([ClubAppUserController::class, 'store'], ['club' => $club]), $payload);
+    $response = post(action([AppUserController::class, 'store'], ['club' => $club]), $payload);
 
     $appUser = AppUser::query()->where('phone_number', '3415550101')->firstOrFail();
 
@@ -343,7 +343,7 @@ it('fails to store an app user when required fields are missing', function (arra
         unset($payload[$field]);
     }
 
-    post(action([ClubAppUserController::class, 'store'], ['club' => $club]), $payload)
+    post(action([AppUserController::class, 'store'], ['club' => $club]), $payload)
         ->assertStatus(422)
         ->assertExactJson([
             'code' => 422,
@@ -373,7 +373,7 @@ it('fails to store an app user with invalid data', function (array $invalidData,
         AppUser::factory()->createQuietly(['phone_number' => 'duplicado-telefono']);
     }
 
-    post(action([ClubAppUserController::class, 'store'], ['club' => $club]), validAppUserPayload($invalidData))
+    post(action([AppUserController::class, 'store'], ['club' => $club]), validAppUserPayload($invalidData))
         ->assertStatus(422)
         ->assertExactJson([
             'code' => 422,
@@ -457,7 +457,7 @@ it('shows an app user belonging to the club', function (): void {
 
     $club->appUsers()->attach($appUser->id);
 
-    get(action([ClubAppUserController::class, 'show'], ['club' => $club, 'app_user' => $appUser]))
+    get(action([AppUserController::class, 'show'], ['club' => $club, 'app_user' => $appUser]))
         ->assertStatus(200)
         ->assertExactJson([
             'id' => $appUser->id,
@@ -477,7 +477,7 @@ it('fails to show an app user that does not belong to the club', function (): vo
 
     $appUser = AppUser::factory()->createQuietly();
 
-    get(action([ClubAppUserController::class, 'show'], ['club' => $club, 'app_user' => $appUser]))
+    get(action([AppUserController::class, 'show'], ['club' => $club, 'app_user' => $appUser]))
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
@@ -500,7 +500,7 @@ it('updates an app user belonging to the club', function (): void {
 
     $club->appUsers()->attach($appUser->id);
 
-    $response = put(action([ClubAppUserController::class, 'update'], ['club' => $club, 'app_user' => $appUser]), validAppUserPayload([
+    $response = put(action([AppUserController::class, 'update'], ['club' => $club, 'app_user' => $appUser]), validAppUserPayload([
         'name' => 'Pedro Actualizado',
         'last_name' => 'Sanchez Actualizado',
         'phone_number' => '3415550301',
@@ -542,7 +542,7 @@ it('updates an app user keeping the same unique fields', function (): void {
 
     $club->appUsers()->attach($appUser->id);
 
-    put(action([ClubAppUserController::class, 'update'], ['club' => $club, 'app_user' => $appUser]), [
+    put(action([AppUserController::class, 'update'], ['club' => $club, 'app_user' => $appUser]), [
         'name' => 'Pedro',
         'last_name' => 'Sanchez',
         'phone_number' => '3415550300',
@@ -561,7 +561,7 @@ it('fails to update an app user that does not belong to the club', function (): 
 
     $appUser = AppUser::factory()->createQuietly();
 
-    put(action([ClubAppUserController::class, 'update'], ['club' => $club, 'app_user' => $appUser]), validAppUserPayload())
+    put(action([AppUserController::class, 'update'], ['club' => $club, 'app_user' => $appUser]), validAppUserPayload())
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,
@@ -583,7 +583,7 @@ it('fails to update an app user when required fields are missing', function (arr
         unset($payload[$field]);
     }
 
-    put(action([ClubAppUserController::class, 'update'], ['club' => $club, 'app_user' => $appUser]), $payload)
+    put(action([AppUserController::class, 'update'], ['club' => $club, 'app_user' => $appUser]), $payload)
         ->assertStatus(422)
         ->assertExactJson([
             'code' => 422,
@@ -617,7 +617,7 @@ it('fails to update an app user with invalid data', function (array $invalidData
 
     $club->appUsers()->attach($appUser->id);
 
-    put(action([ClubAppUserController::class, 'update'], ['club' => $club, 'app_user' => $appUser]), validAppUserPayload($invalidData))
+    put(action([AppUserController::class, 'update'], ['club' => $club, 'app_user' => $appUser]), validAppUserPayload($invalidData))
         ->assertStatus(422)
         ->assertExactJson([
             'code' => 422,
@@ -699,7 +699,7 @@ it('detaches an app user from the club without deleting it', function (): void {
 
     $club->appUsers()->attach($appUser->id);
 
-    delete(action([ClubAppUserController::class, 'destroy'], ['club' => $club, 'app_user' => $appUser]))
+    delete(action([AppUserController::class, 'destroy'], ['club' => $club, 'app_user' => $appUser]))
         ->assertNoContent();
 
     expect($club->appUsers()->whereKey($appUser->id)->exists())->toBeFalse();
@@ -713,7 +713,7 @@ it('fails to delete an app user that does not belong to the club', function (): 
 
     $appUser = AppUser::factory()->createQuietly();
 
-    delete(action([ClubAppUserController::class, 'destroy'], ['club' => $club, 'app_user' => $appUser]))
+    delete(action([AppUserController::class, 'destroy'], ['club' => $club, 'app_user' => $appUser]))
         ->assertStatus(404)
         ->assertExactJson([
             'code' => 404,

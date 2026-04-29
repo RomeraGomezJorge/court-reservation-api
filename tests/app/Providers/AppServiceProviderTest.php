@@ -98,7 +98,7 @@ it('throws type error for unsupported verify email notifiable', function (): voi
     bootAppServiceProvider();
 
     $this->expectException(TypeError::class);
-    $this->expectExceptionMessage('must be of type App\\Models\\ClubUser|App\\Models\\User');
+    $this->expectExceptionMessage('must be of type App\\Models\\ClubUser|App\\Models\\User|App\\Models\\AppUser');
 
     invokeNotificationCallback(VerifyEmail::class, new stdClass());
 });
