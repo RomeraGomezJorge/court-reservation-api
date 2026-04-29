@@ -19,7 +19,7 @@ use Override;
  * @property-read int $court_price_rule_id
  * @property-read PlayTime $play_time_minutes
  * @property-read string $price
- * @property-read string $price_starts_at
+ * @property-read CarbonInterface $price_starts_at
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read CourtPriceRule $priceRule
@@ -51,7 +51,7 @@ final class CourtPriceRuleItem extends Model
             'court_price_rule_id' => 'int',
             'play_time_minutes' => PlayTime::class,
             'price' => 'decimal:2',
-            'price_starts_at' => 'string',
+            'price_starts_at' => 'datetime:H:i:s',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

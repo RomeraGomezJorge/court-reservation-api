@@ -9,6 +9,7 @@ use App\Enums\PlayTime;
 use App\Models\Court;
 use App\Models\CourtPriceRule;
 use App\Models\CourtPriceRuleItem;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
 
 final class CourtPriceRulesShowBuilderService
@@ -34,8 +35,13 @@ final class CourtPriceRulesShowBuilderService
         /** @var Collection<int, CourtPriceRule> $priceRules */
         $priceRules = $court->priceRules()->with('items')->get();
 
-        $playTime = CourtPriceRuleItem::query()->getPlayTimesForCourt($court->id);
         $priceStartsAt = CourtPriceRuleItem::query()->getPriceStartsAtForCourt($court->id);
+        $playTime = CourtPriceRuleItem::query()->getPlayTimesForCourt($court->id);
+
+        $priceStartsAt = array_map(
+            fn (CarbonImmutable $time): string => $time->format('H:i'),
+            $priceStartsAt,
+        );
 
         return [
             'court_id' => $court->id,
@@ -86,7 +92,7 @@ final class CourtPriceRulesShowBuilderService
         $itemsGroupedByStartTime = [];
 
         foreach ($priceRule->items as $item) {
-            $startTime = $item->price_starts_at;
+            $startTime = $item->price_starts_at->format('H:i');
             $itemsGroupedByStartTime[$startTime][] = $item;
         }
 
