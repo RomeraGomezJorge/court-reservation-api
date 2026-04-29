@@ -25,7 +25,7 @@ final class StoreAppUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'phone_number' => ['required', 'string', 'max:50', 'unique:app_users,phone_number'],
-            'email' => ['email', 'max:100', 'unique:app_users,email'],
+            'email' => ['required', 'string', 'email', 'max:100', 'unique:app_users,email'],
             'birthday' => ['required', 'date', 'before_or_equal:today'],
             'gender' => ['required', Rule::enum(Gender::class)],
         ];
