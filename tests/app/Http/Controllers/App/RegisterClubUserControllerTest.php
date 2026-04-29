@@ -18,9 +18,9 @@ beforeEach(function (): void {
     Notification::fake();
 
     $this->validPayload = [
-        'name' => fake()->name,
-        'last_name' => fake()->lastName,
-        'phone_number' => fake()->phoneNumber,
+        'name' => fake()->name(),
+        'last_name' => fake()->lastName(),
+        'phone_number' => fake()->phoneNumber(),
         'birthday' => fake()->date('Y-m-d', '-18 years'),
         'gender' => Gender::Male->value,
         'email' => 'app-user-register@example.com',
@@ -155,7 +155,6 @@ it('fails to register an app user with invalid data', function (array $invalidDa
         'expectedMessages' => ['La confirmación de contraseña no coincide.'],
     ],
 ]);
-
 
 it('verifies email and redirects to success page', function (): void {
     $appUser = AppUser::factory()->unverified()->createQuietly();
