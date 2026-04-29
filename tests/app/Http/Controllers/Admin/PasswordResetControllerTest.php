@@ -147,5 +147,3 @@ it('fails to reset password when token is invalid or expired', function (): void
 
     expect(Hash::check('ValidPassword.123!', $this->user->password))->toBeFalse();
 });
-
-
