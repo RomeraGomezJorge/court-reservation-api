@@ -10,6 +10,7 @@ use App\Models\AppUser;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
 
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
@@ -159,30 +160,36 @@ it('fails to register an app user with invalid data', function (array $invalidDa
 it('verifies email and redirects to success page', function (): void {
     $appUser = AppUser::factory()->unverified()->createQuietly();
 
-    get(action([RegisterAppUserController::class, 'verifyEmail'], [
-        'id' => $appUser->id,
-        'hash' => sha1($appUser->getEmailForVerification()),
-    ]))
+    get(
+        URL::signedRoute('verification.app.verify', [
+            'id' => $appUser->id,
+            'hash' => sha1($appUser->getEmailForVerification()),
+        ]),
+    )
         ->assertRedirect(config('app.spa_url').'/#/app/auth/email-verification/success');
 
     expect($appUser->fresh()?->hasVerifiedEmail())->toBeTrue();
 });
 
 it('fails email verification when app user does not exist', function (): void {
-    get(action([RegisterAppUserController::class, 'verifyEmail'], [
-        'id' => '999999',
-        'hash' => sha1('missing@example.com'),
-    ]))
+    get(
+        URL::signedRoute('verification.app.verify', [
+            'id' => 999999,
+            'hash' => sha1('missing@example.com'),
+        ]),
+    )
         ->assertRedirect(config('app.spa_url').'/#/app/auth/email-verification/fail');
 });
 
 it('fails email verification when hash is invalid', function (): void {
     $appUser = AppUser::factory()->unverified()->createQuietly();
 
-    get(action([RegisterAppUserController::class, 'verifyEmail'], [
-        'id' => $appUser->id,
-        'hash' => sha1('otro-correo@example.com'),
-    ]))
+    get(
+        URL::signedRoute('verification.app.verify', [
+            'id' => $appUser->id,
+            'hash' => sha1('otro-correo@example.com'),
+        ]),
+    )
         ->assertRedirect(config('app.spa_url').'/#/app/auth/email-verification/fail');
 
     expect($appUser->fresh()?->hasVerifiedEmail())->toBeFalse();
@@ -191,9 +198,12 @@ it('fails email verification when hash is invalid', function (): void {
 it('fails email verification when email is already verified', function (): void {
     $appUser = AppUser::factory()->createQuietly();
 
-    get(action([RegisterAppUserController::class, 'verifyEmail'], [
-        'id' => $appUser->id,
-        'hash' => sha1($appUser->getEmailForVerification()),
-    ]))
+    get(
+        URL::signedRoute('verification.app.verify', [
+            'id' => $appUser->id,
+            'hash' => sha1($appUser->getEmailForVerification()),
+        ]),
+
+    )
         ->assertRedirect(config('app.spa_url').'/#/app/auth/email-verification/fail');
 });

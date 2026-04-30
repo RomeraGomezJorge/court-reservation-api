@@ -9,6 +9,7 @@ use App\Models\ClubUser;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
 
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
@@ -101,30 +102,37 @@ it('fails to register a club user with invalid data', function (array $invalidDa
 it('verifies email and redirects to success page', function (): void {
     $clubUser = ClubUser::factory()->unverified()->createQuietly();
 
-    get(action([RegisterClubUserController::class, 'verifyEmail'], [
-        'id' => $clubUser->id,
-        'hash' => sha1($clubUser->getEmailForVerification()),
-    ]))
+    get(
+        URL::signedRoute('verification.club.verify', [
+            'id' => $clubUser->id,
+            'hash' => sha1($clubUser->getEmailForVerification()),
+        ]),
+    )
         ->assertRedirect(config('app.spa_url').'/#/club/auth/email-verification/success');
 
     expect($clubUser->fresh()?->hasVerifiedEmail())->toBeTrue();
 });
 
 it('fails email verification when club user does not exist', function (): void {
-    get(action([RegisterClubUserController::class, 'verifyEmail'], [
-        'id' => '999999',
-        'hash' => sha1('missing@example.com'),
-    ]))
+    get(
+        URL::signedRoute('verification.club.verify', [
+            'id' => '999999',
+            'hash' => sha1('missing@example.com'),
+        ]),
+    )
         ->assertRedirect(config('app.spa_url').'/#/club/auth/email-verification/fail');
 });
 
 it('fails email verification when hash is invalid', function (): void {
     $clubUser = ClubUser::factory()->unverified()->createQuietly();
 
-    get(action([RegisterClubUserController::class, 'verifyEmail'], [
-        'id' => $clubUser->id,
-        'hash' => sha1('otro-correo@example.com'),
-    ]))
+    get(
+
+        URL::signedRoute('verification.club.verify', [
+            'id' => $clubUser->id,
+            'hash' => sha1('otro-correo@example.com'),
+        ]),
+    )
         ->assertRedirect(config('app.spa_url').'/#/club/auth/email-verification/fail');
 
     expect($clubUser->fresh()?->hasVerifiedEmail())->toBeFalse();
@@ -133,9 +141,12 @@ it('fails email verification when hash is invalid', function (): void {
 it('fails email verification when email is already verified', function (): void {
     $clubUser = ClubUser::factory()->createQuietly();
 
-    get(action([RegisterClubUserController::class, 'verifyEmail'], [
-        'id' => $clubUser->id,
-        'hash' => sha1($clubUser->getEmailForVerification()),
-    ]))
+    get(
+
+        URL::signedRoute('verification.club.verify', [
+            'id' => $clubUser->id,
+            'hash' => sha1($clubUser->getEmailForVerification()),
+        ]),
+    )
         ->assertRedirect(config('app.spa_url').'/#/club/auth/email-verification/fail');
 });

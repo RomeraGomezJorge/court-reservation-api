@@ -33,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'admin_user' => EnsureUserIsAdmin::class,
+            'ensure_is_admin_user' => EnsureUserIsAdmin::class,
             'ensure_is_club_user' => EnsureUserIsClubUser::class,
         ]);
     })

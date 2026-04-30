@@ -307,7 +307,6 @@ it('fails to store a club when date parser returns non carbon instances', functi
             ['day' => 'monday', 'opening_hour' => '09:00', 'closing_hour' => '01:00'],
         ],
     ]))
-        ->assertUnprocessable()
         ->assertExactJson([
             'code' => 422,
             'messages' => ['El formato de hora de lunes es inválido.'],

@@ -5,10 +5,10 @@ Accept: application/json
 {
     "name":  "jorge",
     "last_name": "romera",
-    "phone_number":  "1234567",
+    "phone_number":  "123456791",
     "birthday":  "2000-01-01",
     "gender": "male",
-    "email": "jorge@example.com",
+    "email": "jorgeromeraa@example.com",
     "password": "ClubDemo12345!",
     "password_confirmation": "ClubDemo12345!"
 }

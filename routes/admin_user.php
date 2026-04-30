@@ -20,7 +20,7 @@ Route::post('login', [LoginController::class, 'login']);
 Route::post('forgot-password', [PasswordResetController::class, 'store'])->name('admin.password.email');
 Route::put('reset-password', [PasswordResetController::class, 'update'])->name('admin.password.reset');
 
-Route::middleware(['auth:sanctum', 'admin_user'])->group(function (): void {
+Route::middleware(['auth:sanctum', 'verified', 'ensure_is_admin_user'])->group(function (): void {
 
     /*=============================================
        ADMIN USERS
