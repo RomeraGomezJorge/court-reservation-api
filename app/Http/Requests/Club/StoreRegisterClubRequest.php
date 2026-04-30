@@ -19,7 +19,7 @@ final class StoreRegisterClubRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email', 'max:255', 'unique:club_users,email'],
+            'email' => ['required', 'email', 'string', 'max:255', 'unique:club_users,email'],
             'password' => [
                 'required',
                 'string',

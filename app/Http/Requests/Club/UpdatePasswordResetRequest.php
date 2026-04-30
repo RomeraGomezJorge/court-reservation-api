@@ -23,6 +23,7 @@ final class UpdatePasswordResetRequest extends FormRequest
             'email' => [
                 'required',
                 'email',
+                'string',
                 'exists:club_users,email',
             ],
             'password' => [
