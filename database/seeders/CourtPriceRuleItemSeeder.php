@@ -43,8 +43,8 @@ final class CourtPriceRuleItemSeeder extends Seeder
     private function mondayItems(): array
     {
         return [
-            ['play_time_minutes' => 60, 'price_starts_at' => '00:00:00', 'price' => 2800],
-            ['play_time_minutes' => 90, 'price_starts_at' => '00:00:00', 'price' => 4200],
+            ['play_time_minutes' => 60, 'price_starts_at' => '09:00:00', 'price' => 2800],
+            ['play_time_minutes' => 90, 'price_starts_at' => '09:00:00', 'price' => 4200],
         ];
     }
 

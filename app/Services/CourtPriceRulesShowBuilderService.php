@@ -17,7 +17,7 @@ final class CourtPriceRulesShowBuilderService
     /**
      * @return array{
      *     court_id: int|string,
-     *     play_time: array<int, int>,
+     *     play_time_minutes: array<int, int>,
      *     price_starts_at: array<int, string>,
      *     days: array<int, array{
      *         day: string,
@@ -45,7 +45,7 @@ final class CourtPriceRulesShowBuilderService
 
         return [
             'court_id' => $court->id,
-            'play_time' => $playTime,
+            'play_time_minutes' => $playTime,
             'price_starts_at' => $priceStartsAt,
             'days' => $this->buildDays($priceRules, $playTime),
         ];
