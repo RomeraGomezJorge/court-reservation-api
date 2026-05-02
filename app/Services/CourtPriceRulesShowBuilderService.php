@@ -45,7 +45,7 @@ final class CourtPriceRulesShowBuilderService
 
         return [
             'court_id' => $court->id,
-            'play_time' => $playTime,
+            'play_time_minutes' => $playTime,
             'price_starts_at' => $priceStartsAt,
             'days' => $this->buildDays($priceRules, $playTime),
         ];

@@ -716,7 +716,7 @@ it('shows price rules with play time labels in prices', function (): void {
         ->assertOk()
         ->assertExactJson([
             'court_id' => $court->id,
-            'play_time' => [60, 90],
+            'play_time_minutes' => [60, 90],
             'price_starts_at' => ['00:00', '09:00', '12:00', '18:00'],
             'days' => [
                 [
