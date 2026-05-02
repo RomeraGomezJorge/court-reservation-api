@@ -13,7 +13,6 @@ use App\Models\ClubUser;
 use App\Models\ClubWorkingDay;
 use App\Models\Court;
 use App\Models\SportType;
-use Illuminate\Support\Facades\Date;
 
 use function Pest\Laravel\delete;
 use function Pest\Laravel\get;
@@ -545,7 +544,6 @@ it('fails to update a club with invalid data', function (array $invalidData, arr
             'messages' => $expectedMessages,
         ]);
 })->with('invalid club payload data');
-
 
 it('fails to update a club that is not owned by the authenticated club user', function (): void {
     $club = Club::factory()->createQuietly();
