@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Http\Controllers\AppUser;
+namespace Tests\Http\Controllers\App;
 
 use App\Enums\Gender;
 use App\Http\Controllers\App\RegisterAppUserController;

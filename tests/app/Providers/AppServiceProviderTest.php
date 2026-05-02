@@ -51,7 +51,7 @@ it('throws type error for unsupported reset password notifiable', function (): v
     bootAppServiceProvider();
 
     $this->expectException(TypeError::class);
-    $this->expectExceptionMessage('must be of type App\\Models\\ClubUser|App\\Models\\User');
+    $this->expectExceptionMessage('must be of type App\Models\ClubUser|App\Models\User|App\Models\AppUser');
 
     invokeNotificationCallback(ResetPassword::class, new stdClass(), 'token-invalid');
 });

@@ -26,7 +26,7 @@ use Override;
  * @property-read string $name
  * @property-read string $last_name
  * @property-read string $phone_number
- * @property-read string $birthday
+ * @property-read CarbonInterface $birthday
  * @property-read Gender $gender
  * @property-read string $email
  * @property-read CarbonInterface|null $email_verified_at

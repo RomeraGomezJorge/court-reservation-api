@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Route;
        REGISTER MANAGEMENT
 =============================================*/
 Route::post('register', [RegisterAppUserController::class, 'store']);
-Route::get('verify-email', [RegisterAppUserController::class, 'verifyEmail'])->name('verification.app.verify')->middleware('signed')
+Route::get('verify-email', [RegisterAppUserController::class, 'verifyEmail'])
+    ->name('verification.app.verify')
     ->middleware('signed');
 
 Route::post('login', [LoginController::class, 'login']);

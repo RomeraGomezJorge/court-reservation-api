@@ -7,7 +7,6 @@ namespace App\Http\Resources\Club;
 use App\Models\AppUser;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Date;
 
 /**
  * @mixin AppUser
@@ -31,7 +30,7 @@ final class AppUserResource extends JsonResource
             'name' => $this->name,
             'last_name' => $this->last_name,
             'phone_number' => $this->phone_number,
-            'birthday' => Date::parse($this->birthday)->toDateString(),
+            'birthday' => $this->birthday->format('Y-m-d'),
             'gender' => $this->gender->value,
             'email' => $this->email,
         ];
