@@ -1,0 +1,17 @@
+POST {{base_url}}/api/app/register
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name":  "jorge",
+    "last_name": "romera",
+    "phone_number":  "123456791",
+    "birthday":  "2000-01-01",
+    "gender": "male",
+    "email": "jorgeromeraa@example.com",
+    "password": "ClubDemo12345!",
+    "password_confirmation": "ClubDemo12345!"
+}
+
+###
+

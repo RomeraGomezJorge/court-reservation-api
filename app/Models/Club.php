@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Override;
@@ -142,5 +143,15 @@ final class Club extends Model
     public function courts(): HasMany
     {
         return $this->hasMany(Court::class);
+    }
+
+    /**
+     * Get the app users that belong to this club.
+     *
+     * @return BelongsToMany<AppUser, $this>
+     */
+    public function appUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(AppUser::class, 'app_user_club');
     }
 }

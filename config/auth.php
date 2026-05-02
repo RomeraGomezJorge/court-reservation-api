@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\AppUser;
 use App\Models\ClubUser;
 use App\Models\User;
 
@@ -45,6 +46,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'app_user' => [
+            'driver' => 'session',
+            'provider' => 'app_users',
+        ],
     ],
 
     /*
@@ -72,6 +77,10 @@ return [
         'club_users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', ClubUser::class),
+        ],
+        'app_users' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL', AppUser::class),
         ],
 
         // 'users' => [
@@ -108,6 +117,12 @@ return [
         ],
         'club_users' => [
             'provider' => 'club_users',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'app_users' => [
+            'provider' => 'app_users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,

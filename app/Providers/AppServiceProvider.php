@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\AppUser;
 use App\Models\ClubUser;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -52,19 +53,21 @@ final class AppServiceProvider extends ServiceProvider
 
         JsonResource::withoutWrapping();
 
-        ResetPassword::createUrlUsing(callback: function (ClubUser|User $notifiable, string $token): string {
+        ResetPassword::createUrlUsing(callback: function (ClubUser|User|AppUser $notifiable, string $token): string {
             $routeName = match (true) {
-                $notifiable instanceof ClubUser => 'club',
                 $notifiable instanceof User => 'admin',
+                $notifiable instanceof ClubUser => 'club',
+                $notifiable instanceof AppUser => 'app',
             };
 
             return config()->string('app.spa_url')."/#/{$routeName}/auth/reset-password/".$token;
         });
 
-        VerifyEmail::createUrlUsing(function (ClubUser|User $notifiable) {
+        VerifyEmail::createUrlUsing(function (ClubUser|User|AppUser $notifiable) {
             $routeName = match (true) {
-                $notifiable instanceof ClubUser => 'verification.club.verify',
                 $notifiable instanceof User => 'verification.verify',
+                $notifiable instanceof ClubUser => 'verification.club.verify',
+                $notifiable instanceof AppUser => 'verification.app.verify',
             };
 
             return URL::temporarySignedRoute(

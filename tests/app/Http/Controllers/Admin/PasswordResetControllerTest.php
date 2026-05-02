@@ -127,3 +127,23 @@ it('fails to reset password with invalid data', function (array $invalidData, ar
         ],
     ],
 ]);
+
+it('fails to reset password when token is invalid or expired', function (): void {
+    $invalidToken = 'invalid-expired-token-1234567890';
+
+    put(action([PasswordResetController::class, 'update']), [
+        'token' => $invalidToken,
+        'email' => $this->user->email,
+        'password' => 'ValidPassword.123!',
+        'password_confirmation' => 'ValidPassword.123!',
+    ])
+        ->assertStatus(422)
+        ->assertExactJson([
+            'code' => 422,
+            'messages' => ['El token de restablecimiento de contraseña es inválido.'],
+        ]);
+
+    $this->user->refresh();
+
+    expect(Hash::check('ValidPassword.123!', $this->user->password))->toBeFalse();
+});

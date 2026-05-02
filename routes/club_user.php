@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Club\ActiveFeatureController;
 use App\Http\Controllers\Club\ActiveSportTypeController;
+use App\Http\Controllers\Club\AppUserController;
 use App\Http\Controllers\Club\ClubController;
 use App\Http\Controllers\Club\ClubStatusToggleController;
 use App\Http\Controllers\Club\CourtAvailabilityToggleController;
@@ -19,7 +20,9 @@ use Illuminate\Support\Facades\Route;
        REGISTER MANAGEMENT
 =============================================*/
 Route::post('register', [RegisterClubUserController::class, 'store']);
-Route::get('verify-email', [RegisterClubUserController::class, 'verifyEmail'])->name('verification.club.verify');
+Route::get('verify-email', [RegisterClubUserController::class, 'verifyEmail'])
+    ->name('verification.club.verify')
+    ->middleware('signed');
 
 Route::post('login', [LoginController::class, 'login']);
 
@@ -29,8 +32,7 @@ Route::post('login', [LoginController::class, 'login']);
 Route::post('forgot-password', [PasswordResetController::class, 'store'])->name('club.password.email');
 Route::put('reset-password', [PasswordResetController::class, 'update'])->name('club.password.reset');
 
-Route::middleware(['auth:sanctum'])->group(function (): void {
-
+Route::middleware(['auth:sanctum', 'verified', 'ensure_is_club_user'])->group(function (): void {
     /*=============================================
         PROFILE
     =============================================*/
@@ -41,6 +43,7 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
         CLUB
     =============================================*/
     Route::apiResource('clubs', ClubController::class);
+    Route::apiResource('clubs.app-users', AppUserController::class);
     Route::patch('clubs/{club}/toggle-active', ClubStatusToggleController::class);
 
     /*=============================================
@@ -64,5 +67,4 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
         SPORT TYPE
     =============================================*/
     Route::get('court/active-sport-types', [ActiveSportTypeController::class, 'index']);
-
 });

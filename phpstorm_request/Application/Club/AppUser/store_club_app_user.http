@@ -1,0 +1,19 @@
+### Create AppUser
+
+@club_id = 1
+
+
+### Create a new app user (valid)
+POST {{base_url}}/api/club/clubs/{{club_id}}/app-users
+Authorization: Bearer {{token_club_user}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Juan",
+  "last_name": "Perez",
+  "phone_number": "3415550000",
+  "email": "juan.perez@example.com",
+  "birthday": "1995-05-20",
+  "gender": "male"
+}

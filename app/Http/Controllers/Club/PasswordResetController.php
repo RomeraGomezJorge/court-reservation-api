@@ -25,7 +25,7 @@ final class PasswordResetController
     {
         ClubUser::query()->where('email', $request->email)->firstOrFail();
 
-        Password::broker('club_users')->reset(
+        $status = Password::broker('club_users')->reset(
             [
                 'email' => $request->email,
                 'password' => $request->password,
@@ -38,6 +38,10 @@ final class PasswordResetController
                 event(new PasswordReset($clubUser));
             },
         );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            abort(422, __($status));
+        }
 
         return new Response(status: 204);
     }

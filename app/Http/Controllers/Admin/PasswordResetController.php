@@ -25,7 +25,7 @@ final class PasswordResetController
     {
         User::query()->where('email', $request->email)->firstOrFail();
 
-        Password::reset(
+        $status = Password::reset(
             [
                 'email' => $request->email,
                 'password' => $request->password,
@@ -38,6 +38,10 @@ final class PasswordResetController
                 event(new PasswordReset($user));
             },
         );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            abort(422, __($status));
+        }
 
         return new Response(status: 204);
     }
