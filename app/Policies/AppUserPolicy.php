@@ -17,11 +17,6 @@ final class AppUserPolicy
         return $this->authorizeClubAppUser($clubUser, $appUser);
     }
 
-    public function update(ClubUser $clubUser, AppUser $appUser): Response
-    {
-        return $this->authorizeClubAppUser($clubUser, $appUser);
-    }
-
     public function delete(ClubUser $clubUser, AppUser $appUser): Response
     {
         return $this->authorizeClubAppUser($clubUser, $appUser);

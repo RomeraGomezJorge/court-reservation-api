@@ -101,7 +101,7 @@ final class AppUserController
 
     public function show(AppUser $appUser): AppUserResource
     {
-        Gate::authorize('view', [$appUser]);
+        Gate::authorize('view', $appUser);
 
         return new AppUserResource($appUser);
     }
@@ -109,21 +109,9 @@ final class AppUserController
     /**
      * @throws Throwable
      */
-    public function update(UpdateAppUserRequest $request, AppUser $appUser): AppUserResource
-    {
-        Gate::authorize('update', [$appUser]);
-
-        $appUser->update($request->validated());
-
-        return new AppUserResource($appUser->refresh());
-    }
-
-    /**
-     * @throws Throwable
-     */
     public function destroy(AppUser $appUser): Response
     {
-        Gate::authorize('delete', [$appUser]);
+        Gate::authorize('delete', $appUser);
 
         DB::transaction(function () use ($appUser): void {
 

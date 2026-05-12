@@ -37,7 +37,7 @@ Route::middleware(['auth:sanctum', 'verified', 'ensure_is_club_user'])->group(fu
     /*=============================================
         APP USER
     =============================================*/
-    Route::apiResource('app-users', AppUserController::class);
+    Route::apiResource('app-users', AppUserController::class)->except(['update']);
 
     /*=============================================
         CLUB
