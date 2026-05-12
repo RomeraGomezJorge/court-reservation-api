@@ -1,16 +1,15 @@
 ### Show AppUser
 
-@club_id = 1
-@app_user_id = 3
+@app_user_id = 1
 
 ### Get a single app user
-GET {{base_url}}/api/club/clubs/{{club_id}}/app-users/{{app_user_id}}
+GET {{base_url}}/api/club/app-users/{{app_user_id}}
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 Accept: application/json
 
 ### FAIL: Get app user that doesn't belong to club
-GET {{base_url}}/api/club/clubs/{{club_id}}/app-users/9999
+GET {{base_url}}/api/club/app-users/9999
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 Accept: application/json

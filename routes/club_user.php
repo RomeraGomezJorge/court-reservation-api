@@ -33,17 +33,16 @@ Route::post('forgot-password', [PasswordResetController::class, 'store'])->name(
 Route::put('reset-password', [PasswordResetController::class, 'update'])->name('club.password.reset');
 
 Route::middleware(['auth:sanctum', 'verified', 'ensure_is_club_user'])->group(function (): void {
+
     /*=============================================
-        PROFILE
+        APP USER
     =============================================*/
-    Route::get('profile', [ProfileController::class, 'show']);
-    Route::delete('profile', [ProfileController::class, 'destroy']);
+    Route::apiResource('app-users', AppUserController::class);
 
     /*=============================================
         CLUB
     =============================================*/
     Route::apiResource('clubs', ClubController::class);
-    Route::apiResource('clubs.app-users', AppUserController::class);
     Route::patch('clubs/{club}/toggle-active', ClubStatusToggleController::class);
 
     /*=============================================
@@ -53,15 +52,21 @@ Route::middleware(['auth:sanctum', 'verified', 'ensure_is_club_user'])->group(fu
     Route::patch('clubs/{club}/courts/{court}/toggle-availability', CourtAvailabilityToggleController::class);
 
     /*=============================================
+        FEATURE
+    =============================================*/
+    Route::get('court/active-features', [ActiveFeatureController::class, 'index']);
+
+    /*=============================================
         PRICE RULE
     =============================================*/
     Route::post('clubs/{club}/courts/{court}/price-rules', [CourtPriceRuleController::class, 'store']);
     Route::get('clubs/{club}/courts/{court}/price-rules', [CourtPriceRuleController::class, 'show']);
 
     /*=============================================
-        FEATURE
+        PROFILE
     =============================================*/
-    Route::get('court/active-features', [ActiveFeatureController::class, 'index']);
+    Route::get('profile', [ProfileController::class, 'show']);
+    Route::delete('profile', [ProfileController::class, 'destroy']);
 
     /*=============================================
         SPORT TYPE

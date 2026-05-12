@@ -12,43 +12,33 @@ use Illuminate\Support\Facades\DB;
 
 final class AppUserPolicy
 {
-    public function create(ClubUser $clubUser, Club $club): Response
+    public function view(ClubUser $clubUser, AppUser $appUser): Response
     {
-        return $this->authorizeClubOwnership($clubUser, $club);
+        return $this->authorizeClubAppUser($clubUser, $appUser);
     }
 
-    public function view(ClubUser $clubUser, AppUser $appUser, Club $club): Response
+    public function update(ClubUser $clubUser, AppUser $appUser): Response
     {
-        return $this->authorizeClubAppUser($clubUser, $appUser, $club);
+        return $this->authorizeClubAppUser($clubUser, $appUser);
     }
 
-    public function update(ClubUser $clubUser, AppUser $appUser, Club $club): Response
+    public function delete(ClubUser $clubUser, AppUser $appUser): Response
     {
-        return $this->authorizeClubAppUser($clubUser, $appUser, $club);
+        return $this->authorizeClubAppUser($clubUser, $appUser);
     }
 
-    public function delete(ClubUser $clubUser, AppUser $appUser, Club $club): Response
+    private function authorizeClubAppUser(ClubUser $clubUser, AppUser $appUser): Response
     {
-        return $this->authorizeClubAppUser($clubUser, $appUser, $club);
-    }
+        $clubIds = Club::query()
+            ->where('club_user_id', $clubUser->id)
+            ->pluck('id');
 
-    private function authorizeClubAppUser(ClubUser $clubUser, AppUser $appUser, Club $club): Response
-    {
         $appUserBelongsToClub = DB::table('app_user_club')
-            ->where('club_id', $club->id)
+            ->whereIn('club_id', $clubIds)
             ->where('app_user_id', $appUser->id)
             ->exists();
 
         if (! $appUserBelongsToClub) {
-            return Response::denyAsNotFound(__('validation.resource_not_found'));
-        }
-
-        return $this->authorizeClubOwnership($clubUser, $club);
-    }
-
-    private function authorizeClubOwnership(ClubUser $clubUser, Club $club): Response
-    {
-        if (! $clubUser->owns($club)) {
             return Response::denyAsNotFound(__('validation.resource_not_found'));
         }
 

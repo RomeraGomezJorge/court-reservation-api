@@ -1,10 +1,9 @@
 ### Update AppUser
 
-@club_id = 1
-@app_user_id = 3
+@app_user_id = 1
 
 ### Update app user (all fields)
-PUT {{base_url}}/api/club/clubs/{{club_id}}/app-users/{{app_user_id}}
+PUT {{base_url}}/api/club/app-users/{{app_user_id}}
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 
@@ -18,7 +17,7 @@ Content-Type: application/json
 }
 
 ### Update app user - keeping same email
-PUT {{base_url}}/api/club/clubs/{{club_id}}/app-users/{{app_user_id}}
+PUT {{base_url}}/api/club/app-users/{{app_user_id}}
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 
@@ -32,7 +31,7 @@ Content-Type: application/json
 }
 
 ### FAIL: Update app user - empty name
-PUT {{base_url}}/api/club/clubs/{{club_id}}/app-users/{{app_user_id}}
+PUT {{base_url}}/api/club/app-users/{{app_user_id}}
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 
@@ -46,7 +45,7 @@ Content-Type: application/json
 }
 
 ### FAIL: Update app user - future birthday
-PUT {{base_url}}/api/club/clubs/{{club_id}}/app-users/{{app_user_id}}
+PUT {{base_url}}/api/club/app-users/{{app_user_id}}
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 
@@ -60,7 +59,7 @@ Content-Type: application/json
 }
 
 ### FAIL: Update app user - that doesn't belong to club
-PUT {{base_url}}/api/club/clubs/{{club_id}}/app-users/9999
+PUT {{base_url}}/api/club/app-users/9999
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 Accept: application/json
