@@ -44,6 +44,29 @@ final class StoreAppUserRequest extends FormRequest
         ];
     }
 
+    /**
+     * @return array{
+     *     name: string,
+     *     last_name: string,
+     *     phone_number: string,
+     *     birthday: string,
+     *     gender: string,
+     *     email: string
+     * }
+     */
+    public function validatedAttributes(): array
+    {
+        return [
+            'name' => (string) $this->validated('name'),
+            'last_name' => (string) $this->validated('last_name'),
+            'phone_number' => (string) $this->validated('phone_number'),
+            'birthday' => (string) $this->validated('birthday'),
+            'gender' => (string) $this->validated('gender'),
+            'email' => (string) $this->validated('email'),
+        ];
+    }
+
+    /** @return array<int, callable(Validator): void> */
     public function after(): array
     {
         return [
