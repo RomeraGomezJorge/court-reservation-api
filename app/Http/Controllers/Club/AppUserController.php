@@ -10,6 +10,7 @@ use App\Http\Requests\Club\UpdateAppUserRequest;
 use App\Http\Resources\Club\AppUserResource;
 use App\Models\AppUser;
 use App\Models\Club;
+use App\Services\ClubUserCreateOrAttachAppUserService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -57,8 +58,14 @@ final class AppUserController
     /**
      * @throws Throwable
      */
-    public function store(StoreAppUserRequest $request): JsonResponse
+    public function store(StoreAppUserRequest $request, ClubUserCreateOrAttachAppUserService $appUserCreator): JsonResponse
     {
+
+        $appUserCreator->handle(
+            attributes: $request->validated(),
+            clubUserId: Auth::id(),
+        );
+
         $appUser = DB::transaction(function () use ($request): AppUser {
 
             $clubIds = Club::query()
@@ -67,12 +74,9 @@ final class AppUserController
 
             $appUser = AppUser::query()
                 ->where('email', $request->validated('email'))
-                ->where('phone_number', $request->validated('phone_number'))
                 ->first();
 
             if ($appUser) {
-
-                $appUser->update($request->validated());
 
                 $appUser->clubs()->syncWithoutDetaching($clubIds);
 

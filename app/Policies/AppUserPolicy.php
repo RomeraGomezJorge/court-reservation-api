@@ -12,25 +12,20 @@ use Illuminate\Support\Facades\DB;
 
 final class AppUserPolicy
 {
-    public function view(ClubUser $clubUser, AppUser $appUser): Response
+    public function view(ClubUser $loggedClubUser, AppUser $appUser): Response
     {
-        return $this->authorizeClubAppUser($clubUser, $appUser);
+        return $this->authorizeClubAppUser($loggedClubUser, $appUser);
     }
 
-    public function delete(ClubUser $clubUser, AppUser $appUser): Response
+    public function delete(ClubUser $loggedClubUser, AppUser $appUser): Response
     {
-        return $this->authorizeClubAppUser($clubUser, $appUser);
+        return $this->authorizeClubAppUser($loggedClubUser, $appUser);
     }
 
-    private function authorizeClubAppUser(ClubUser $clubUser, AppUser $appUser): Response
+    private function authorizeClubAppUser(ClubUser $loggedClubUser, AppUser $appUser): Response
     {
-        $clubIds = Club::query()
-            ->where('club_user_id', $clubUser->id)
-            ->pluck('id');
-
-        $appUserBelongsToClub = DB::table('app_user_club')
-            ->whereIn('club_id', $clubIds)
-            ->where('app_user_id', $appUser->id)
+        $appUserBelongsToClub  = $appUser->clubs()
+            ->where('club_user_id', $loggedClubUser->id)
             ->exists();
 
         if (! $appUserBelongsToClub) {

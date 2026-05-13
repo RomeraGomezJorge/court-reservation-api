@@ -61,6 +61,10 @@ final class StoreAppUserRequest extends FormRequest
                     ->where('club_user_id', Auth::id())
                     ->pluck('id');
 
+                if ($clubIds->isEmpty()) {
+                    return;
+                }
+
                 $appUserBelongsToClub = DB::table('app_user_club')
                     ->whereIn('club_id', $clubIds)
                     ->where('app_user_id', $appUserId)
