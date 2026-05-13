@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\AppUser;
-use App\Models\Club;
 use App\Models\ClubUser;
 use Illuminate\Auth\Access\Response;
-use Illuminate\Support\Facades\DB;
 
 final class AppUserPolicy
 {
@@ -24,7 +22,7 @@ final class AppUserPolicy
 
     private function authorizeClubAppUser(ClubUser $loggedClubUser, AppUser $appUser): Response
     {
-        $appUserBelongsToClub  = $appUser->clubs()
+        $appUserBelongsToClub = $appUser->clubs()
             ->where('club_user_id', $loggedClubUser->id)
             ->exists();
 

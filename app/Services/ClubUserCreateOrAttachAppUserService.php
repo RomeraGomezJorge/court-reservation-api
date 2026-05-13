@@ -76,7 +76,7 @@ final class ClubUserCreateOrAttachAppUserService
     private function createAppUser(array $attributes): AppUser
     {
         try {
-            $appUser =  AppUser::query()->create([
+            $appUser = AppUser::query()->create([
                 ...$attributes,
                 'password' => Hash::make(Str::password(32)),
             ]);
@@ -85,9 +85,9 @@ final class ClubUserCreateOrAttachAppUserService
 
             return $appUser;
 
-        } catch (QueryException $exception) {
-            if (! $this->isUniqueConstraintViolation($exception)) {
-                throw $exception;
+        } catch (QueryException $queryException) {
+            if (! $this->isUniqueConstraintViolation($queryException)) {
+                throw $queryException;
             }
 
             Log::warning('Duplicate app user creation avoided', [
@@ -106,7 +106,7 @@ final class ClubUserCreateOrAttachAppUserService
 
         return match ($sqlState) {
             self::POSTGRES_UNIQUE_VIOLATION_SQLSTATE => true,
-            self::MYSQL_INTEGRITY_CONSTRAINT_VIOLATION_SQLSTATE => in_array($driverCode, [self::MYSQL_DUPLICATE_ENTRY_ERROR_CODE], true),
+            self::MYSQL_INTEGRITY_CONSTRAINT_VIOLATION_SQLSTATE => $driverCode === self::MYSQL_DUPLICATE_ENTRY_ERROR_CODE,
             default => false,
         };
     }

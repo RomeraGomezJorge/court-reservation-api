@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Club;
 
 use App\Http\Requests\Club\IndexAppUserRequest;
 use App\Http\Requests\Club\StoreAppUserRequest;
-use App\Http\Requests\Club\UpdateAppUserRequest;
 use App\Http\Resources\Club\AppUserResource;
 use App\Models\AppUser;
 use App\Models\Club;
