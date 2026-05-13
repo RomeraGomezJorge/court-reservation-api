@@ -59,15 +59,10 @@ final class AppUserController
      */
     public function store(StoreAppUserRequest $request, ClubUserCreateOrAttachAppUserService $appUserCreator): JsonResponse
     {
-        $clubUserId = Auth::id();
-
-        if (! is_int($clubUserId)) {
-            abort(403);
-        }
+        Gate::authorize('create', $request->validated('club_ids'));
 
         $appUserCreator->handle(
             attributes: $request->validatedAttributes(),
-            clubUserId: $clubUserId,
         );
 
         $appUser = DB::transaction(function () use ($request): AppUser {

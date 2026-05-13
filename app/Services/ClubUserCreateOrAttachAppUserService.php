@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\AppUser;
-use App\Models\Club;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -30,30 +29,28 @@ final class ClubUserCreateOrAttachAppUserService
      *  birthday:string,
      *  gender:string,
      *  email:string,
+     *  club_ids: array<int,int>
      *  }  $attributes
      *
      * @throws Throwable
      */
-    public function handle(array $attributes, int $clubUserId): AppUser
+    public function handle(array $attributes): AppUser
     {
-        return DB::transaction(function () use ($attributes, $clubUserId): AppUser {
-            $clubIds = Club::query()
-                ->where('club_user_id', $clubUserId)
-                ->pluck('id');
+        return DB::transaction(function () use ($attributes): AppUser {
 
             $appUser = AppUser::query()
                 ->where('email', $attributes['email'])
                 ->first();
 
             if ($appUser) {
-                $appUser->clubs()->syncWithoutDetaching($clubIds);
+                $appUser->clubs()->syncWithoutDetaching($attributes['club_ids']);
 
                 return $appUser;
             }
 
             $appUser = $this->createAppUser($attributes);
 
-            $appUser->clubs()->syncWithoutDetaching($clubIds);
+            $appUser->clubs()->syncWithoutDetaching($attributes['club_ids']);
 
             DB::afterCommit(function () use ($appUser): void {
                 Password::broker('app_users')->sendResetLink(['email' => $appUser->email]);
@@ -71,14 +68,18 @@ final class ClubUserCreateOrAttachAppUserService
      *  birthday:string,
      *  gender:string,
      *  email:string,
+     *  club_ids: array<int,int>
      *  }  $attributes
      */
     private function createAppUser(array $attributes): AppUser
     {
+        $values = $attributes;
+        unset($values['club_ids']);
+
         try {
             $appUser = AppUser::query()->create([
-                ...$attributes,
-                'password' => Hash::make(Str::password(32)),
+                ...$values,
+                'password' => Hash::make(Str::password()),
             ]);
 
             $appUser->markEmailAsVerified();

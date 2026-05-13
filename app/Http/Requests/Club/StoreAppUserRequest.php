@@ -23,6 +23,7 @@ use Illuminate\Validation\Validator;
  * @property string $email
  * @property string $birthday
  * @property string $gender
+ * @property array<int,int> $club_ids
  */
 final class StoreAppUserRequest extends FormRequest
 {
@@ -41,6 +42,7 @@ final class StoreAppUserRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:100'],
             'birthday' => ['required', 'date', 'before_or_equal:today'],
             'gender' => ['required', Rule::enum(Gender::class)],
+            'club_ids' => ['required', 'array', Rule::exists('clubs', 'id')],
         ];
     }
 
@@ -63,6 +65,7 @@ final class StoreAppUserRequest extends FormRequest
             'birthday' => (string) $this->validated('birthday'),
             'gender' => (string) $this->validated('gender'),
             'email' => (string) $this->validated('email'),
+            'club_ids' => (array) $this->validated('club_ids'),
         ];
     }
 
