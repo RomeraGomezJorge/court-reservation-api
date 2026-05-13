@@ -10,7 +10,6 @@ use Illuminate\Auth\Access\Response;
 
 final class AppUserPolicy
 {
-
     public function view(ClubUser $loggedClubUser, AppUser $appUser): Response
     {
         return $this->authorizeClubAppUser($loggedClubUser, $appUser);
@@ -27,8 +26,8 @@ final class AppUserPolicy
             ->where('club_user_id', $loggedClubUser->id)
             ->exists();
 
-        return (! $appUserBelongsToClub)
-            ? Response::denyAsNotFound(__('validation.resource_not_found'))
-            : Response::allow();
+        return ($appUserBelongsToClub)
+            ? Response::allow()
+            : Response::denyAsNotFound(__('validation.resource_not_found'));
     }
 }

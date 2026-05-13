@@ -170,6 +170,7 @@ return [
         'address_postal_code' => 'postal code',
         'address_state' => 'state',
         'address_street' => 'street address',
+        'club_ids' => 'clubs',
         'court_id' => 'court',
         'court_id_must_match_route_court' => 'court must match route court',
         'description' => 'description',

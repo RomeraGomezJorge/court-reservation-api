@@ -53,7 +53,8 @@ final class StoreAppUserRequest extends FormRequest
      *     phone_number: string,
      *     birthday: string,
      *     gender: string,
-     *     email: string
+     *     email: string,
+     *     club_ids: array<int,int>
      * }
      */
     public function validatedAttributes(): array
@@ -86,7 +87,7 @@ final class StoreAppUserRequest extends FormRequest
             ->where('email', $this->email)
             ->value('id');
 
-        if (!$appUserId) {
+        if (! $appUserId) {
             return;
         }
 

@@ -171,6 +171,7 @@ return [
         'address_postal_code' => 'código postal',
         'address_state' => 'provincia',
         'address_street' => 'dirección',
+        'club_ids' => 'clubes',
         'court_id' => 'cancha',
         'court_id_must_match_route_court' => 'la cancha debe coincidir con la cancha de la ruta',
         'description' => 'descripción',
