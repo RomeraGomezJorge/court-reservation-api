@@ -16,6 +16,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Override;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * @property-read int $id
@@ -25,6 +26,7 @@ use Override;
  * @property-read string|null $remember_token
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
+ * @property-read Collection<int, Club> $clubs
  */
 final class ClubUser extends Authenticatable implements MustVerifyEmail
 {

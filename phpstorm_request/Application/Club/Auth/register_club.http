@@ -3,7 +3,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-    "email": "club.demo@example.com",
+    "email": "club.demo2@example.com",
     "password": "ClubDemo12345!",
     "password_confirmation": "ClubDemo12345!"
 }

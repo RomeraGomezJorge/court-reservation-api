@@ -11,3 +11,15 @@ Accept: application/json
 
 ###
 
+POST {{base_url}}/api/club/login
+Content-Type: application/json
+Accept: application/json
+
+{
+    "email": "club.demo2@example.com",
+    "password": "ClubDemo12345!"
+}
+> {% client.global.set("token_club_user", response.body); %}
+
+
+

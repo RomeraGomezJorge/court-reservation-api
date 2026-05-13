@@ -59,8 +59,6 @@ final class AppUserController
      */
     public function store(StoreAppUserRequest $request, ClubUserCreateOrAttachAppUserService $appUserCreator): JsonResponse
     {
-        Gate::authorize('create', $request->validated('club_ids'));
-
         $appUserCreator->handle(
             attributes: $request->validatedAttributes(),
         );

@@ -10,18 +10,6 @@ use Illuminate\Auth\Access\Response;
 
 final class AppUserPolicy
 {
-    public function create(ClubUser $loggedClubUser, array $clubIds): Response
-    {
-        $clubsBelongToLoggedClubUserCount = $loggedClubUser->clubs()
-            ->whereIn('id', $clubIds)
-            ->count();
-
-        info('comparation', [$clubIds, $clubsBelongToLoggedClubUserCount, count($clubIds)]);
-
-        return $clubsBelongToLoggedClubUserCount !== count($clubIds)
-            ? Response::denyAsNotFound(__('validation.resource_not_found'))
-            : Response::allow();
-    }
 
     public function view(ClubUser $loggedClubUser, AppUser $appUser): Response
     {

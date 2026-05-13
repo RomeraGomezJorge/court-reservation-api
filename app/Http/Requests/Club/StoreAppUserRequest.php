@@ -42,7 +42,7 @@ final class StoreAppUserRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:100'],
             'birthday' => ['required', 'date', 'before_or_equal:today'],
             'gender' => ['required', Rule::enum(Gender::class)],
-            'club_ids' => ['required', 'array', Rule::exists('clubs', 'id')],
+            'club_ids' => ['required', 'distinct', 'array', 'exists:clubs,id'],
         ];
     }
 
@@ -74,35 +74,67 @@ final class StoreAppUserRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
-
-                $appUserId = AppUser::query()
-                    ->where('email', $this->email)
-                    ->value('id');
-
-                if (! $appUserId) {
-                    return;
-                }
-
-                $clubIds = Club::query()
-                    ->where('club_user_id', Auth::id())
-                    ->pluck('id');
-
-                if ($clubIds->isEmpty()) {
-                    return;
-                }
-
-                $appUserBelongsToClub = DB::table('app_user_club')
-                    ->whereIn('club_id', $clubIds)
-                    ->where('app_user_id', $appUserId)
-                    ->exists();
-
-                if ($appUserBelongsToClub) {
-                    $validator->errors()->add(
-                        'email',
-                        __('validation.user_already_exists')
-                    );
-                }
+                $this->validateAppUserIsNotAlreadyAttachedToClub($validator);
+                $this->validateClubIdsBelongToAuthenticatedClubUser($validator);
             },
         ];
+    }
+
+    private function validateAppUserIsNotAlreadyAttachedToClub(Validator $validator): void
+    {
+        $appUserId = AppUser::query()
+            ->where('email', $this->email)
+            ->value('id');
+
+        if (!$appUserId) {
+            return;
+        }
+
+        $clubIds = Club::query()
+            ->where('club_user_id', Auth::id())
+            ->pluck('id');
+
+        if ($clubIds->isEmpty()) {
+            return;
+        }
+
+        $appUserBelongsToClub = DB::table('app_user_club')
+            ->whereIn('club_id', $clubIds)
+            ->where('app_user_id', $appUserId)
+            ->exists();
+
+        if ($appUserBelongsToClub) {
+            $validator->errors()->add(
+                'email',
+                __('validation.app_user_already_belongs_to_club'),
+            );
+        }
+    }
+
+    private function validateClubIdsBelongToAuthenticatedClubUser(
+        Validator $validator,
+    ): void {
+        $allowedClubIds = Club::query()
+            ->where('club_user_id', Auth::id())
+            ->whereIn('id', $this->club_ids)
+            ->pluck('id');
+
+        $invalidClubIds = collect($this->club_ids)
+            ->diff($allowedClubIds)
+            ->values();
+
+        if ($invalidClubIds->isEmpty()) {
+            return;
+        }
+
+        $validator->errors()->add(
+            'club_ids',
+            __(
+                'validation.club_ids_not_owned_by_user',
+                [
+                    'club_ids' => $invalidClubIds->join(', '),
+                ],
+            ),
+        );
     }
 }

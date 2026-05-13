@@ -10,10 +10,10 @@ Accept: application/json
 {
     "name": "Juan",
     "last_name": "Perez",
-    "phone_number": "9876543223",
+    "phone_number": "9876543229",
     "birthday": "2000-01-01",
     "gender": "male",
-    "email": "JuanpereZ12@example.com"
+    "email": "JuanpereZ192@example.com"
 }
 ### Another app user
 POST {{base_url}}/api/club/app-users
@@ -24,8 +24,9 @@ Accept: application/json
 {
     "name": "Maria",
     "last_name": "Gomez",
-    "phone_number": "123456792",
+    "phone_number": "1232345679721",
     "birthday": "1999-01-01",
     "gender": "female",
-    "email": "mariagom@example.com"
+    "email": "mariagomm@exampleeee.com",
+    "club_ids": [2]
 }
