@@ -42,7 +42,8 @@ final class StoreAppUserRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:100'],
             'birthday' => ['required', 'date', 'before_or_equal:today'],
             'gender' => ['required', Rule::enum(Gender::class)],
-            'club_ids' => ['required', 'distinct', 'array', 'exists:clubs,id'],
+            'club_ids' => ['required', 'array'],
+            'club_ids.*' => ['distinct', 'exists:clubs,id'],
         ];
     }
 
@@ -115,6 +116,11 @@ final class StoreAppUserRequest extends FormRequest
     private function validateClubIdsBelongToAuthenticatedClubUser(
         Validator $validator,
     ): void {
+
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+
         $allowedClubIds = Club::query()
             ->where('club_user_id', Auth::id())
             ->whereIn('id', $this->club_ids)

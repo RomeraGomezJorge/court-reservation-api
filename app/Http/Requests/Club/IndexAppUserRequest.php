@@ -22,6 +22,9 @@ final class IndexAppUserRequest extends FormRequest
             'last_name' => ['nullable', 'string', 'max:100'],
             'email' => ['nullable', 'string', 'max:100'],
             'phone_number' => ['nullable', 'string', 'max:50'],
+            'sort_column' => ['nullable', 'string'],
+            'sort_direction' => ['nullable', 'string'],
+            'per_page' => ['integer', 'min:1'],
         ];
     }
 }

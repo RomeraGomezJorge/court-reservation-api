@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Club;
 use App\Http\Requests\Club\IndexAppUserRequest;
 use App\Http\Requests\Club\StoreAppUserRequest;
 use App\Http\Resources\Club\AppUserResource;
+use App\Http\Resources\Club\ShowAppUserResource;
 use App\Models\AppUser;
 use App\Models\Club;
 use App\Services\ClubUserCreateOrAttachAppUserService;
@@ -36,7 +37,6 @@ final class AppUserController
 
         $appUsers = AppUser::query()
             ->whereIn('id', $appUserIds)
-            ->latest()
             ->when($request->validated('name'), function (Builder $query, string $name): void {
                 $query->whereLike('name', "%{$name}%");
             })
@@ -49,8 +49,13 @@ final class AppUserController
             ->when($request->validated('email'), function (Builder $query, string $email): void {
                 $query->whereLike('email', "%{$email}%");
             })
-            ->paginate();
-
+            ->orderBy(
+                $request->validated('sort_column', 'created_at'),
+                $request->validated('sort_direction', 'desc')
+            )
+            ->paginate(
+                perPage: $request->validated('per_page', 15),
+            );
         return AppUserResource::collection($appUsers);
     }
 
@@ -100,11 +105,11 @@ final class AppUserController
             ->setStatusCode(201);
     }
 
-    public function show(AppUser $appUser): AppUserResource
+    public function show(AppUser $appUser): ShowAppUserResource
     {
         Gate::authorize('view', $appUser);
 
-        return new AppUserResource($appUser);
+        return new ShowAppUserResource($appUser);
     }
 
     /**

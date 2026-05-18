@@ -1,6 +1,6 @@
 ### Show AppUser
 
-@app_user_id = 1
+@app_user_id = 2
 
 ### Get a single app user
 GET {{base_url}}/api/club/app-users/{{app_user_id}}
