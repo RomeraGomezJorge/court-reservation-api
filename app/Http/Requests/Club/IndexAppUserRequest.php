@@ -25,6 +25,7 @@ final class IndexAppUserRequest extends FormRequest
             'sort_column' => ['nullable', 'string'],
             'sort_direction' => ['nullable', 'string'],
             'per_page' => ['integer', 'min:1'],
+            'page' => ['nullable', 'min:1'],
         ];
     }
 }

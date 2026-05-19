@@ -54,7 +54,8 @@ final class AppUserController
                 $request->validated('sort_direction', 'desc')
             )
             ->paginate(
-                perPage: $request->validated('per_page', 15),
+                perPage: $request->validated('per_page', 10),
+                page: $request->validated('page'),
             );
         return AppUserResource::collection($appUsers);
     }
