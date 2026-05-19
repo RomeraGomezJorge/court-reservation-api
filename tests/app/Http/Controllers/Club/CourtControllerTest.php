@@ -25,7 +25,7 @@ function validCourtPayload(array $overrides = []): array
         'name' => 'Cancha Central',
         'description' => 'Cancha para partidos oficiales',
         'sport_type_id' => $sportType->id,
-        'features' => [$features[0]->id, $features[1]->id],
+        'feature_ids' => [$features[0]->id, $features[1]->id],
     ], $overrides);
 }
 
@@ -56,12 +56,12 @@ it('stores a court with default availability in true', function (): void {
 
     $this->assertDatabaseHas('court_feature', [
         'court_id' => $court->id,
-        'feature_id' => $payload['features'][0],
+        'feature_id' => $payload['feature_ids'][0],
     ]);
 
     $this->assertDatabaseHas('court_feature', [
         'court_id' => $court->id,
-        'feature_id' => $payload['features'][1],
+        'feature_id' => $payload['feature_ids'][1],
     ]);
 });
 
@@ -82,7 +82,7 @@ it('fails to store a court with duplicate name inside the same club', function (
         'name' => 'Cancha Repetida',
         'description' => 'Descripcion',
         'sport_type_id' => $sportType->id,
-        'features' => [],
+        'feature_ids' => [],
     ])->assertExactJson([
         'code' => 422,
         'messages' => ['El campo nombre ya ha sido registrado.'],
@@ -211,7 +211,7 @@ it('updates a court and syncs features', function (): void {
         'name' => 'Cancha Actualizada',
         'description' => 'Descripcion actualizada',
         'sport_type_id' => $newSportType->id,
-        'features' => [$newFeatureOne->id, $newFeatureTwo->id],
+        'feature_ids' => [$newFeatureOne->id, $newFeatureTwo->id],
     ])->assertNoContent();
 
     $this->assertDatabaseHas('courts', [
@@ -257,7 +257,7 @@ it('fails to update a court when the court does not belong to the club in route'
         'name' => 'Cancha Actualizada',
         'description' => 'Descripcion actualizada',
         'sport_type_id' => $sportType->id,
-        'features' => [],
+        'feature_ids' => [],
     ])->assertNotFound()
         ->assertExactJson([
             'code' => 404,
@@ -284,7 +284,7 @@ it('fails to update a court when the club is not owned by authenticated user', f
         'name' => 'Cancha Actualizada',
         'description' => 'Descripcion actualizada',
         'sport_type_id' => $sportType->id,
-        'features' => [],
+        'feature_ids' => [],
     ])->assertNotFound()
         ->assertExactJson([
             'code' => 404,

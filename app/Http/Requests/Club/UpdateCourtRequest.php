@@ -40,8 +40,8 @@ final class UpdateCourtRequest extends FormRequest
             ],
             'description' => ['nullable', 'string', 'max:255'],
             'sport_type_id' => ['required', 'integer', 'exists:sport_types,id'],
-            'features' => ['nullable', 'array'],
-            'features.*' => ['integer', 'distinct', 'exists:features,id'],
+            'feature_ids' => ['nullable', 'array'],
+            'feature_ids.*' => ['integer', 'distinct', 'exists:features,id'],
         ];
     }
 
@@ -49,17 +49,17 @@ final class UpdateCourtRequest extends FormRequest
     public function courtData(): array
     {
         return $this->safe()->except([
-            'features',
+            'feature_ids',
         ]);
     }
 
     /** @return array<int, int> */
     public function featureIds(): array
     {
-        $features = $this->input('features', []);
+        $featureIds = $this->input('feature_ids', []);
 
-        return is_array($features)
-            ? $features
+        return is_array($featureIds)
+            ? $featureIds
             : [];
     }
 }

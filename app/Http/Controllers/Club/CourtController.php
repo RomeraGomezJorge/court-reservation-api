@@ -29,7 +29,7 @@ final class CourtController
                 'is_available' => true,
             ]);
 
-            if ($request->has('features')) {
+            if ($request->has('feature_ids')) {
                 $court->features()->sync($request->featureIds());
             }
         });
@@ -63,7 +63,7 @@ final class CourtController
         DB::transaction(function () use ($request, $court): void {
             $court->update($request->courtData());
 
-            if ($request->has('features')) {
+            if ($request->has('feature_ids')) {
                 $court->features()->sync($request->featureIds());
             }
         });
