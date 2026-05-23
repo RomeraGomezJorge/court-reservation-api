@@ -17,9 +17,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -66,41 +63,9 @@ final class AppUserController
      */
     public function store(StoreAppUserRequest $request, ClubUserCreateOrAttachAppUserService $appUserCreator): JsonResponse
     {
-        $appUserCreator->handle(
+        $appUser = $appUserCreator->handle(
             attributes: $request->validatedAttributes(),
         );
-
-        $appUser = DB::transaction(function () use ($request): AppUser {
-
-            $clubIds = Club::query()
-                ->where('club_user_id', Auth::id())
-                ->pluck('id');
-
-            $appUser = AppUser::query()
-                ->where('email', $request->validated('email'))
-                ->first();
-
-            if ($appUser) {
-
-                $appUser->clubs()->syncWithoutDetaching($clubIds);
-
-            } else {
-
-                $appUser = AppUser::query()->create([
-                    ...$request->validated(),
-                    'password' => Hash::make(Str::password(32)),
-                ]);
-
-                $appUser->clubs()->attach($clubIds);
-
-                DB::afterCommit(function () use ($appUser): void {
-                    Password::broker('app_users')->sendResetLink(['email' => $appUser->email]);
-                });
-
-            }
-
-            return $appUser;
-        });
 
         return new AppUserResource($appUser)
             ->response()
