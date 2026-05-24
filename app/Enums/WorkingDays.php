@@ -19,4 +19,11 @@ enum WorkingDays: string
     {
         return __('club-working-days.'.$this->value);
     }
+
+    public static function values(): array
+    {
+        return collect(self::cases())->map(function ($value) {
+            return $value->value;
+        })->all();
+    }
 }

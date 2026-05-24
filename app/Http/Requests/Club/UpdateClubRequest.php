@@ -9,7 +9,7 @@ use App\Enums\WorkingDays;
 use App\Models\Club;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rules\In;
 use Illuminate\Validation\Validator;
 
 final class UpdateClubRequest extends BaseClubRequest
@@ -19,7 +19,7 @@ final class UpdateClubRequest extends BaseClubRequest
         return true;
     }
 
-    /** @return array<string, array<int, ValidationRule|string|Enum>> */
+    /** @return array<string, array<int, ValidationRule|string|In>> */
     public function rules(): array
     {
         /** @var Club $club */
@@ -43,11 +43,11 @@ final class UpdateClubRequest extends BaseClubRequest
             'twitter_url' => ['nullable', 'url', 'max:255'],
             'whatsapp_number' => ['nullable', 'string', 'max:255'],
             'working_days' => ['nullable', 'array', 'min:1'],
-            'working_days.*.day' => ['required', 'distinct', Rule::enum(WorkingDays::class)],
+            'working_days.*.day' => ['required', 'distinct', Rule::in(WorkingDays::values())],
             'working_days.*.opening_hour' => ['required', 'date_format:H:i'],
             'working_days.*.closing_hour' => ['required', 'date_format:H:i'],
             'services' => ['nullable', 'array'],
-            'services.*' => ['nullable', 'distinct', Rule::enum(ClubServicesType::class)],
+            'services.*' => ['nullable', 'distinct', Rule::in(ClubServicesType::values())],
         ];
     }
 

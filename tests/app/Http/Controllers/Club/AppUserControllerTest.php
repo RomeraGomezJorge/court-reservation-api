@@ -523,7 +523,7 @@ it('fails to store an app user with invalid payload', function (
             'club_ids' => [9999],
         ],
         'expectedMessages' => [
-            'El campo club_ids.0 no existe.',
+            'El club en la posición 1 no existe.',
         ],
     ],
 
@@ -559,8 +559,8 @@ it('fails to store an app user with duplicate club_ids', function (): void {
     ])->assertExactJson([
         'code' => 422,
         'messages' => [
-            'El campo club_ids.0 contiene un valor duplicado.',
-            'El campo club_ids.1 contiene un valor duplicado.',
+            'El club seleccionado en la posición 1 está duplicado.',
+            'El club seleccionado en la posición 2 está duplicado.',
         ],
     ]);
 

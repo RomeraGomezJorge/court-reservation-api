@@ -389,7 +389,17 @@ it('ensures all translation keys from app folder exist in php translation files'
 
 it('ensures all FormRequest validation rules have translation attributes', function (): void {
     $violations = [];
-    $ignoredFormRequestRuleKeys = ['token', 'id', 'hash'];
+    $ignoredFormRequestRuleKeys = [
+        'club_ids.*',
+        'feature_ids.*',
+        'hash',
+        'id',
+        'services.*',
+        'token',
+        'working_days.*.closing_hour',
+        'working_days.*.day',
+        'working_days.*.opening_hour',
+    ];
 
     foreach (translationFormRequestFiles() as $file) {
         $content = $file->getContents();

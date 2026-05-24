@@ -42,4 +42,11 @@ enum ClubServicesType: string
             self::GroupClasses => asset('icons/round-groups.svg'),
         };
     }
+
+    public static function values(): array
+    {
+        return collect(self::cases())->map(function ($value) {
+            return $value->value;
+        })->all();
+    }
 }
