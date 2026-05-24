@@ -7,6 +7,7 @@ namespace App\Http\Requests\Club;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\In;
 
 final class IndexAppUserRequest extends FormRequest
 {
@@ -15,7 +16,7 @@ final class IndexAppUserRequest extends FormRequest
         return true;
     }
 
-    /** @return array<string, array<int, ValidationRule|string>> */
+    /** @return array<string, array<int, ValidationRule|string|In>> */
     public function rules(): array
     {
         return [

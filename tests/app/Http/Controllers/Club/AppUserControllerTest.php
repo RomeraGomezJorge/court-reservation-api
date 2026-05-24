@@ -9,11 +9,12 @@ use App\Http\Controllers\Club\AppUserController;
 use App\Models\AppUser;
 use App\Models\Club;
 use App\Models\ClubUser;
-use Carbon\Carbon;
 use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Notification;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
 function validPayload(array $overrides = []): array
@@ -27,6 +28,65 @@ function validPayload(array $overrides = []): array
         'gender' => Gender::Male->value,
         'club_ids' => [test()->clubs[0]->id],
     ], $overrides);
+}
+
+function appUserResourcePayload(AppUser $appUser): array
+{
+    return [
+        'id' => $appUser->id,
+        'name' => $appUser->name,
+        'last_name' => $appUser->last_name,
+        'phone_number' => $appUser->phone_number,
+        'email' => $appUser->email,
+    ];
+}
+
+function appUserIndexResponsePayload(string $path, array $appUsers, int $perPage = 15): array
+{
+    $basePath = strtok($path, '?');
+    $pageUrl = $basePath.'?page=1';
+
+    return [
+        'data' => array_map(
+            appUserResourcePayload(...),
+            $appUsers,
+        ),
+        'links' => [
+            'first' => $pageUrl,
+            'last' => $pageUrl,
+            'prev' => null,
+            'next' => null,
+        ],
+        'meta' => [
+            'current_page' => 1,
+            'from' => $appUsers !== [] ? 1 : 0,
+            'last_page' => 1,
+            'links' => [
+                [
+                    'url' => null,
+                    'label' => '&laquo; Anterior',
+                    'active' => false,
+                    'page' => null,
+                ],
+                [
+                    'url' => $pageUrl,
+                    'label' => '1',
+                    'active' => true,
+                    'page' => 1,
+                ],
+                [
+                    'url' => null,
+                    'label' => 'Siguiente &raquo;',
+                    'active' => false,
+                    'page' => null,
+                ],
+            ],
+            'path' => $basePath,
+            'per_page' => $perPage,
+            'to' => count($appUsers),
+            'total' => count($appUsers),
+        ],
+    ];
 }
 
 beforeEach(function (): void {
@@ -43,6 +103,258 @@ beforeEach(function (): void {
 
     actingAs($this->clubUser);
 });
+
+it('returns the app users related to the club without filters ordered by created_at desc', function (): void {
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+    $otherClub = Club::factory()->createQuietly();
+
+    [$newestAppUser, $middleAppUser, $oldestAppUser] = AppUser::factory()
+        ->count(3)
+        ->sequence(
+            [
+                'name' => 'Newest App User',
+                'created_at' => '2025-01-03 12:00:00',
+            ],
+            [
+                'name' => 'Middle App User',
+                'created_at' => '2025-01-02 12:00:00',
+            ],
+            [
+                'name' => 'Oldest App User',
+                'created_at' => '2025-01-01 12:00:00',
+            ],
+        )
+        ->createQuietly();
+
+    $club->appUsers()->attach([$newestAppUser->id, $oldestAppUser->id]);
+    $otherClub->appUsers()->attach($middleAppUser->id);
+
+    get(
+        action([AppUserController::class, 'index'])
+    )->assertJsonPath('data', [
+        [
+            'id' => $newestAppUser->id,
+            'name' => $newestAppUser->name,
+            'last_name' => $newestAppUser->last_name,
+            'phone_number' => $newestAppUser->phone_number,
+            'email' => $newestAppUser->email,
+        ],
+        [
+            'id' => $oldestAppUser->id,
+            'name' => $oldestAppUser->name,
+            'last_name' => $oldestAppUser->last_name,
+            'phone_number' => $oldestAppUser->phone_number,
+            'email' => $oldestAppUser->email,
+        ],
+    ]);
+});
+
+it('returns the app users filtered by name', function (): void {
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+    $otherClub = Club::factory()->createQuietly();
+
+    [$firstAppUser, $secondAppUser, $thirdAppUser] = AppUser::factory()
+        ->count(3)
+        ->sequence(
+            [
+                'name' => 'Carlos',
+                'created_at' => '2025-01-03 12:00:00',
+            ],
+            [
+                'name' => 'Mario',
+                'created_at' => '2025-01-02 12:00:00',
+            ],
+            [
+                'name' => 'Carlitos',
+                'created_at' => '2025-01-01 12:00:00',
+            ],
+        )
+        ->createQuietly();
+
+    $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
+    $otherClub->appUsers()->attach($thirdAppUser->id);
+
+    get(
+        action([AppUserController::class, 'index'], ['name' => 'Car'])
+    )->assertJsonPath('data', [
+        [
+            'id' => $firstAppUser->id,
+            'name' => $firstAppUser->name,
+            'last_name' => $firstAppUser->last_name,
+            'phone_number' => $firstAppUser->phone_number,
+            'email' => $firstAppUser->email,
+        ],
+    ]);
+});
+
+it('returns the app users filtered by email', function (): void {
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+    $otherClub = Club::factory()->createQuietly();
+
+    [$firstAppUser, $secondAppUser, $thirdAppUser] = AppUser::factory()
+        ->count(3)
+        ->sequence(
+            [
+                'email' => 'Carlos@example.com',
+                'created_at' => '2025-01-03 12:00:00',
+            ],
+            [
+                'email' => 'Mario@example.com',
+                'created_at' => '2025-01-02 12:00:00',
+            ],
+            [
+                'email' => 'Carlitos@example.com',
+                'created_at' => '2025-01-01 12:00:00',
+            ],
+        )
+        ->createQuietly();
+
+    $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
+    $otherClub->appUsers()->attach($thirdAppUser->id);
+
+    get(
+        action([AppUserController::class, 'index'], ['email' => 'Car'])
+    )->assertJsonPath('data', [
+        [
+            'id' => $firstAppUser->id,
+            'name' => $firstAppUser->name,
+            'last_name' => $firstAppUser->last_name,
+            'phone_number' => $firstAppUser->phone_number,
+            'email' => $firstAppUser->email,
+        ],
+    ]);
+});
+
+it('returns the app users filtered by last name', function (): void {
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+    $otherClub = Club::factory()->createQuietly();
+
+    [$firstAppUser, $secondAppUser, $thirdAppUser] = AppUser::factory()
+        ->count(3)
+        ->sequence(
+            [
+                'last_name' => 'Lopez',
+                'created_at' => '2025-01-03 12:00:00',
+            ],
+            [
+                'last_name' => 'Morales',
+                'created_at' => '2025-01-02 12:00:00',
+            ],
+            [
+                'last_name' => 'Lozano',
+                'created_at' => '2025-01-01 12:00:00',
+            ],
+        )
+        ->createQuietly();
+
+    $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
+    $otherClub->appUsers()->attach($thirdAppUser->id);
+
+    get(
+        action([AppUserController::class, 'index'], ['last_name' => 'Lo'])
+    )->assertJsonPath('data', [
+        [
+            'id' => $firstAppUser->id,
+            'name' => $firstAppUser->name,
+            'last_name' => $firstAppUser->last_name,
+            'phone_number' => $firstAppUser->phone_number,
+            'email' => $firstAppUser->email,
+        ],
+    ]);
+});
+
+it('returns the app users filtered by phone number', function (): void {
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+    $otherClub = Club::factory()->createQuietly();
+
+    [$firstAppUser, $secondAppUser, $thirdAppUser] = AppUser::factory()
+        ->count(3)
+        ->sequence(
+            [
+                'phone_number' => '3415551001',
+                'created_at' => '2025-01-03 12:00:00',
+            ],
+            [
+                'phone_number' => '9999999999',
+                'created_at' => '2025-01-02 12:00:00',
+            ],
+            [
+                'phone_number' => '3415551002',
+                'created_at' => '2025-01-01 12:00:00',
+            ],
+        )
+        ->createQuietly();
+
+    $club->appUsers()->attach([$firstAppUser->id, $secondAppUser->id]);
+    $otherClub->appUsers()->attach($thirdAppUser->id);
+
+    get(
+        action([AppUserController::class, 'index'], ['phone_number' => '341555100'])
+    )->assertJsonPath('data', [
+        [
+            'id' => $firstAppUser->id,
+            'name' => $firstAppUser->name,
+            'last_name' => $firstAppUser->last_name,
+            'phone_number' => $firstAppUser->phone_number,
+            'email' => $firstAppUser->email,
+        ],
+    ]);
+});
+
+it('fails to list app users with invalid filters', function (array $filters, array $expectedMessages): void {
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    get(action([AppUserController::class, 'index'], $filters))
+        ->assertExactJson([
+            'code' => 422,
+            'messages' => $expectedMessages,
+        ]);
+})->with([
+    'long name' => [
+        'filters' => ['name' => str_repeat('a', 101)],
+        'expectedMessages' => ['El campo nombre no debe ser mayor que 100 caracteres.'],
+    ],
+    'long last name' => [
+        'filters' => ['last_name' => str_repeat('a', 101)],
+        'expectedMessages' => ['El campo apellido no debe ser mayor que 100 caracteres.'],
+    ],
+    'long email' => [
+        'filters' => ['email' => str_repeat('a', 95).'@example.com'],
+        'expectedMessages' => ['El campo correo electrónico no debe ser mayor que 100 caracteres.'],
+    ],
+    'long phone number' => [
+        'filters' => ['phone_number' => str_repeat('a', 51)],
+        'expectedMessages' => ['El campo teléfono no debe ser mayor que 50 caracteres.'],
+    ],
+    'invalid sort column' => [
+        'filters' => ['sort_column' => 'created_at'],
+        'expectedMessages' => ['El campo sort column no está en la lista de valores permitidos.'],
+    ],
+    'invalid sort direction' => [
+        'filters' => ['sort_direction' => 'up'],
+        'expectedMessages' => ['El campo sort direction no está en la lista de valores permitidos.'],
+    ],
+    'per page lower than minimum' => [
+        'filters' => ['per_page' => 0],
+        'expectedMessages' => ['El tamaño de per page debe ser de al menos 1.'],
+    ],
+    'per page greater than maximum' => [
+        'filters' => ['per_page' => 101],
+        'expectedMessages' => ['El campo per page no debe ser mayor que 100.'],
+    ],
+]);
 
 it('fails to store an app user with invalid payload', function (
     array $payloadOverrides,
@@ -136,7 +448,7 @@ it('fails to store an app user with invalid payload', function (
 
     'email exceeds max length' => [
         'payloadOverrides' => [
-            'email' => str_repeat('a', 89).'@e.com',
+            'email' => str_repeat('a', 95).'@e.com',
         ],
         'expectedMessages' => [
             'El campo correo electrónico no debe ser mayor que 100 caracteres.',
@@ -163,7 +475,7 @@ it('fails to store an app user with invalid payload', function (
 
     'future birthday' => [
         'payloadOverrides' => [
-            'birthday' => Carbon::now()->addDay()->format('Y-m-d'),
+            'birthday' => Date::now()->addDay()->format('Y-m-d'),
         ],
         'expectedMessages' => [
             'El campo fecha de nacimiento debe ser una fecha anterior o igual a today.',
@@ -345,9 +657,18 @@ it('stores new app user with club_ids owned by authenticated club user', functio
         ...$payload,
     ]);
 
+    $createdAppUser = AppUser::query()
+        ->where('email', $payload['email'])
+        ->firstOrFail();
+
     $this->assertDatabaseHas('app_user_club', [
         'club_id' => $this->clubs[0]->id,
+        'app_user_id' => $createdAppUser->id,
+    ]);
+
+    $this->assertDatabaseHas('app_user_club', [
         'club_id' => $this->clubs[1]->id,
+        'app_user_id' => $createdAppUser->id,
     ]);
 
     Notification::assertSentTo(
