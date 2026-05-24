@@ -47,8 +47,8 @@ final class AppUserController
                 $query->whereLike('email', "%{$email}%");
             })
             ->orderBy(
-                $request->validated('sort_column', 'created_at'),
-                $request->validated('sort_direction', 'desc')
+                column: $request->validated('sort_column', 'created_at'),
+                direction: $request->validated('sort_direction', 'desc')
             )
             ->paginate(
                 perPage: $request->validated('per_page', 10),

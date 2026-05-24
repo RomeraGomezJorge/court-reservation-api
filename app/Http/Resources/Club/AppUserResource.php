@@ -30,8 +30,6 @@ final class AppUserResource extends JsonResource
             'name' => $this->name,
             'last_name' => $this->last_name,
             'phone_number' => $this->phone_number,
-            'birthday' => $this->birthday->format('Y-m-d'),
-            'gender' => $this->gender->value,
             'email' => $this->email,
         ];
     }
