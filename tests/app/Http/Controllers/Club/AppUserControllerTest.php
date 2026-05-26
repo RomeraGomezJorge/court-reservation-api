@@ -17,7 +17,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
-function validPayload(array $overrides = []): array
+function validAppUserPayload(array $overrides = []): array
 {
     return array_merge([
         'name' => 'John',
@@ -30,64 +30,9 @@ function validPayload(array $overrides = []): array
     ], $overrides);
 }
 
-function appUserResourcePayload(AppUser $appUser): array
-{
-    return [
-        'id' => $appUser->id,
-        'name' => $appUser->name,
-        'last_name' => $appUser->last_name,
-        'phone_number' => $appUser->phone_number,
-        'email' => $appUser->email,
-    ];
-}
+dataset('invalid app user payload', [
 
-function appUserIndexResponsePayload(string $path, array $appUsers, int $perPage = 15): array
-{
-    $basePath = strtok($path, '?');
-    $pageUrl = $basePath.'?page=1';
-
-    return [
-        'data' => array_map(
-            appUserResourcePayload(...),
-            $appUsers,
-        ),
-        'links' => [
-            'first' => $pageUrl,
-            'last' => $pageUrl,
-            'prev' => null,
-            'next' => null,
-        ],
-        'meta' => [
-            'current_page' => 1,
-            'from' => $appUsers !== [] ? 1 : 0,
-            'last_page' => 1,
-            'links' => [
-                [
-                    'url' => null,
-                    'label' => '&laquo; Anterior',
-                    'active' => false,
-                    'page' => null,
-                ],
-                [
-                    'url' => $pageUrl,
-                    'label' => '1',
-                    'active' => true,
-                    'page' => 1,
-                ],
-                [
-                    'url' => null,
-                    'label' => 'Siguiente &raquo;',
-                    'active' => false,
-                    'page' => null,
-                ],
-            ],
-            'path' => $basePath,
-            'per_page' => $perPage,
-            'to' => count($appUsers),
-            'total' => count($appUsers),
-        ],
-    ];
-}
+]);
 
 beforeEach(function (): void {
     Notification::fake();
@@ -340,19 +285,19 @@ it('fails to list app users with invalid filters', function (array $filters, arr
     ],
     'invalid sort column' => [
         'filters' => ['sort_column' => 'created_at'],
-        'expectedMessages' => ['El campo sort column no está en la lista de valores permitidos.'],
+        'expectedMessages' => ['El campo columna de ordenamiento no está en la lista de valores permitidos.'],
     ],
     'invalid sort direction' => [
         'filters' => ['sort_direction' => 'up'],
-        'expectedMessages' => ['El campo sort direction no está en la lista de valores permitidos.'],
+        'expectedMessages' => ['El campo dirección de ordenamiento no está en la lista de valores permitidos.'],
     ],
     'per page lower than minimum' => [
         'filters' => ['per_page' => 0],
-        'expectedMessages' => ['El tamaño de per page debe ser de al menos 1.'],
+        'expectedMessages' => ['El tamaño de filas por página debe ser de al menos 1.'],
     ],
     'per page greater than maximum' => [
         'filters' => ['per_page' => 101],
-        'expectedMessages' => ['El campo per page no debe ser mayor que 100.'],
+        'expectedMessages' => ['El campo filas por página no debe ser mayor que 100.'],
     ],
 ]);
 
@@ -362,7 +307,7 @@ it('fails to store an app user with invalid payload', function (
 ): void {
     $response = post(
         action([AppUserController::class, 'store']),
-        validPayload($payloadOverrides),
+        validAppUserPayload($payloadOverrides),
     );
 
     $response
@@ -548,15 +493,14 @@ it('fails to store an app user without club_ids field', function (): void {
 });
 
 it('fails to store an app user with duplicate club_ids', function (): void {
-    post(action([AppUserController::class, 'store']), [
-        'name' => 'John',
-        'last_name' => 'Doe',
-        'phone_number' => '1234567890',
-        'email' => 'john@example.com',
-        'birthday' => '1990-01-01',
-        'gender' => Gender::Male->value,
+
+    $payload = validAppUserPayload(
+        overrides: [
         'club_ids' => [$this->clubs[0]->id, $this->clubs[0]->id],
-    ])->assertExactJson([
+    ]);
+
+    post(action([AppUserController::class, 'store']), $payload)
+        ->assertExactJson([
         'code' => 422,
         'messages' => [
             'El club seleccionado en la posición 1 está duplicado.',
@@ -571,15 +515,11 @@ it('fails to store an app user when already attached to the club', function (): 
     $existingAppUser = AppUser::factory()->createQuietly();
     $existingAppUser->clubs()->attach($this->clubs[0]->id);
 
-    post(action([AppUserController::class, 'store']), [
-        'name' => 'John',
-        'last_name' => 'Doe',
-        'phone_number' => '1234567890',
-        'email' => $existingAppUser->email,
-        'birthday' => '1990-01-01',
-        'gender' => Gender::Male->value,
-        'club_ids' => [$this->clubs[0]->id],
-    ])
+    $payload = validAppUserPayload(
+        overrides: ['email' => $existingAppUser->email],
+    );
+
+    post(action([AppUserController::class, 'store']), $payload)
         ->assertStatus(422)
         ->assertExactJson([
             'code' => 422,
@@ -595,15 +535,11 @@ it('stores an app user when not already attached to the authenticated user clubs
     $otherClub = Club::factory()->createQuietly(['club_user_id' => $otherClubUser->id]);
     $existingAppUser->clubs()->attach($otherClub->id);
 
-    post(action([AppUserController::class, 'store']), [
-        'name' => 'John',
-        'last_name' => 'Doe',
-        'phone_number' => '1234567890',
-        'email' => $existingAppUser->email,
-        'birthday' => '1990-01-01',
-        'gender' => Gender::Male->value,
-        'club_ids' => [$this->clubs[0]->id],
-    ])
+    $payload = validAppUserPayload(
+        overrides: ['email' => $existingAppUser->email],
+    );
+
+    post(action([AppUserController::class, 'store']), $payload)
         ->assertStatus(201);
 
     $this->assertDatabaseHas('app_user_club', [
@@ -618,15 +554,11 @@ it('fails to store an app user with club_ids not owned by authenticated club use
     $otherClub = Club::factory()
         ->createQuietly(['club_user_id' => ClubUser::factory()]);
 
-    post(action([AppUserController::class, 'store']), [
-        'name' => 'John',
-        'last_name' => 'Doe',
-        'phone_number' => '1234567890',
-        'email' => 'john@example.com',
-        'birthday' => '1990-01-01',
-        'gender' => Gender::Male->value,
-        'club_ids' => [$otherClub->id],
-    ])
+    $payload = validAppUserPayload(
+        overrides: ['club_ids' => [$otherClub->id]],
+    );
+
+    post(action([AppUserController::class, 'store']), $payload)
         ->assertExactJson([
             'code' => 422,
             'messages' => ['Los siguientes clubes no pertenecen al usuario autenticado: '.$otherClub->id.'.'],
@@ -637,15 +569,11 @@ it('fails to store an app user with club_ids not owned by authenticated club use
 });
 
 it('stores new app user with club_ids owned by authenticated club user', function (): void {
-    $payload = [
-        'name' => 'John',
-        'last_name' => 'Doe',
-        'phone_number' => '1234567890',
-        'email' => 'john@example.com',
-        'birthday' => '1990-01-01',
-        'gender' => Gender::Male->value,
-        'club_ids' => [$this->clubs[0]->id, $this->clubs[1]->id],
-    ];
+    $payload = validAppUserPayload(
+        overrides: [
+            'club_ids' => [$this->clubs[0]->id, $this->clubs[1]->id],
+        ],
+    );
 
     post(action([AppUserController::class, 'store']), [
         ...$payload,
@@ -681,15 +609,11 @@ it('stores new app user with club_ids owned by authenticated club user', functio
 it('attaches existing app user to clubs correctly', function (): void {
     $existingAppUser = AppUser::factory()->createQuietly();
 
-    post(action([AppUserController::class, 'store']), [
-        'name' => 'John',
-        'last_name' => 'Doe',
-        'phone_number' => '1234567890',
-        'email' => $existingAppUser->email,
-        'birthday' => '1990-01-01',
-        'gender' => Gender::Male->value,
-        'club_ids' => [$this->clubs[0]->id],
-    ])
+    $payload = validAppUserPayload(
+        overrides: ['email' => $existingAppUser->email],
+    );
+
+    post(action([AppUserController::class, 'store']), $payload)
         ->assertStatus(201);
 
     $this->assertDatabaseHas('app_user_club', [
