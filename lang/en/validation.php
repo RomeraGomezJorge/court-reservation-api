@@ -226,7 +226,7 @@ return [
             'in' => 'The service at position :position is invalid.',
             'enum' => 'The service at position :position is invalid.',
         ],
-        'working_days.*.day' =>[
+        'working_days.*.day' => [
             'distinct' => 'The selected working day at position :position is duplicated.',
             'in' => 'The working day at position :position is invalid.',
         ],

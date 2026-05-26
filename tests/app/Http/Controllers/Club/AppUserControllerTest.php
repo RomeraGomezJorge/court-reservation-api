@@ -497,17 +497,17 @@ it('fails to store an app user with duplicate club_ids', function (): void {
 
     $payload = validAppUserPayload(
         overrides: [
-        'club_ids' => [$this->clubs[0]->id, $this->clubs[0]->id],
-    ]);
+            'club_ids' => [$this->clubs[0]->id, $this->clubs[0]->id],
+        ]);
 
     post(action([AppUserController::class, 'store']), $payload)
         ->assertExactJson([
-        'code' => 422,
-        'messages' => [
-            'El club seleccionado en la posición 1 está duplicado.',
-            'El club seleccionado en la posición 2 está duplicado.',
-        ],
-    ]);
+            'code' => 422,
+            'messages' => [
+                'El club seleccionado en la posición 1 está duplicado.',
+                'El club seleccionado en la posición 2 está duplicado.',
+            ],
+        ]);
 
     Notification::assertNothingSent();
 });
@@ -793,7 +793,6 @@ it('shows an app user belonging to the club', function (): void {
             'club_ids' => [$club->id],
         ]);
 });
-
 
 it('fails to show an app user that does not belong to the club', function (): void {
     Club::factory()->createQuietly([

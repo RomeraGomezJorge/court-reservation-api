@@ -18,6 +18,14 @@ enum ClubServicesType: string
     case FirstAid = 'first_aid';
     case GroupClasses = 'group_classes';
 
+    /**
+     * @return array<int, string>
+     */
+    public static function values(): array
+    {
+        return collect(self::cases())->map(fn ($value) => $value->value)->all();
+    }
+
     public function label(): string
     {
         return __('club-services-type.'.$this->value);
@@ -41,12 +49,5 @@ enum ClubServicesType: string
             self::FirstAid => asset('icons/outline-health-and-safety.svg'),
             self::GroupClasses => asset('icons/round-groups.svg'),
         };
-    }
-
-    public static function values(): array
-    {
-        return collect(self::cases())->map(function ($value) {
-            return $value->value;
-        })->all();
     }
 }

@@ -227,7 +227,7 @@ return [
             'in' => 'El servicio en la posición :position no está en la lista de valores permitidos.',
             'enum' => 'El servicio en la posición :position no está en la lista de valores permitidos.',
         ],
-        'working_days.*.day' =>[
+        'working_days.*.day' => [
             'distinct' => 'El día seleccionado en la posición :position está duplicado.',
             'in' => 'El día en la posición :position no está en la lista de valores permitidos.',
         ],

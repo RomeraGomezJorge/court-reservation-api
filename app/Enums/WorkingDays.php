@@ -15,15 +15,17 @@ enum WorkingDays: string
     case Sunday = 'sunday';
     case Holiday = 'holiday';
 
-    public function label(): string
-    {
-        return __('club-working-days.'.$this->value);
-    }
+    /**
+     * @return array<int, string>
+     */
 
     public static function values(): array
     {
-        return collect(self::cases())->map(function ($value) {
-            return $value->value;
-        })->all();
+        return collect(self::cases())->map(fn ($value) => $value->value)->all();
+    }
+
+    public function label(): string
+    {
+        return __('club-working-days.'.$this->value);
     }
 }
