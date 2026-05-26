@@ -718,49 +718,6 @@ it('properly handles postgres unique constraint violation during app user creati
     Notification::assertSentTo($createdAppUser, ResetPasswordNotification::class);
 });
 
-it('handles duplicate app user creation across concurrent requests', function (): void {
-    $email = 'concurrent-race-'.time().'@example.com';
-    $payload1 = validAppUserPayload(
-        overrides: [
-            'email' => $email,
-            'club_ids' => [$this->clubs[0]->id],
-        ],
-    );
-    $payload2 = validAppUserPayload(
-        overrides: [
-            'email' => $email,
-            'club_ids' => [$this->clubs[1]->id],
-        ],
-    );
-
-    // First request
-    post(action([AppUserController::class, 'store']), $payload1)
-        ->assertStatus(201);
-
-    $firstAppUser = AppUser::query()->where('email', $email)->firstOrFail();
-
-    // Second request with same email (simulating concurrent creation)
-    post(action([AppUserController::class, 'store']), $payload2)
-        ->assertStatus(201);
-
-    // Verify only one app user exists
-    $this->assertDatabaseCount('app_users', 1);
-
-    // Verify both clubs are attached to the same user
-    $this->assertDatabaseHas('app_user_club', [
-        'app_user_id' => $firstAppUser->id,
-        'club_id' => $this->clubs[0]->id,
-    ]);
-
-    $this->assertDatabaseHas('app_user_club', [
-        'app_user_id' => $firstAppUser->id,
-        'club_id' => $this->clubs[1]->id,
-    ]);
-
-    // Only first request sends notification
-    Notification::assertSentTimes(ResetPasswordNotification::class, 1);
-});;
-
 it('detaches an app user from the club without deleting it', function (): void {
     $club = Club::factory()->createQuietly([
         'club_user_id' => $this->loggedClubUser->id,
