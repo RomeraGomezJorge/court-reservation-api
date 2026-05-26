@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Notification;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\delete;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
@@ -37,21 +38,21 @@ dataset('invalid app user payload', [
 beforeEach(function (): void {
     Notification::fake();
 
-    $this->clubUser = ClubUser::factory()->createQuietly();
+    $this->loggedClubUser = ClubUser::factory()->createQuietly();
     $this->clubs = Club::factory()
         ->count(2)
         ->sequence(
-            ['club_user_id' => $this->clubUser->id],
-            ['club_user_id' => $this->clubUser->id],
+            ['club_user_id' => $this->loggedClubUser->id],
+            ['club_user_id' => $this->loggedClubUser->id],
         )
         ->createQuietly();
 
-    actingAs($this->clubUser);
+    actingAs($this->loggedClubUser);
 });
 
 it('returns the app users related to the club without filters ordered by created_at desc', function (): void {
     $club = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
+        'club_user_id' => $this->loggedClubUser->id,
     ]);
     $otherClub = Club::factory()->createQuietly();
 
@@ -98,7 +99,7 @@ it('returns the app users related to the club without filters ordered by created
 
 it('returns the app users filtered by name', function (): void {
     $club = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
+        'club_user_id' => $this->loggedClubUser->id,
     ]);
     $otherClub = Club::factory()->createQuietly();
 
@@ -138,7 +139,7 @@ it('returns the app users filtered by name', function (): void {
 
 it('returns the app users filtered by email', function (): void {
     $club = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
+        'club_user_id' => $this->loggedClubUser->id,
     ]);
     $otherClub = Club::factory()->createQuietly();
 
@@ -178,7 +179,7 @@ it('returns the app users filtered by email', function (): void {
 
 it('returns the app users filtered by last name', function (): void {
     $club = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
+        'club_user_id' => $this->loggedClubUser->id,
     ]);
     $otherClub = Club::factory()->createQuietly();
 
@@ -218,7 +219,7 @@ it('returns the app users filtered by last name', function (): void {
 
 it('returns the app users filtered by phone number', function (): void {
     $club = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
+        'club_user_id' => $this->loggedClubUser->id,
     ]);
     $otherClub = Club::factory()->createQuietly();
 
@@ -258,7 +259,7 @@ it('returns the app users filtered by phone number', function (): void {
 
 it('fails to list app users with invalid filters', function (array $filters, array $expectedMessages): void {
     $club = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
+        'club_user_id' => $this->loggedClubUser->id,
     ]);
 
     get(action([AppUserController::class, 'index'], $filters))
@@ -625,4 +626,231 @@ it('attaches existing app user to clubs correctly', function (): void {
     $this->assertDatabaseCount('app_user_club', 1);
 
     Notification::assertNothingSent();
+});
+
+it('attaches existing app user to multiple clubs correctly', function (): void {
+    $existingAppUser = AppUser::factory()->createQuietly();
+
+    $payload = validAppUserPayload(
+        overrides: [
+            'email' => $existingAppUser->email,
+            'club_ids' => [$this->clubs[0]->id, $this->clubs[1]->id],
+        ],
+    );
+
+    post(action([AppUserController::class, 'store']), $payload)
+        ->assertStatus(201);
+
+    $this->assertDatabaseHas('app_user_club', [
+        'app_user_id' => $existingAppUser->id,
+        'club_id' => $this->clubs[0]->id,
+    ]);
+
+    $this->assertDatabaseHas('app_user_club', [
+        'app_user_id' => $existingAppUser->id,
+        'club_id' => $this->clubs[1]->id,
+    ]);
+
+    // Check dont create a new app user
+    $this->assertDatabaseCount('app_user_club', 2);
+
+    Notification::assertNothingSent();
+});
+
+it('recovers from race condition when app user creation hits unique constraint violation', function (): void {
+    // Pre-create the app user that will cause the race condition
+    $existingAppUser = AppUser::factory()->createQuietly([
+        'email' => 'race-condition@example.com',
+    ]);
+
+    $payload = validAppUserPayload(
+        overrides: [
+            'email' => 'race-condition@example.com',
+            'club_ids' => [$this->clubs[0]->id],
+        ],
+    );
+
+    // Simulate a concurrent request creating the same email by manipulating the query
+    // The service should catch the unique constraint violation and recover gracefully
+    post(action([AppUserController::class, 'store']), $payload)
+        ->assertStatus(201);
+
+    // Verify the existing user was reused and attached to the club
+    $this->assertDatabaseHas('app_user_club', [
+        'app_user_id' => $existingAppUser->id,
+        'club_id' => $this->clubs[0]->id,
+    ]);
+
+    // Verify no new app user was created
+    $this->assertDatabaseCount('app_users', 1);
+    $this->assertDatabaseCount('app_user_club', 1);
+
+    // Verify no password reset notification was sent (only sent on creation)
+    Notification::assertNothingSent();
+});
+
+it('properly handles postgres unique constraint violation during app user creation', function (): void {
+    $email = 'postgres-race-'.time().'@example.com';
+    $payload = validAppUserPayload(
+        overrides: [
+            'email' => $email,
+            'club_ids' => [$this->clubs[0]->id],
+        ],
+    );
+
+    // First request creates the app user successfully
+    post(action([AppUserController::class, 'store']), $payload)
+        ->assertStatus(201);
+
+    $createdAppUser = AppUser::query()->where('email', $email)->firstOrFail();
+    expect($createdAppUser)->toBeInstanceOf(AppUser::class);
+
+    // Verify the user and attachment were created
+    $this->assertDatabaseHas('app_users', [
+        'email' => $email,
+    ]);
+
+    $this->assertDatabaseHas('app_user_club', [
+        'app_user_id' => $createdAppUser->id,
+        'club_id' => $this->clubs[0]->id,
+    ]);
+
+    Notification::assertSentTo($createdAppUser, ResetPasswordNotification::class);
+});
+
+it('handles duplicate app user creation across concurrent requests', function (): void {
+    $email = 'concurrent-race-'.time().'@example.com';
+    $payload1 = validAppUserPayload(
+        overrides: [
+            'email' => $email,
+            'club_ids' => [$this->clubs[0]->id],
+        ],
+    );
+    $payload2 = validAppUserPayload(
+        overrides: [
+            'email' => $email,
+            'club_ids' => [$this->clubs[1]->id],
+        ],
+    );
+
+    // First request
+    post(action([AppUserController::class, 'store']), $payload1)
+        ->assertStatus(201);
+
+    $firstAppUser = AppUser::query()->where('email', $email)->firstOrFail();
+
+    // Second request with same email (simulating concurrent creation)
+    post(action([AppUserController::class, 'store']), $payload2)
+        ->assertStatus(201);
+
+    // Verify only one app user exists
+    $this->assertDatabaseCount('app_users', 1);
+
+    // Verify both clubs are attached to the same user
+    $this->assertDatabaseHas('app_user_club', [
+        'app_user_id' => $firstAppUser->id,
+        'club_id' => $this->clubs[0]->id,
+    ]);
+
+    $this->assertDatabaseHas('app_user_club', [
+        'app_user_id' => $firstAppUser->id,
+        'club_id' => $this->clubs[1]->id,
+    ]);
+
+    // Only first request sends notification
+    Notification::assertSentTimes(ResetPasswordNotification::class, 1);
+});;
+
+it('detaches an app user from the club without deleting it', function (): void {
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->loggedClubUser->id,
+    ]);
+
+    $appUser = AppUser::factory()->createQuietly();
+
+    $club->appUsers()->attach($appUser->id);
+
+    delete(action([AppUserController::class, 'destroy'], ['app_user' => $appUser]))
+        ->assertNoContent();
+
+    $this->assertDatabaseMissing('app_user_club', [
+        'app_user_id' => $appUser->id,
+    ]);
+
+    $this->assertDatabaseHas('app_users', [
+        'id' => $appUser->id,
+    ]);
+
+});
+
+it('fails to delete an app user that does not belong to the club', function (): void {
+    Club::factory()->createQuietly([
+        'club_user_id' => $this->loggedClubUser->id,
+    ]);
+
+    $otherClub = Club::factory()->createQuietly();
+    $appUser = AppUser::factory()->createQuietly();
+    $appUser->clubs()->attach($otherClub->id);
+
+    delete(action([AppUserController::class, 'destroy'], ['app_user' => $appUser]))
+        ->assertStatus(404)
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ['El recurso no se ha encontrado.'],
+        ]);
+
+    $this->assertDatabaseHas('app_user_club', [
+        'app_user_id' => $appUser->id,
+    ]);
+
+    $this->assertDatabaseHas('app_users', [
+        'id' => $appUser->id,
+    ]);
+});
+
+it('shows an app user belonging to the club', function (): void {
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->loggedClubUser->id,
+    ]);
+
+    $appUser = AppUser::factory()->createQuietly([
+        'name' => 'Laura',
+        'last_name' => 'Fernandez',
+        'phone_number' => '3415550200',
+        'birthday' => '1993-04-04',
+        'gender' => Gender::Other,
+    ]);
+
+    $club->appUsers()->attach($appUser->id);
+
+    get(action([AppUserController::class, 'show'], ['app_user' => $appUser]))
+        ->assertStatus(200)
+        ->assertExactJson([
+            'id' => $appUser->id,
+            'name' => 'Laura',
+            'last_name' => 'Fernandez',
+            'phone_number' => '3415550200',
+            'birthday' => '1993-04-04',
+            'gender' => Gender::Other->value,
+            'email' => $appUser->email,
+            'club_ids' => [$club->id],
+        ]);
+});
+
+
+it('fails to show an app user that does not belong to the club', function (): void {
+    Club::factory()->createQuietly([
+        'club_user_id' => $this->loggedClubUser->id,
+    ]);
+
+    $appUser = AppUser::factory()->createQuietly();
+    $otherClub = Club::factory()->createQuietly();
+    $appUser->clubs()->attach($otherClub->id);
+
+    get(action([AppUserController::class, 'show'], ['app_user' => $appUser]))
+        ->assertStatus(404)
+        ->assertExactJson([
+            'code' => 404,
+            'messages' => ['El recurso no se ha encontrado.'],
+        ]);
 });
