@@ -26,7 +26,6 @@ use Override;
  * @property-read string|null $remember_token
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
- * @property-read Collection<int, Club> $clubs
  */
 final class ClubUser extends Authenticatable implements MustVerifyEmail
 {
@@ -70,15 +69,5 @@ final class ClubUser extends Authenticatable implements MustVerifyEmail
     public function owns(Model $model, string $relation = 'clubUser'): bool
     {
         return $model->{$relation}()->is($this);
-    }
-
-    /**
-     * Get the clubs for the club user.
-     *
-     * @return HasMany<Club,$this>
-     */
-    public function clubs(): HasMany
-    {
-        return $this->hasMany(Club::class);
     }
 }

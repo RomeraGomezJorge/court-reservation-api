@@ -93,12 +93,4 @@ final class AppUser extends Authenticatable implements CanResetPassword, MustVer
     {
         return $this->belongsToMany(Club::class, 'app_user_club');
     }
-
-    /**
-     * Determine if the user owns the given model.
-     */
-    public function owns(Model $model, string $relation = 'appUser'): bool
-    {
-        return $model->{$relation}()->is($this);
-    }
 }
