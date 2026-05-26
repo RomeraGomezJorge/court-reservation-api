@@ -29,85 +29,7 @@ function validCourtPayload(array $overrides = []): array
     ], $overrides);
 }
 
-beforeEach(function (): void {
-    $this->clubUser = actingAsClubUser();
-});
-
-it('stores a court with default availability in true', function (): void {
-    $club = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
-    ]);
-
-    $payload = validCourtPayload([
-        'name' => 'Cancha Norte',
-    ]);
-
-    post(action([CourtController::class, 'store'], ['club' => $club]), $payload)
-        ->assertStatus(201);
-
-    $court = Court::query()->where('name', 'Cancha Norte')->firstOrFail();
-
-    $this->assertDatabaseHas('courts', [
-        'id' => $court->id,
-        'club_id' => $club->id,
-        'name' => 'Cancha Norte',
-        'is_available' => true,
-    ]);
-
-    $this->assertDatabaseHas('court_feature', [
-        'court_id' => $court->id,
-        'feature_id' => $payload['feature_ids'][0],
-    ]);
-
-    $this->assertDatabaseHas('court_feature', [
-        'court_id' => $court->id,
-        'feature_id' => $payload['feature_ids'][1],
-    ]);
-});
-
-it('stores a court with duplicated name in different clubs', function (): void {
-    $club = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
-    ]);
-
-    $otherClub = Club::factory()->createQuietly();
-
-    $sportType = SportType::factory()->createQuietly();
-
-    $court = Court::factory()->createQuietly([
-        'club_id' => $otherClub->id,
-        'sport_type_id' => $sportType->id,
-        'name' => 'Cancha Compartida',
-    ]);
-
-    post(action([CourtController::class, 'store'], ['club' => $club]), [
-        'name' => $court->name,
-        'description' => 'Descripcion',
-        'sport_type_id' => $sportType->id,
-        'feature_ids' => [],
-    ])->assertCreated();
-});
-
-it('fails to store a court with invalid payload', function (
-    array $payloadOverrides,
-    array $expectedMessages,
-): void {
-    $club = Club::factory()->createQuietly([
-        'club_user_id' => $this->clubUser->id,
-    ]);
-
-    $response = post(
-        action([CourtController::class, 'store'], ['club' => $club]),
-        validCourtPayload($payloadOverrides),
-    );
-
-    $response
-        ->assertStatus(422)
-        ->assertExactJson([
-            'code' => 422,
-            'messages' => $expectedMessages,
-        ]);
-})->with([
+dataset('invalid court payload', [
     'empty name' => [
         'payloadOverrides' => [
             'name' => '',
@@ -207,6 +129,86 @@ it('fails to store a court with invalid payload', function (
         ],
     ],
 ]);
+
+beforeEach(function (): void {
+    $this->clubUser = actingAsClubUser();
+});
+
+it('stores a court with default availability in true', function (): void {
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $payload = validCourtPayload([
+        'name' => 'Cancha Norte',
+    ]);
+
+    post(action([CourtController::class, 'store'], ['club' => $club]), $payload)
+        ->assertStatus(201);
+
+    $court = Court::query()->where('name', 'Cancha Norte')->firstOrFail();
+
+    $this->assertDatabaseHas('courts', [
+        'id' => $court->id,
+        'club_id' => $club->id,
+        'name' => 'Cancha Norte',
+        'is_available' => true,
+    ]);
+
+    $this->assertDatabaseHas('court_feature', [
+        'court_id' => $court->id,
+        'feature_id' => $payload['feature_ids'][0],
+    ]);
+
+    $this->assertDatabaseHas('court_feature', [
+        'court_id' => $court->id,
+        'feature_id' => $payload['feature_ids'][1],
+    ]);
+});
+
+it('stores a court with duplicated name in different clubs', function (): void {
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $otherClub = Club::factory()->createQuietly();
+
+    $sportType = SportType::factory()->createQuietly();
+
+    $court = Court::factory()->createQuietly([
+        'club_id' => $otherClub->id,
+        'sport_type_id' => $sportType->id,
+        'name' => 'Cancha Compartida',
+    ]);
+
+    post(action([CourtController::class, 'store'], ['club' => $club]), [
+        'name' => $court->name,
+        'description' => 'Descripcion',
+        'sport_type_id' => $sportType->id,
+        'feature_ids' => [],
+    ])->assertCreated();
+});
+
+it('fails to store a court with invalid payload', function (
+    array $payloadOverrides,
+    array $expectedMessages,
+): void {
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $this->clubUser->id,
+    ]);
+
+    $response = post(
+        action([CourtController::class, 'store'], ['club' => $club]),
+        validCourtPayload($payloadOverrides),
+    );
+
+    $response
+        ->assertStatus(422)
+        ->assertExactJson([
+            'code' => 422,
+            'messages' => $expectedMessages,
+        ]);
+})->with('invalid court payload');
 
 it('fails to store a court with duplicate feature_ids', function (): void {
     $club = Club::factory()->createQuietly([
@@ -529,106 +531,7 @@ it('fails to update a court with invalid payload', function (
             'code' => 422,
             'messages' => $expectedMessages,
         ]);
-})->with([
-    'empty name' => [
-        'payloadOverrides' => [
-            'name' => '',
-        ],
-        'expectedMessages' => [
-            'El campo nombre es obligatorio.',
-        ],
-    ],
-
-    'name exceeds max length' => [
-        'payloadOverrides' => [
-            'name' => str_repeat('a', 101),
-        ],
-        'expectedMessages' => [
-            'El campo nombre no debe ser mayor que 100 caracteres.',
-        ],
-    ],
-
-    'name must be string' => [
-        'payloadOverrides' => [
-            'name' => 123,
-        ],
-        'expectedMessages' => [
-            'El campo nombre debe ser una cadena de caracteres.',
-        ],
-    ],
-
-    'description exceeds max length' => [
-        'payloadOverrides' => [
-            'description' => str_repeat('a', 256),
-        ],
-        'expectedMessages' => [
-            'El campo descripción no debe ser mayor que 255 caracteres.',
-        ],
-    ],
-
-    'description must be string' => [
-        'payloadOverrides' => [
-            'description' => 123,
-        ],
-        'expectedMessages' => [
-            'El campo descripción debe ser una cadena de caracteres.',
-        ],
-    ],
-
-    'sport type is required' => [
-        'payloadOverrides' => [
-            'sport_type_id' => '',
-        ],
-        'expectedMessages' => [
-            'El campo tipo de deporte es obligatorio.',
-        ],
-    ],
-
-    'sport type must be integer' => [
-        'payloadOverrides' => [
-            'sport_type_id' => 'invalid',
-        ],
-        'expectedMessages' => [
-            'El campo tipo de deporte debe ser un número entero.',
-        ],
-    ],
-
-    'sport type does not exist' => [
-        'payloadOverrides' => [
-            'sport_type_id' => 9999,
-        ],
-        'expectedMessages' => [
-            'El campo tipo de deporte no existe.',
-        ],
-    ],
-
-    'feature ids must be array' => [
-        'payloadOverrides' => [
-            'feature_ids' => 'invalid',
-        ],
-        'expectedMessages' => [
-            'El campo características debe ser un conjunto.',
-        ],
-    ],
-
-    'feature id must be integer' => [
-        'payloadOverrides' => [
-            'feature_ids' => ['invalid'],
-        ],
-        'expectedMessages' => [
-            'La característica en la posición 1 debe ser un número.',
-        ],
-    ],
-
-    'feature id does not exist' => [
-        'payloadOverrides' => [
-            'feature_ids' => [9999],
-        ],
-        'expectedMessages' => [
-            'La característica en la posición 1 no existe.',
-        ],
-    ],
-]);
+})->with('invalid court payload');
 
 it('fails to update a court when the court does not belong to the club in route', function (): void {
     $ownedClub = Club::factory()->createQuietly([
