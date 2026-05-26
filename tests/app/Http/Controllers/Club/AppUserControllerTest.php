@@ -811,3 +811,29 @@ it('fails to show an app user that does not belong to the club', function (): vo
             'messages' => ['El recurso no se ha encontrado.'],
         ]);
 });
+
+it('skips app user club attachment validation when authenticated user has no clubs', function (): void {
+
+    $otherClubUser = ClubUser::factory()->createQuietly();
+    $club = Club::factory()->createQuietly([
+        'club_user_id' => $otherClubUser->id,
+    ]);
+
+    $appUser = AppUser::factory()->createQuietly();
+
+    $payload = validAppUserPayload(
+        overrides: [
+            'email' => $appUser->email,
+            'club_ids' => [$club->id],
+        ],
+    );
+
+    $this->loggedClubUser->clubs()->delete();
+
+    $response = post(action([AppUserController::class, 'store']), $payload);
+
+    $response->assertExactJson([
+        'code' => 422,
+        'messages' => ['Los siguientes clubes no pertenecen al usuario autenticado: '.$club->id.'.'],
+    ]);
+});
