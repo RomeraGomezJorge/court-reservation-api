@@ -96,6 +96,7 @@ final class ClubUserCreateOrAttachAppUserService
 
             $existingAppUser = AppUser::query()
                 ->where('email', $attributes['email'])
+                ->orWhere('phone_number', $attributes['phone_number'])
                 ->first();
 
             if (! $existingAppUser) {
