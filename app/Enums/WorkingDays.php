@@ -20,7 +20,7 @@ enum WorkingDays: string
      */
     public static function values(): array
     {
-        return collect(self::cases())->map(fn ($value) => $value->value)->all();
+        return collect(self::cases())->map(fn (WorkingDays $value) => $value->value)->all();
     }
 
     public function label(): string

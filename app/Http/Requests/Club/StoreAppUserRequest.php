@@ -84,7 +84,10 @@ final class StoreAppUserRequest extends FormRequest
     private function validateAppUserIsNotAlreadyAttachedToClub(Validator $validator): void
     {
         $appUserId = AppUser::query()
-            ->where('email', $this->email)
+            ->where(function ($query) {
+                $query->where('email', $this->email)
+                    ->orWhere('phone_number', $this->phone_number);
+            })
             ->value('id');
 
         if (! $appUserId) {

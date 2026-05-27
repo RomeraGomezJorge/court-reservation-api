@@ -508,12 +508,30 @@ it('fails to store an app user with duplicate club_ids', function (): void {
     Notification::assertNothingSent();
 });
 
-it('fails to store an app user when already attached to the club', function (): void {
+it('fails to store an app user when already attached to the club by its email', function (): void {
     $existingAppUser = AppUser::factory()->createQuietly();
     $existingAppUser->clubs()->attach($this->clubs[0]->id);
 
     $payload = validAppUserPayload(
         overrides: ['email' => $existingAppUser->email],
+    );
+
+    post(action([AppUserController::class, 'store']), $payload)
+        ->assertStatus(422)
+        ->assertExactJson([
+            'code' => 422,
+            'messages' => ['El usuario ya está asociado a uno de tus clubes.'],
+        ]);
+
+    Notification::assertNothingSent();
+});
+
+it('fails to store an app user when already attached to the club by its phone number', function (): void {
+    $existingAppUser = AppUser::factory()->createQuietly();
+    $existingAppUser->clubs()->attach($this->clubs[0]->id);
+
+    $payload = validAppUserPayload(
+        overrides: ['phone_number' => $existingAppUser->phone_number],
     );
 
     post(action([AppUserController::class, 'store']), $payload)
