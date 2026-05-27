@@ -90,6 +90,6 @@ final class AppUser extends Authenticatable implements CanResetPassword, MustVer
      */
     public function clubs(): BelongsToMany
     {
-        return $this->belongsToMany(Club::class, 'app_user_club');
+        return $this->belongsToMany(Club::class);
     }
 }
