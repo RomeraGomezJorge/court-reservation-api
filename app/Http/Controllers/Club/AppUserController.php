@@ -30,7 +30,9 @@ final class AppUserController
 
         $appUserIds = DB::table('app_user_club')
             ->whereIn('club_id', $clubIds)
+            ->distinct()
             ->pluck('app_user_id');
+        \Log::info('appUserIds',[$appUserIds]);
 
         $appUsers = AppUser::query()
             ->whereIn('id', $appUserIds)
