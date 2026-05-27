@@ -7,7 +7,7 @@ namespace App\Http\Requests\Club;
 use App\Enums\Gender;
 use App\Models\AppUser;
 use App\Models\Club;
-use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
