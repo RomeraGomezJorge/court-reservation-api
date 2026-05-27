@@ -31,10 +31,6 @@ function validAppUserPayload(array $overrides = []): array
     ], $overrides);
 }
 
-dataset('invalid app user payload', [
-
-]);
-
 beforeEach(function (): void {
     Notification::fake();
 
