@@ -627,7 +627,7 @@ it('stores new app user with club_ids owned by authenticated club user', functio
     );
 });
 
-it('attaches existing app user to clubs correctly and return exiting app user data', function (): void {
+it('attaches existing app user to clubs correctly and returns existing app user data', function (): void {
     $existingAppUser = AppUser::factory()->createQuietly();
 
     $payload = validAppUserPayload(
