@@ -687,7 +687,7 @@ it('attaches existing app user to multiple clubs correctly and return exiting ap
         'club_id' => [$this->clubs[0]->id,  $this->clubs[1]->id],
     ]);
 
-    // Check dont create a new app user
+    // Check don't create a new app user
     $this->assertDatabaseCount('app_users', 1);
 
     $this->assertDatabaseCount('app_user_club', 2);
