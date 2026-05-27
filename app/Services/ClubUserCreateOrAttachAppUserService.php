@@ -91,11 +91,19 @@ final class ClubUserCreateOrAttachAppUserService
                 throw $queryException;
             }
 
+            $existingAppUser = AppUser::query()
+                ->where('email', $attributes['email'])
+                ->first();
+
+            if (! $existingAppUser) {
+                throw $queryException;
+            }
+
             Log::warning('Duplicate app user creation avoided', [
                 'email' => $attributes['email'],
             ]);
 
-            return AppUser::query()->where('email', $attributes['email'])->firstOrFail();
+            return $existingAppUser;
         }
     }
 
