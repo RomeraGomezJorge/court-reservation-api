@@ -18,7 +18,6 @@ enum WorkingDays: string
     /**
      * @return array<int, string>
      */
-
     public static function values(): array
     {
         return collect(self::cases())->map(fn ($value) => $value->value)->all();
