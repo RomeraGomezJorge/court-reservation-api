@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
-use Illuminate\Validation\Rules\Unique;
 use Illuminate\Validation\Validator;
 
 /**
@@ -32,7 +31,7 @@ final class StoreAppUserRequest extends FormRequest
         return true;
     }
 
-    /** @return array<string, array<int, ValidationRule|string|Enum|Unique>> */
+    /** @return array<string, array<int, ValidationRule|string|Enum>> */
     public function rules(): array
     {
         return [
