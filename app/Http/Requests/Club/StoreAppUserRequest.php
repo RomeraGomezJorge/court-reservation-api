@@ -7,6 +7,7 @@ namespace App\Http\Requests\Club;
 use App\Enums\Gender;
 use App\Models\AppUser;
 use App\Models\Club;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -84,7 +85,7 @@ final class StoreAppUserRequest extends FormRequest
     private function validateAppUserIsNotAlreadyAttachedToClub(Validator $validator): void
     {
         $appUserId = AppUser::query()
-            ->where(function ($query) {
+            ->where(function (Builder $query): void {
                 $query->where('email', $this->email)
                     ->orWhere('phone_number', $this->phone_number);
             })

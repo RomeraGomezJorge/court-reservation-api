@@ -62,13 +62,15 @@ final class AppUserController
     /**
      * @throws Throwable
      */
-    public function store(StoreAppUserRequest $request, ClubUserCreateOrAttachAppUserService $appUserCreator): JsonResponse
-    {
+    public function store(
+        StoreAppUserRequest $request,
+        ClubUserCreateOrAttachAppUserService $appUserCreator,
+    ): JsonResponse {
         $appUser = $appUserCreator->handle(
             attributes: $request->validatedAttributes(),
         );
 
-        return new AppUserResource($appUser)
+        return new ShowAppUserResource($appUser)
             ->response()
             ->setStatusCode(201);
     }

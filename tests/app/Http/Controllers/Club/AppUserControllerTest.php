@@ -74,7 +74,7 @@ it('returns the app users related to the club without filters ordered by created
     $otherClub->appUsers()->attach($middleAppUser->id);
 
     get(
-        action([AppUserController::class, 'index'])
+        action([AppUserController::class, 'index']),
     )->assertJsonPath('data', [
         [
             'id' => $newestAppUser->id,
@@ -121,7 +121,7 @@ it('returns the app users filtered by name', function (): void {
     $otherClub->appUsers()->attach($thirdAppUser->id);
 
     get(
-        action([AppUserController::class, 'index'], ['name' => 'Car'])
+        action([AppUserController::class, 'index'], ['name' => 'Car']),
     )->assertJsonPath('data', [
         [
             'id' => $firstAppUser->id,
@@ -161,7 +161,7 @@ it('returns the app users filtered by email', function (): void {
     $otherClub->appUsers()->attach($thirdAppUser->id);
 
     get(
-        action([AppUserController::class, 'index'], ['email' => 'Car'])
+        action([AppUserController::class, 'index'], ['email' => 'Car']),
     )->assertJsonPath('data', [
         [
             'id' => $firstAppUser->id,
@@ -201,7 +201,7 @@ it('returns the app users filtered by last name', function (): void {
     $otherClub->appUsers()->attach($thirdAppUser->id);
 
     get(
-        action([AppUserController::class, 'index'], ['last_name' => 'Lo'])
+        action([AppUserController::class, 'index'], ['last_name' => 'Lo']),
     )->assertJsonPath('data', [
         [
             'id' => $firstAppUser->id,
@@ -241,7 +241,7 @@ it('returns the app users filtered by phone number', function (): void {
     $otherClub->appUsers()->attach($thirdAppUser->id);
 
     get(
-        action([AppUserController::class, 'index'], ['phone_number' => '341555100'])
+        action([AppUserController::class, 'index'], ['phone_number' => '341555100']),
     )->assertJsonPath('data', [
         [
             'id' => $firstAppUser->id,
@@ -490,7 +490,6 @@ it('fails to store an app user without club_ids field', function (): void {
 });
 
 it('fails to store an app user with duplicate club_ids', function (): void {
-
     $payload = validAppUserPayload(
         overrides: [
             'club_ids' => [$this->clubs[0]->id, $this->clubs[0]->id],
@@ -580,7 +579,6 @@ it('fails to store an app user with club_ids not owned by authenticated club use
         ]);
 
     Notification::assertNothingSent();
-
 });
 
 it('stores new app user with club_ids owned by authenticated club user', function (): void {
@@ -593,7 +591,16 @@ it('stores new app user with club_ids owned by authenticated club user', functio
     post(action([AppUserController::class, 'store']), [
         ...$payload,
     ])
-        ->assertStatus(201);
+        ->assertStatus(201)
+        ->assertJsonFragment([
+            'birthday' => $payload['birthday'],
+            'club_ids' => $payload['club_ids'],
+            'email' => $payload['email'],
+            'gender' => $payload['gender'],
+            'last_name' => $payload['last_name'],
+            'name' => $payload['name'],
+            'phone_number' => $payload['phone_number'],
+        ]);
 
     unset($payload['club_ids']);
     $this->assertDatabaseHas('app_users', [
@@ -618,10 +625,9 @@ it('stores new app user with club_ids owned by authenticated club user', functio
         notifiable: AppUser::query()->where('email', $payload['email'])->firstOrFail(),
         notification: ResetPasswordNotification::class,
     );
-
 });
 
-it('attaches existing app user to clubs correctly', function (): void {
+it('attaches existing app user to clubs correctly and return exiting app user data', function (): void {
     $existingAppUser = AppUser::factory()->createQuietly();
 
     $payload = validAppUserPayload(
@@ -629,7 +635,17 @@ it('attaches existing app user to clubs correctly', function (): void {
     );
 
     post(action([AppUserController::class, 'store']), $payload)
-        ->assertStatus(201);
+        ->assertStatus(201)
+        ->assertExactJson([
+            'birthday' => $existingAppUser->birthday->format('Y-m-d'),
+            'club_ids' => [$this->clubs[0]->id],
+            'email' => $existingAppUser->email,
+            'gender' => $existingAppUser->gender->value,
+            'id' => $existingAppUser->id,
+            'last_name' => $existingAppUser->last_name,
+            'name' => $existingAppUser->name,
+            'phone_number' => $existingAppUser->phone_number,
+        ]);
 
     $this->assertDatabaseHas('app_user_club', [
         'app_user_id' => $existingAppUser->id,
@@ -637,12 +653,13 @@ it('attaches existing app user to clubs correctly', function (): void {
     ]);
 
     // Check dont create a new app user
+    $this->assertDatabaseCount('app_users', 1);
     $this->assertDatabaseCount('app_user_club', 1);
 
     Notification::assertNothingSent();
 });
 
-it('attaches existing app user to multiple clubs correctly', function (): void {
+it('attaches existing app user to multiple clubs correctly and return exiting app user data', function (): void {
     $existingAppUser = AppUser::factory()->createQuietly();
 
     $payload = validAppUserPayload(
@@ -653,19 +670,26 @@ it('attaches existing app user to multiple clubs correctly', function (): void {
     );
 
     post(action([AppUserController::class, 'store']), $payload)
-        ->assertStatus(201);
+        ->assertStatus(201)
+        ->assertExactJson([
+            'birthday' => $existingAppUser->birthday->format('Y-m-d'),
+            'club_ids' => [$this->clubs[0]->id, $this->clubs[1]->id],
+            'email' => $existingAppUser->email,
+            'gender' => $existingAppUser->gender->value,
+            'id' => $existingAppUser->id,
+            'last_name' => $existingAppUser->last_name,
+            'name' => $existingAppUser->name,
+            'phone_number' => $existingAppUser->phone_number,
+        ]);
 
     $this->assertDatabaseHas('app_user_club', [
         'app_user_id' => $existingAppUser->id,
-        'club_id' => $this->clubs[0]->id,
-    ]);
-
-    $this->assertDatabaseHas('app_user_club', [
-        'app_user_id' => $existingAppUser->id,
-        'club_id' => $this->clubs[1]->id,
+        'club_id' => [$this->clubs[0]->id,  $this->clubs[1]->id],
     ]);
 
     // Check dont create a new app user
+    $this->assertDatabaseCount('app_users', 1);
+
     $this->assertDatabaseCount('app_user_club', 2);
 
     Notification::assertNothingSent();
@@ -751,7 +775,6 @@ it('detaches an app user from the club without deleting it', function (): void {
     $this->assertDatabaseHas('app_users', [
         'id' => $appUser->id,
     ]);
-
 });
 
 it('fails to delete an app user that does not belong to the club', function (): void {
@@ -826,7 +849,6 @@ it('fails to show an app user that does not belong to the club', function (): vo
 });
 
 it('skips app user club attachment validation when authenticated user has no clubs', function (): void {
-
     $otherClubUser = ClubUser::factory()->createQuietly();
     $club = Club::factory()->createQuietly([
         'club_user_id' => $otherClubUser->id,
