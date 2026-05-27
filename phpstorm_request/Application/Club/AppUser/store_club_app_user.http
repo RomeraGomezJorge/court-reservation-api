@@ -13,7 +13,8 @@ Accept: application/json
     "phone_number": "9876543229",
     "birthday": "2000-01-01",
     "gender": "male",
-    "email": "JuanpereZ192@example.com"
+    "email": "JuanpereZ192@example.com",
+    "club_ids": [1]
 }
 ### Another app user
 POST {{base_url}}/api/club/app-users
