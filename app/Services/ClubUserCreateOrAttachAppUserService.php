@@ -53,9 +53,11 @@ final class ClubUserCreateOrAttachAppUserService
 
             $appUser->clubs()->syncWithoutDetaching($attributes['club_ids']);
 
-            DB::afterCommit(function () use ($appUser): void {
-                Password::broker('app_users')->sendResetLink(['email' => $appUser->email]);
-            });
+            if ($appUser->wasRecentlyCreated) {
+                DB::afterCommit(function () use ($appUser): void {
+                    Password::broker('app_users')->sendResetLink(['email' => $appUser->email]);
+                });
+            }
 
             return $appUser;
         });
