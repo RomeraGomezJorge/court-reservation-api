@@ -36,7 +36,7 @@ final class IndexAppUserRequest extends FormRequest
             ],
             'sort_direction' => ['nullable', 'string', Rule::in(['asc', 'desc'])],
             'per_page' => ['integer', 'min:1', 'max:100'],
-            'page' => ['nullable','integer', 'min:1'],
+            'page' => ['nullable', 'integer', 'min:1'],
         ];
     }
 }
