@@ -727,7 +727,7 @@ it('reuses an existing app user when email already exists', function (): void {
     Notification::assertNothingSent();
 });
 
-it('properly handles postgres unique constraint violation during app user creation', function (): void {
+it('creates a new app user and attaches it to the club', function (): void {
     $email = 'postgres-race-'.time().'@example.com';
     $payload = validAppUserPayload(
         overrides: [
