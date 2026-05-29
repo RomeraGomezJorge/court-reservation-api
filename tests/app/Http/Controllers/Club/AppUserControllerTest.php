@@ -695,7 +695,7 @@ it('attaches existing app user to multiple clubs correctly and return exiting ap
     Notification::assertNothingSent();
 });
 
-it('recovers from race condition when app user creation hits unique constraint violation', function (): void {
+it('reuses an existing app user when email already exists', function (): void {
     // Pre-create the app user that will cause the race condition
     $existingAppUser = AppUser::factory()->createQuietly([
         'email' => 'race-condition@example.com',
