@@ -11,7 +11,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @mixin AppUser
  */
-final class AppUserResource extends JsonResource
+final class ShowAppUserResource extends JsonResource
 {
     public function __construct(AppUser $resource)
     {
@@ -30,7 +30,10 @@ final class AppUserResource extends JsonResource
             'name' => $this->name,
             'last_name' => $this->last_name,
             'phone_number' => $this->phone_number,
+            'birthday' => $this->birthday->format('Y-m-d'),
+            'gender' => $this->gender->value,
             'email' => $this->email,
+            'club_ids' => $this->clubs()->pluck('club_id'),
         ];
     }
 }

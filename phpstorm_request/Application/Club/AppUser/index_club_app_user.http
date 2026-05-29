@@ -1,44 +1,43 @@
 ### List AppUsers
-@club_id = 1
 
 ### Get all app users for a club
-GET {{base_url}}/api/club/clubs/{{club_id}}/app-users
+GET {{base_url}}/api/club/app-users
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 Accept: application/json
 
 ### Get app users filtered by name
-GET {{base_url}}/api/club/clubs/{{club_id}}/app-users?name=Juan
+GET {{base_url}}/api/club/app-users?name=Juan
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 Accept: application/json
 
 ### Get app users filtered by last_name
-GET {{base_url}}/api/club/clubs/{{club_id}}/app-users?last_name=Perez
+GET {{base_url}}/api/club/app-users?last_name=Perez
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 Accept: application/json
 
 ### Get app users filtered by email
-GET {{base_url}}/api/club/clubs/{{club_id}}/app-users?email=juan@example.com
+GET {{base_url}}/api/club/app-users?email=juanperez@example.com
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 Accept: application/json
 
 ### Get app users filtered by phone_number
-GET {{base_url}}/api/club/clubs/{{club_id}}/app-users?phone_number=341555
+GET {{base_url}}/api/club/app-users?phone_number=987654321
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 Accept: application/json
 
 ### Get app users with multiple filters
-GET {{base_url}}/api/club/clubs/{{club_id}}/app-users?name=Juan&last_name=Perez&phone_number=3415550000
+GET {{base_url}}/api/club/app-users?name=Juan&last_name=Perez&phone_number=987654321
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 Accept: application/json
 
 ### Get app users with pagination
-GET {{base_url}}/api/club/clubs/{{club_id}}/app-users?page=2
+GET {{base_url}}/api/club/app-users?page=2
 Authorization: Bearer {{token_club_user}}
 Content-Type: application/json
 Accept: application/json

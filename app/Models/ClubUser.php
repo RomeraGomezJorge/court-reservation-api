@@ -8,8 +8,10 @@ use Carbon\CarbonInterface;
 use Database\Factories\ClubUserFactory;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -24,6 +26,7 @@ use Override;
  * @property-read string|null $remember_token
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
+ * @property-read Collection<int, Club> $clubs
  */
 final class ClubUser extends Authenticatable implements MustVerifyEmail
 {
@@ -59,6 +62,16 @@ final class ClubUser extends Authenticatable implements MustVerifyEmail
             'updated_at' => 'datetime',
             'deleted_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the clubs for the club user.
+     *
+     * @return HasMany<Club,$this>
+     */
+    public function clubs(): HasMany
+    {
+        return $this->hasMany(Club::class);
     }
 
     /**

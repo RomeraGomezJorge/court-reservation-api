@@ -18,6 +18,14 @@ enum ClubServicesType: string
     case FirstAid = 'first_aid';
     case GroupClasses = 'group_classes';
 
+    /**
+     * @return array<int, string>
+     */
+    public static function values(): array
+    {
+        return collect(self::cases())->map(fn (ClubServicesType $value) => $value->value)->all();
+    }
+
     public function label(): string
     {
         return __('club-services-type.'.$this->value);

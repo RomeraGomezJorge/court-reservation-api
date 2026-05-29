@@ -13,7 +13,6 @@ use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -91,14 +90,6 @@ final class AppUser extends Authenticatable implements CanResetPassword, MustVer
      */
     public function clubs(): BelongsToMany
     {
-        return $this->belongsToMany(Club::class, 'app_user_club');
-    }
-
-    /**
-     * Determine if the user owns the given model.
-     */
-    public function owns(Model $model, string $relation = 'appUser'): bool
-    {
-        return $model->{$relation}()->is($this);
+        return $this->belongsToMany(Club::class);
     }
 }

@@ -142,14 +142,14 @@ dataset('invalid club payload data', [
     ],
     'working_days invalid enum day' => [
         'invalidData' => ['working_days' => [['day' => 'funday', 'opening_hour' => '09:00', 'closing_hour' => '01:00']]],
-        'expectedMessages' => ['El campo día no está en la lista de valores permitidos.'],
+        'expectedMessages' => ['El día en la posición 1 no está en la lista de valores permitidos.'],
     ],
     'working_days invalid opening hour format' => [
         'invalidData' => ['working_days' => [['day' => 'monday', 'opening_hour' => 'aa:bb', 'closing_hour' => 'aa:bb']]],
         'expectedMessages' => [
-            'El campo hora de apertura debe coincidir con el formato H:i.',
+            'La hora de apertura en la posición 1 debe tener el formato H:i.',
             'El formato de hora de lunes es inválido.',
-            'El campo hora de cierre debe coincidir con el formato H:i.',
+            'La hora de cierre en la posición 1 debe tener el formato H:i.',
 
         ],
     ],
@@ -159,7 +159,7 @@ dataset('invalid club payload data', [
     ],
     'working_days missing opening hour' => [
         'invalidData' => ['working_days' => [['day' => 'monday', 'closing_hour' => '01:00']]],
-        'expectedMessages' => ['El campo hora de apertura es obligatorio.'],
+        'expectedMessages' => ['La hora de apertura en la posición 1 es obligatoria.'],
     ],
     'working_days duplicate day' => [
         'invalidData' => [
@@ -169,19 +169,19 @@ dataset('invalid club payload data', [
             ],
         ],
         'expectedMessages' => [
-            'El campo día contiene un valor duplicado.',
-            'El campo día contiene un valor duplicado.',
+            'El día seleccionado en la posición 1 está duplicado.',
+            'El día seleccionado en la posición 2 está duplicado.',
         ],
     ],
     'services invalid enum value' => [
         'invalidData' => ['services' => ['invalid-service']],
-        'expectedMessages' => ['El campo servicio no está en la lista de valores permitidos.'],
+        'expectedMessages' => ['El servicio en la posición 1 no está en la lista de valores permitidos.'],
     ],
     'services duplicate value' => [
         'invalidData' => ['services' => ['wifi', 'wifi']],
         'expectedMessages' => [
-            'El campo servicio contiene un valor duplicado.',
-            'El campo servicio contiene un valor duplicado.',
+            'El servicio seleccionado en la posición 1 está duplicado.',
+            'El servicio seleccionado en la posición 2 está duplicado.',
         ],
     ],
 ]);

@@ -6,29 +6,35 @@ namespace App\Http\Controllers\Club;
 
 use App\Http\Requests\Club\IndexAppUserRequest;
 use App\Http\Requests\Club\StoreAppUserRequest;
-use App\Http\Requests\Club\UpdateAppUserRequest;
 use App\Http\Resources\Club\AppUserResource;
+use App\Http\Resources\Club\ShowAppUserResource;
 use App\Models\AppUser;
 use App\Models\Club;
+use App\Services\ClubUserCreateOrAttachAppUserService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 final class AppUserController
 {
-    public function index(IndexAppUserRequest $request, Club $club): AnonymousResourceCollection
+    public function index(IndexAppUserRequest $request): AnonymousResourceCollection
     {
-        Gate::authorize('view', $club);
+        $clubIds = Club::query()
+            ->where('club_user_id', Auth::id())
+            ->pluck('id');
 
-        $appUsers = $club->appUsers()
-            ->latest()
+        $appUserIds = DB::table('app_user_club')
+            ->whereIn('club_id', $clubIds)
+            ->distinct()
+            ->pluck('app_user_id');
+
+        $appUsers = AppUser::query()
+            ->whereIn('id', $appUserIds)
             ->when($request->validated('name'), function (Builder $query, string $name): void {
                 $query->whereLike('name', "%{$name}%");
             })
@@ -41,7 +47,14 @@ final class AppUserController
             ->when($request->validated('email'), function (Builder $query, string $email): void {
                 $query->whereLike('email', "%{$email}%");
             })
-            ->paginate();
+            ->orderBy(
+                column: $request->validated('sort_column', 'created_at'),
+                direction: $request->validated('sort_direction', 'desc')
+            )
+            ->paginate(
+                perPage: $request->validated('per_page', 15),
+                page: $request->validated('page'),
+            );
 
         return AppUserResource::collection($appUsers);
     }
@@ -49,58 +62,40 @@ final class AppUserController
     /**
      * @throws Throwable
      */
-    public function store(StoreAppUserRequest $request, Club $club): JsonResponse
-    {
-        Gate::authorize('create', [AppUser::class, $club]);
+    public function store(
+        StoreAppUserRequest $request,
+        ClubUserCreateOrAttachAppUserService $appUserCreator,
+    ): JsonResponse {
+        $appUser = $appUserCreator->handle(
+            attributes: $request->validatedAttributes(),
+        );
 
-        $appUser = DB::transaction(function () use ($request, $club): AppUser {
-            $appUser = AppUser::query()->create([
-                ...$request->validated(),
-                'password' => Hash::make(Str::password(32)),
-            ]);
-
-            $club->appUsers()->attach($appUser->id);
-
-            DB::afterCommit(function () use ($appUser): void {
-                Password::broker('app_users')->sendResetLink(['email' => $appUser->email]);
-            });
-
-            return $appUser;
-        });
-
-        return new AppUserResource($appUser)
+        return new ShowAppUserResource($appUser)
             ->response()
             ->setStatusCode(201);
     }
 
-    public function show(Club $club, AppUser $appUser): AppUserResource
+    public function show(AppUser $appUser): ShowAppUserResource
     {
-        Gate::authorize('view', [$appUser, $club]);
+        Gate::authorize('view', $appUser);
 
-        return new AppUserResource($appUser);
+        return new ShowAppUserResource($appUser);
     }
 
     /**
      * @throws Throwable
      */
-    public function update(UpdateAppUserRequest $request, Club $club, AppUser $appUser): AppUserResource
+    public function destroy(AppUser $appUser): Response
     {
-        Gate::authorize('update', [$appUser, $club]);
+        Gate::authorize('delete', $appUser);
 
-        $appUser->update($request->validated());
+        DB::transaction(function () use ($appUser): void {
 
-        return new AppUserResource($appUser->refresh());
-    }
+            $clubIds = Club::query()
+                ->where('club_user_id', Auth::id())
+                ->pluck('id');
 
-    /**
-     * @throws Throwable
-     */
-    public function destroy(Club $club, AppUser $appUser): Response
-    {
-        Gate::authorize('delete', [$appUser, $club]);
-
-        DB::transaction(function () use ($club, $appUser): void {
-            $club->appUsers()->detach($appUser->id);
+            $appUser->clubs()->detach($clubIds);
         });
 
         return new Response(status: 204);

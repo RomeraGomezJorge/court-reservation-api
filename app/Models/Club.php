@@ -152,6 +152,6 @@ final class Club extends Model
      */
     public function appUsers(): BelongsToMany
     {
-        return $this->belongsToMany(AppUser::class, 'app_user_club');
+        return $this->belongsToMany(AppUser::class);
     }
 }
