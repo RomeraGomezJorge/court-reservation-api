@@ -1,98 +1,274 @@
-- Blade (this project) version: **[github.com/nunomaduro/laravel-starter-kit](https://github.com/nunomaduro/laravel-starter-kit)**
-- Inertia & React version: **[github.com/nunomaduro/laravel-starter-kit-inertia-react](https://github.com/nunomaduro/laravel-starter-kit-inertia-react)**
-- Inertia & Vue version: **[github.com/nunomaduro/laravel-starter-kit-inertia-vue](https://github.com/nunomaduro/laravel-starter-kit-inertia-vue)**
+# ClubManager API
+
+![Laravel](https://img.shields.io/badge/laravel-323330.svg?style=for-the-badge&logo=laravel&logoColor=23FF2D20)
+![PHP](https://img.shields.io/badge/php-323330.svg?style=for-the-badge&logo=php&logoColor=23777BB4)
+![MySQL](https://img.shields.io/badge/mysql-323330.svg?style=for-the-badge&logo=mysql&logoColor=20BEFF)
+
+## Overview
+
+ClubManager API is a SaaS platform designed to manage sports clubs, courts, availability schedules and pricing rules.
+
+The platform provides a multi-role architecture that separates responsibilities between platform administrators, club administrators and end users, allowing sports organizations to manage their facilities through a centralized system.
+
+### Current Status
+
+🚧 Active Development
+
+Implemented modules focus on platform administration and club management. End-user reservation features are currently under development.
+
+---
+
+## Implemented Features
+
+### Authentication
+
+* User registration
+* Login
+* Email verification
+* Password recovery
+* Laravel Sanctum authentication
+
+### Platform Administration
+
+* Manage administrators
+* Manage sport types
+* Manage court features
+* Activate and deactivate resources
+
+### Club Administration
+
+* Manage clubs
+* Manage courts
+* Configure availability schedules
+* Configure pricing rules
+* Manage club users
+
+### Scheduling
+
+* Court availability management powered by Laravel Zap
+
+### Profile Management
+
+* View profile information
+* Account deletion
+
+---
+
+## System Roles
+
+### SaaS Administrator
+
+Responsible for:
+
+* Platform configuration
+* Administrator management
+* Sport type management
+* Court feature management
+
+### Club Administrator
+
+Responsible for:
+
+* Club management
+* Court management
+* Pricing management
+* Availability management
+* Club user management
+
+### Application User
+
+Under development.
+
+Future releases will include reservation management, booking history and player-oriented features.
+
+---
+
+## Architecture
+
+The project follows an API-first architecture with clear separation of responsibilities.
+
+### Architectural Principles
+
+* RESTful API Design
+* Service Layer Pattern
+* Thin Controllers
+* Request Validation through Form Requests
+* Policy Based Authorization
+* Resource Responses
+* Feature-Oriented Development
+* Automated Quality Enforcement
+
+### Application Structure
+
+* Controllers handle HTTP concerns only
+* Business logic is encapsulated in Services
+* Validation is handled by Form Requests
+* Authorization is handled through Policies
+* Responses are standardized using API Resources
+
+---
+
+## API Design
+
+The API follows REST principles and provides:
+
+* JSON responses
+* Consistent error handling
+* HTTP status code standards
+* Token authentication using Sanctum
+* Request validation
+* Resource serialization
+
+### Example Endpoints
+
+The project organizes API routes by domain prefixes mounted in `bootstrap/app.php`:
+
+* `/api/admin`  — SaaS administration
+* `/api/club`   — Club administration
+* `/api/app`    — Application (end) users
+
+Below are representative endpoints that match the current implementation and the HTTP examples under `phpstorm_request/`.
+
+Administration (SaaS admin)
+
+POST  /api/admin/login
+GET   /api/admin/profile
+GET   /api/admin/users
+PUT   /api/admin/users/{user}
+
+Club administration (club users)
+
+POST  /api/club/register
+POST  /api/club/login
+GET   /api/club/clubs
+POST  /api/club/clubs
+PUT   /api/club/clubs/{club}
+DELETE /api/club/clubs/{club}
+POST  /api/club/clubs/{club}/courts
+PATCH /api/club/clubs/{club}/courts/{court}/toggle-availability
+POST  /api/club/clubs/{club}/courts/{court}/price-rules
+GET   /api/club/clubs/{club}/courts/{court}/price-rules
+
+Application users
+
+POST  /api/app/register
+POST  /api/app/login
+
+Notes:
+- Many endpoints require Sanctum authentication and domain-specific middleware (e.g. `ensure_is_admin_user`, `ensure_is_club_user`).
+- Courts are nested under clubs (`/api/club/clubs/{club}/courts`) rather than exposed at a top-level `/api/courts` path.
+- The repo contains executable HTTP request examples under `phpstorm_request/Application/` that you can import into PHPStorm or run with compatible HTTP clients.
+
+---
+
+## Technology Stack
+
+### Backend
+
+* PHP 8.5
+* Laravel 12
+* Laravel Sanctum
+* MySQL
+
+### Scheduling
+
+* Laravel Zap
+
+### Development
+
+* Docker
+* Laravel Sail
+
+### Continuous Integration
+
+* GitHub Actions
+
+---
+
+## Quality Standards
+
+The project enforces multiple quality gates to maintain consistency and reliability.
+
+### Automated Quality Gates
+
+* Pest Test Suite
+* Architecture Tests
+* PHPStan / Larastan
+* Laravel Pint
+* Rector
+* Type Coverage Validation
+
+### Architecture Validation
+
+Architecture tests live under `tests/Architecture` and validate a set of conventions and static rules used by the project. Current tests include (non-exhaustive):
+
+- `RouteArchitectureTest.php` — route URI naming conventions (kebab-case)
+- `ModelArchitectureTest.php` — model naming, relationship naming, snake_case attributes, existence of `$fillable`, and prohibition of `scope*` methods
+- `FormRequestArchitectureTest.php` — FormRequest file naming and strict snake_case validation keys in `rules()`
+- `JsonResourceArchitectureTest.php` — resource naming and snake_case response attributes
+- `MigrationsStaticAnalysisTest.php`, `ConfigArchitectureTest.php`, `EnvironmentUsageTest.php`, `TranslationIntegrityTest.php`, `PestPresetTest.php` — various static checks for migrations, config, environment usage and translations
+
+These tests focus on naming, structure and static analysis. If you need stricter "layer boundary" or dependency restriction checks (for example enforcing that controllers never import services from certain namespaces), we should add explicit architecture tests for those rules — they are not fully enforced by the current suite.
+
+### Static Analysis
+
+Static analysis is executed on every Pull Request to detect:
+
+* Type issues
+* Dead code
+* Invalid dependencies
+* Potential runtime errors
+
+---
+
+## Testing Strategy
+
+The project includes automated testing for:
+
+* Feature Tests
+* Authentication Flows
+* Authorization Rules
+* Request Validation
+* API Endpoints
+* Architecture Constraints
+
+---
+
+## Continuous Integration
+
+Every Pull Request automatically executes:
+
+* Pest Tests
+* Architecture Tests
+* PHPStan
+* Type Coverage Validation
+* Laravel Pint
+* Rector
+
+Pull requests should pass all quality gates before being merged.
+
+---
 
 
-<p align="center">
-    <a href="https://youtu.be/VhzP0XWGTC4" target="_blank">
-        <img src="/art/banner.png" alt="Overview Laravel Starter Kit" style="width:70%;">
-    </a>
-</p>
+## Useful Commands
 
-<p>
-    <a href="https://github.com/nunomaduro/laravel-starter-kit/actions"><img src="https://github.com/nunomaduro/laravel-starter-kit/actions/workflows/tests.yml/badge.svg" alt="Build Status"></a>
-    <a href="https://packagist.org/packages/nunomaduro/laravel-starter-kit"><img src="https://img.shields.io/packagist/dt/nunomaduro/laravel-starter-kit" alt="Total Downloads"></a>
-    <a href="https://packagist.org/packages/nunomaduro/laravel-starter-kit"><img src="https://img.shields.io/packagist/v/nunomaduro/laravel-starter-kit" alt="Latest Stable Version"></a>
-    <a href="https://packagist.org/packages/nunomaduro/laravel-starter-kit"><img src="https://img.shields.io/packagist/l/nunomaduro/laravel-starter-kit" alt="License"></a>
-</p>
 
-**Laravel Starter Kit** is an ultra-strict, type-safe [Laravel](https://laravel.com) skeleton engineered for developers who refuse to compromise on code quality. This opinionated starter kit enforces rigorous development standards through meticulous tooling configuration and architectural decisions that prioritize type safety, immutability, and fail-fast principles.
-
-## Why This Starter Kit?
-
-Modern PHP has evolved into a mature, type-safe language, yet many Laravel projects still operate with loose conventions and optional typing. This starter kit changes that paradigm by enforcing:
-
-- **100% Type Coverage**: Every method, property, and parameter is explicitly typed
-- **Zero Tolerance for Code Smells**: Rector and PHPStan at maximum strictness catch issues before they become bugs
-- **Immutable-First Architecture**: Data structures favor immutability to prevent unexpected mutations
-- **Fail-Fast Philosophy**: Errors are caught at compile-time, not runtime
-- **Automated Code Quality**: Pre-configured tools ensure consistent, pristine code across your entire team
-- **Bun-Powered**: Leveraging Bun for blazing-fast dependency management...
-- **Just Better Laravel Defaults**: Thanks to **[Essentials](https://github.com/nunomaduro/essentials)** / strict models, auto eager loading, immutable dates, and more...
-
-This isn't just another Laravel boilerplate—it's a statement that PHP applications can and should be built with the same rigor as strongly-typed languages like Rust or TypeScript.
-
-## Getting Started
-
-> **Requires [PHP 8.4+](https://php.net/releases/)**, [Bun](https://bun.sh) and a code coverage driver like [xdebug](https://xdebug.org/docs/install)**.
-
-Create your type-safe Laravel application using [Composer](https://getcomposer.org):
-
-```bash
-composer create-project nunomaduro/laravel-starter-kit --prefer-dist example-app
-```
-
-### Initial Setup
-
-Navigate to your project and complete the setup:
-
-```bash
-cd example-app
-
-# Setup project
-composer setup
-
-# Start the development server
-composer dev
-```
-
-### Optional: Browser Testing Setup
-
-If you plan to use Pest's browser testing capabilities:
-
-```bash
-bun add playwright
-bunx playwright install
-```
-
-### Verify Installation
-
-Run the test suite to ensure everything is configured correctly:
+### Run Tests
 
 ```bash
 composer test
 ```
 
-You should see 100% test coverage and all quality checks passing.
+### Static Analysis
 
-## Available Tooling
+```bash
+composer test:types
+```
 
-### Development
-- `composer dev` - Starts Laravel server, queue worker, log monitoring, and Vite dev server concurrently
+### Code Formatting
 
-### Code Quality
-- `composer lint` - Runs Rector (refactoring), Pint (PHP formatting), and Prettier (JS/TS formatting)
-- `composer test:lint` - Dry-run mode for CI/CD pipelines
+```bash
+composer lint
+```
 
-### Testing
-- `composer test:type-coverage` - Ensures 100% type coverage with Pest
-- `composer test:types` - Runs PHPStan at level 9 (maximum strictness)
-- `composer test:unit` - Runs Pest tests with 100% code coverage requirement
-- `composer test` - Runs the complete test suite (type coverage, unit tests, linting, static analysis)
-
-### Maintenance
-- `composer update:requirements` - Updates all PHP and Bun dependencies to latest versions
-
-## License
-
-**Laravel Starter Kit** was created by **[Nuno Maduro](https://x.com/enunomaduro)** under the **[MIT license](https://opensource.org/licenses/MIT)**.
+---
