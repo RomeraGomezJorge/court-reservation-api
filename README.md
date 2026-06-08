@@ -1,12 +1,8 @@
 # ClubManager API
 
-![Laravel](https://img.shields.io/badge/laravel-%23FF2D20.svg?style=for-the-badge\&logo=laravel\&logoColor=white)
-![PHP](https://img.shields.io/badge/php-%23777BB4.svg?style=for-the-badge\&logo=php\&logoColor=white)
-![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge\&logo=mysql\&logoColor=white)
-![Laravel Sanctum](https://img.shields.io/badge/Sanctum-Authentication-red?style=for-the-badge)
-![Pest](https://img.shields.io/badge/Pest-Testing-green?style=for-the-badge)
-![Laravel Sail](https://img.shields.io/badge/Laravel-Sail-blue?style=for-the-badge)
-![GitHub Actions](https://img.shields.io/badge/GitHub-Actions-black?style=for-the-badge)
+![Laravel](https://img.shields.io/badge/laravel-323330.svg?style=for-the-badge&logo=laravel&logoColor=23FF2D20)
+![PHP](https://img.shields.io/badge/php-323330.svg?style=for-the-badge&logo=php&logoColor=23777BB4)
+![MySQL](https://img.shields.io/badge/mysql-323330.svg?style=for-the-badge&logo=mysql&logoColor=20BEFF)
 
 ## Overview
 
@@ -19,20 +15,6 @@ The platform provides a multi-role architecture that separates responsibilities 
 🚧 Active Development
 
 Implemented modules focus on platform administration and club management. End-user reservation features are currently under development.
-
----
-
-## Domain Overview
-
-Platform
-├── Sport Types
-├── Court Features
-├── Clubs
-│   ├── Courts
-│   ├── Availability Rules
-│   ├── Pricing Rules
-│   └── Club Users
-└── Reservations (Planned)
 
 ---
 
@@ -139,28 +121,43 @@ The API follows REST principles and provides:
 
 ### Example Endpoints
 
-Authentication
+The project organizes API routes by domain prefixes mounted in `bootstrap/app.php`:
 
-POST /api/auth/register
-POST /api/auth/login
-POST /api/auth/logout
+* `/api/admin`  — SaaS administration
+* `/api/club`   — Club administration
+* `/api/app`    — Application (end) users
 
-Clubs
+Below are representative endpoints that match the current implementation and the HTTP examples under `phpstorm_request/`.
 
-GET /api/clubs
-POST /api/clubs
-PUT /api/clubs/{id}
-DELETE /api/clubs/{id}
+Administration (SaaS admin)
 
-Courts
+POST  /api/admin/login
+GET   /api/admin/profile
+GET   /api/admin/users
+PUT   /api/admin/users/{user}
 
-GET /api/courts
-POST /api/courts
+Club administration (club users)
 
-Availability
+POST  /api/club/register
+POST  /api/club/login
+GET   /api/club/clubs
+POST  /api/club/clubs
+PUT   /api/club/clubs/{club}
+DELETE /api/club/clubs/{club}
+POST  /api/club/clubs/{club}/courts
+PATCH /api/club/clubs/{club}/courts/{court}/toggle-availability
+POST  /api/club/clubs/{club}/courts/{court}/price-rules
+GET   /api/club/clubs/{club}/courts/{court}/price-rules
 
-GET /api/availabilities
-POST /api/availabilities
+Application users
+
+POST  /api/app/register
+POST  /api/app/login
+
+Notes:
+- Many endpoints require Sanctum authentication and domain-specific middleware (e.g. `ensure_is_admin_user`, `ensure_is_club_user`).
+- Courts are nested under clubs (`/api/club/clubs/{club}/courts`) rather than exposed at a top-level `/api/courts` path.
+- The repo contains executable HTTP request examples under `phpstorm_request/Application/` that you can import into PHPStorm or run with compatible HTTP clients.
 
 ---
 
@@ -203,12 +200,15 @@ The project enforces multiple quality gates to maintain consistency and reliabil
 
 ### Architecture Validation
 
-Architecture tests enforce:
+Architecture tests live under `tests/Architecture` and validate a set of conventions and static rules used by the project. Current tests include (non-exhaustive):
 
-* Layer boundaries
-* Dependency restrictions
-* Naming conventions
-* Framework usage rules
+- `RouteArchitectureTest.php` — route URI naming conventions (kebab-case)
+- `ModelArchitectureTest.php` — model naming, relationship naming, snake_case attributes, existence of `$fillable`, and prohibition of `scope*` methods
+- `FormRequestArchitectureTest.php` — FormRequest file naming and strict snake_case validation keys in `rules()`
+- `JsonResourceArchitectureTest.php` — resource naming and snake_case response attributes
+- `MigrationsStaticAnalysisTest.php`, `ConfigArchitectureTest.php`, `EnvironmentUsageTest.php`, `TranslationIntegrityTest.php`, `PestPresetTest.php` — various static checks for migrations, config, environment usage and translations
+
+These tests focus on naming, structure and static analysis. If you need stricter "layer boundary" or dependency restriction checks (for example enforcing that controllers never import services from certain namespaces), we should add explicit architecture tests for those rules — they are not fully enforced by the current suite.
 
 ### Static Analysis
 
@@ -232,10 +232,6 @@ The project includes automated testing for:
 * API Endpoints
 * Architecture Constraints
 
-Example:
-
-./vendor/bin/pest
-
 ---
 
 ## Continuous Integration
@@ -253,54 +249,9 @@ Pull requests should pass all quality gates before being merged.
 
 ---
 
-## Installation
-
-### Clone Repository
-
-```bash
-git clone <repository-url>
-cd club-manager
-```
-
-### Environment Configuration
-
-```bash
-cp .env.example .env
-```
-
-### Install Dependencies
-
-```bash
-composer install
-```
-
-### Start Containers
-
-```bash
-./vendor/bin/sail up -d
-```
-
-### Generate Application Key
-
-```bash
-./vendor/bin/sail artisan key:generate
-```
-
-### Run Database Migrations
-
-```bash
-./vendor/bin/sail artisan migrate:fresh --seed
-```
-
----
 
 ## Useful Commands
 
-### Development Environment
-
-```bash
-composer dev
-```
 
 ### Run Tests
 
@@ -321,26 +272,3 @@ composer lint
 ```
 
 ---
-
-## Roadmap
-
-### In Progress
-
-* Application User Module
-* Reservation Workflow
-
-### Planned
-
-* Court Reservations
-* Booking Management
-* Reservation History
-* Notifications
-* Analytics Dashboard
-* Advanced Pricing Rules
-* Advanced Availability Rules
-
----
-
-## License
-
-MIT
