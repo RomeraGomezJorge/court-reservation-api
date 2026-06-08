@@ -4,7 +4,7 @@
 ![PHP](https://img.shields.io/badge/php-323330.svg?style=for-the-badge&logo=php&logoColor=23777BB4)
 ![MySQL](https://img.shields.io/badge/mysql-323330.svg?style=for-the-badge&logo=mysql&logoColor=20BEFF)
 
-## Overview
+## 📖 Overview
 
 ClubManager API is a SaaS platform designed to manage sports clubs, courts, availability schedules and pricing rules.
 
@@ -18,9 +18,9 @@ Implemented modules focus on platform administration and club management. End-us
 
 ---
 
-## Implemented Features
+## ✨ Implemented Features
 
-### Authentication
+###  Authentication
 
 * User registration
 * Login
@@ -54,7 +54,7 @@ Implemented modules focus on platform administration and club management. End-us
 
 ---
 
-## System Roles
+## 👥  System Roles
 
 ### SaaS Administrator
 
@@ -83,7 +83,7 @@ Future releases will include reservation management, booking history and player-
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 The project follows an API-first architecture with clear separation of responsibilities.
 
@@ -108,7 +108,7 @@ The project follows an API-first architecture with clear separation of responsib
 
 ---
 
-## API Design
+## 🌐 API Design
 
 The API follows REST principles and provides:
 
@@ -130,29 +130,31 @@ The project organizes API routes by domain prefixes mounted in `bootstrap/app.ph
 Below are representative endpoints that match the current implementation and the HTTP examples under `phpstorm_request/`.
 
 Administration (SaaS admin)
-
+```text
 POST  /api/admin/login
 GET   /api/admin/profile
 GET   /api/admin/users
 PUT   /api/admin/users/{user}
+```
 
 Club administration (club users)
-
-POST  /api/club/register
-POST  /api/club/login
-GET   /api/club/clubs
-POST  /api/club/clubs
-PUT   /api/club/clubs/{club}
-DELETE /api/club/clubs/{club}
-POST  /api/club/clubs/{club}/courts
-PATCH /api/club/clubs/{club}/courts/{court}/toggle-availability
-POST  /api/club/clubs/{club}/courts/{court}/price-rules
-GET   /api/club/clubs/{club}/courts/{court}/price-rules
-
+```text
+POST    /api/club/register
+POST    /api/club/login
+GET     /api/club/clubs
+POST    /api/club/clubs
+PUT     /api/club/clubs/{club}
+DELETE  /api/club/clubs/{club}
+POST    /api/club/clubs/{club}/courts
+PATCH   /api/club/clubs/{club}/courts/{court}/toggle-availability
+POST    /api/club/clubs/{club}/courts/{court}/price-rules
+GET     /api/club/clubs/{club}/courts/{court}/price-rules
+```
 Application users
-
+```text
 POST  /api/app/register
 POST  /api/app/login
+```
 
 Notes:
 - Many endpoints require Sanctum authentication and domain-specific middleware (e.g. `ensure_is_admin_user`, `ensure_is_club_user`).
@@ -161,7 +163,7 @@ Notes:
 
 ---
 
-## Technology Stack
+## ⚙️ Technology Stack
 
 ### Backend
 
@@ -185,7 +187,7 @@ Notes:
 
 ---
 
-## Quality Standards
+## ✅ Quality Standards
 
 The project enforces multiple quality gates to maintain consistency and reliability.
 
@@ -221,7 +223,7 @@ Static analysis is executed on every Pull Request to detect:
 
 ---
 
-## Testing Strategy
+## 🧪 Testing Strategy
 
 The project includes automated testing for:
 
@@ -234,7 +236,7 @@ The project includes automated testing for:
 
 ---
 
-## Continuous Integration
+## 🚀 Continuous Integration
 
 Every Pull Request automatically executes:
 
@@ -250,25 +252,25 @@ Pull requests should pass all quality gates before being merged.
 ---
 
 
-## Useful Commands
+## 🛠️  Useful Commands
 
 
 ### Run Tests
 
 ```bash
-composer test
+composer run test
 ```
 
 ### Static Analysis
 
 ```bash
-composer test:types
+composer run test:types
 ```
 
 ### Code Formatting
 
 ```bash
-composer lint
+composer run lint
 ```
 
 ---
