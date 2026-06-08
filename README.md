@@ -1,98 +1,346 @@
-- Blade (this project) version: **[github.com/nunomaduro/laravel-starter-kit](https://github.com/nunomaduro/laravel-starter-kit)**
-- Inertia & React version: **[github.com/nunomaduro/laravel-starter-kit-inertia-react](https://github.com/nunomaduro/laravel-starter-kit-inertia-react)**
-- Inertia & Vue version: **[github.com/nunomaduro/laravel-starter-kit-inertia-vue](https://github.com/nunomaduro/laravel-starter-kit-inertia-vue)**
+# ClubManager API
 
+![Laravel](https://img.shields.io/badge/laravel-%23FF2D20.svg?style=for-the-badge\&logo=laravel\&logoColor=white)
+![PHP](https://img.shields.io/badge/php-%23777BB4.svg?style=for-the-badge\&logo=php\&logoColor=white)
+![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge\&logo=mysql\&logoColor=white)
+![Laravel Sanctum](https://img.shields.io/badge/Sanctum-Authentication-red?style=for-the-badge)
+![Pest](https://img.shields.io/badge/Pest-Testing-green?style=for-the-badge)
+![Laravel Sail](https://img.shields.io/badge/Laravel-Sail-blue?style=for-the-badge)
+![GitHub Actions](https://img.shields.io/badge/GitHub-Actions-black?style=for-the-badge)
 
-<p align="center">
-    <a href="https://youtu.be/VhzP0XWGTC4" target="_blank">
-        <img src="/art/banner.png" alt="Overview Laravel Starter Kit" style="width:70%;">
-    </a>
-</p>
+## Overview
 
-<p>
-    <a href="https://github.com/nunomaduro/laravel-starter-kit/actions"><img src="https://github.com/nunomaduro/laravel-starter-kit/actions/workflows/tests.yml/badge.svg" alt="Build Status"></a>
-    <a href="https://packagist.org/packages/nunomaduro/laravel-starter-kit"><img src="https://img.shields.io/packagist/dt/nunomaduro/laravel-starter-kit" alt="Total Downloads"></a>
-    <a href="https://packagist.org/packages/nunomaduro/laravel-starter-kit"><img src="https://img.shields.io/packagist/v/nunomaduro/laravel-starter-kit" alt="Latest Stable Version"></a>
-    <a href="https://packagist.org/packages/nunomaduro/laravel-starter-kit"><img src="https://img.shields.io/packagist/l/nunomaduro/laravel-starter-kit" alt="License"></a>
-</p>
+ClubManager API is a SaaS platform designed to manage sports clubs, courts, availability schedules and pricing rules.
 
-**Laravel Starter Kit** is an ultra-strict, type-safe [Laravel](https://laravel.com) skeleton engineered for developers who refuse to compromise on code quality. This opinionated starter kit enforces rigorous development standards through meticulous tooling configuration and architectural decisions that prioritize type safety, immutability, and fail-fast principles.
+The platform provides a multi-role architecture that separates responsibilities between platform administrators, club administrators and end users, allowing sports organizations to manage their facilities through a centralized system.
 
-## Why This Starter Kit?
+### Current Status
 
-Modern PHP has evolved into a mature, type-safe language, yet many Laravel projects still operate with loose conventions and optional typing. This starter kit changes that paradigm by enforcing:
+🚧 Active Development
 
-- **100% Type Coverage**: Every method, property, and parameter is explicitly typed
-- **Zero Tolerance for Code Smells**: Rector and PHPStan at maximum strictness catch issues before they become bugs
-- **Immutable-First Architecture**: Data structures favor immutability to prevent unexpected mutations
-- **Fail-Fast Philosophy**: Errors are caught at compile-time, not runtime
-- **Automated Code Quality**: Pre-configured tools ensure consistent, pristine code across your entire team
-- **Bun-Powered**: Leveraging Bun for blazing-fast dependency management...
-- **Just Better Laravel Defaults**: Thanks to **[Essentials](https://github.com/nunomaduro/essentials)** / strict models, auto eager loading, immutable dates, and more...
+Implemented modules focus on platform administration and club management. End-user reservation features are currently under development.
 
-This isn't just another Laravel boilerplate—it's a statement that PHP applications can and should be built with the same rigor as strongly-typed languages like Rust or TypeScript.
+---
 
-## Getting Started
+## Domain Overview
 
-> **Requires [PHP 8.4+](https://php.net/releases/)**, [Bun](https://bun.sh) and a code coverage driver like [xdebug](https://xdebug.org/docs/install)**.
+Platform
+├── Sport Types
+├── Court Features
+├── Clubs
+│   ├── Courts
+│   ├── Availability Rules
+│   ├── Pricing Rules
+│   └── Club Users
+└── Reservations (Planned)
 
-Create your type-safe Laravel application using [Composer](https://getcomposer.org):
+---
+
+## Implemented Features
+
+### Authentication
+
+* User registration
+* Login
+* Email verification
+* Password recovery
+* Laravel Sanctum authentication
+
+### Platform Administration
+
+* Manage administrators
+* Manage sport types
+* Manage court features
+* Activate and deactivate resources
+
+### Club Administration
+
+* Manage clubs
+* Manage courts
+* Configure availability schedules
+* Configure pricing rules
+* Manage club users
+
+### Scheduling
+
+* Court availability management powered by Laravel Zap
+
+### Profile Management
+
+* View profile information
+* Account deletion
+
+---
+
+## System Roles
+
+### SaaS Administrator
+
+Responsible for:
+
+* Platform configuration
+* Administrator management
+* Sport type management
+* Court feature management
+
+### Club Administrator
+
+Responsible for:
+
+* Club management
+* Court management
+* Pricing management
+* Availability management
+* Club user management
+
+### Application User
+
+Under development.
+
+Future releases will include reservation management, booking history and player-oriented features.
+
+---
+
+## Architecture
+
+The project follows an API-first architecture with clear separation of responsibilities.
+
+### Architectural Principles
+
+* RESTful API Design
+* Service Layer Pattern
+* Thin Controllers
+* Request Validation through Form Requests
+* Policy Based Authorization
+* Resource Responses
+* Feature-Oriented Development
+* Automated Quality Enforcement
+
+### Application Structure
+
+* Controllers handle HTTP concerns only
+* Business logic is encapsulated in Services
+* Validation is handled by Form Requests
+* Authorization is handled through Policies
+* Responses are standardized using API Resources
+
+---
+
+## API Design
+
+The API follows REST principles and provides:
+
+* JSON responses
+* Consistent error handling
+* HTTP status code standards
+* Token authentication using Sanctum
+* Request validation
+* Resource serialization
+
+### Example Endpoints
+
+Authentication
+
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+
+Clubs
+
+GET /api/clubs
+POST /api/clubs
+PUT /api/clubs/{id}
+DELETE /api/clubs/{id}
+
+Courts
+
+GET /api/courts
+POST /api/courts
+
+Availability
+
+GET /api/availabilities
+POST /api/availabilities
+
+---
+
+## Technology Stack
+
+### Backend
+
+* PHP 8.5
+* Laravel 12
+* Laravel Sanctum
+* MySQL
+
+### Scheduling
+
+* Laravel Zap
+
+### Development
+
+* Docker
+* Laravel Sail
+
+### Continuous Integration
+
+* GitHub Actions
+
+---
+
+## Quality Standards
+
+The project enforces multiple quality gates to maintain consistency and reliability.
+
+### Automated Quality Gates
+
+* Pest Test Suite
+* Architecture Tests
+* PHPStan / Larastan
+* Laravel Pint
+* Rector
+* Type Coverage Validation
+
+### Architecture Validation
+
+Architecture tests enforce:
+
+* Layer boundaries
+* Dependency restrictions
+* Naming conventions
+* Framework usage rules
+
+### Static Analysis
+
+Static analysis is executed on every Pull Request to detect:
+
+* Type issues
+* Dead code
+* Invalid dependencies
+* Potential runtime errors
+
+---
+
+## Testing Strategy
+
+The project includes automated testing for:
+
+* Feature Tests
+* Authentication Flows
+* Authorization Rules
+* Request Validation
+* API Endpoints
+* Architecture Constraints
+
+Example:
+
+./vendor/bin/pest
+
+---
+
+## Continuous Integration
+
+Every Pull Request automatically executes:
+
+* Pest Tests
+* Architecture Tests
+* PHPStan
+* Type Coverage Validation
+* Laravel Pint
+* Rector
+
+Pull requests should pass all quality gates before being merged.
+
+---
+
+## Installation
+
+### Clone Repository
 
 ```bash
-composer create-project nunomaduro/laravel-starter-kit --prefer-dist example-app
+git clone <repository-url>
+cd club-manager
 ```
 
-### Initial Setup
-
-Navigate to your project and complete the setup:
+### Environment Configuration
 
 ```bash
-cd example-app
+cp .env.example .env
+```
 
-# Setup project
-composer setup
+### Install Dependencies
 
-# Start the development server
+```bash
+composer install
+```
+
+### Start Containers
+
+```bash
+./vendor/bin/sail up -d
+```
+
+### Generate Application Key
+
+```bash
+./vendor/bin/sail artisan key:generate
+```
+
+### Run Database Migrations
+
+```bash
+./vendor/bin/sail artisan migrate:fresh --seed
+```
+
+---
+
+## Useful Commands
+
+### Development Environment
+
+```bash
 composer dev
 ```
 
-### Optional: Browser Testing Setup
-
-If you plan to use Pest's browser testing capabilities:
-
-```bash
-bun add playwright
-bunx playwright install
-```
-
-### Verify Installation
-
-Run the test suite to ensure everything is configured correctly:
+### Run Tests
 
 ```bash
 composer test
 ```
 
-You should see 100% test coverage and all quality checks passing.
+### Static Analysis
 
-## Available Tooling
+```bash
+composer test:types
+```
 
-### Development
-- `composer dev` - Starts Laravel server, queue worker, log monitoring, and Vite dev server concurrently
+### Code Formatting
 
-### Code Quality
-- `composer lint` - Runs Rector (refactoring), Pint (PHP formatting), and Prettier (JS/TS formatting)
-- `composer test:lint` - Dry-run mode for CI/CD pipelines
+```bash
+composer lint
+```
 
-### Testing
-- `composer test:type-coverage` - Ensures 100% type coverage with Pest
-- `composer test:types` - Runs PHPStan at level 9 (maximum strictness)
-- `composer test:unit` - Runs Pest tests with 100% code coverage requirement
-- `composer test` - Runs the complete test suite (type coverage, unit tests, linting, static analysis)
+---
 
-### Maintenance
-- `composer update:requirements` - Updates all PHP and Bun dependencies to latest versions
+## Roadmap
+
+### In Progress
+
+* Application User Module
+* Reservation Workflow
+
+### Planned
+
+* Court Reservations
+* Booking Management
+* Reservation History
+* Notifications
+* Analytics Dashboard
+* Advanced Pricing Rules
+* Advanced Availability Rules
+
+---
 
 ## License
 
-**Laravel Starter Kit** was created by **[Nuno Maduro](https://x.com/enunomaduro)** under the **[MIT license](https://opensource.org/licenses/MIT)**.
+MIT
